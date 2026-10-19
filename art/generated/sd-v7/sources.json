@@ -1,0 +1,12 @@
+{
+  "idle": "702154d1-2111-4d86-8e47-4a0f34e87034",
+  "move": "2f64c71b-d45a-45be-b74d-c1eb06bce852",
+  "attack": "f105bf98-e632-43d7-a7c9-d6bdf706f515",
+  "defense": "b0d599e2-700a-47d7-be01-1a791dd87572",
+  "reaction": "53c6208a-7868-4d73-ab6c-660ddfc62614",
+  "stop": "0c0c9f98-6202-4955-b718-231b74e6abf7",
+  "grunt": "ceedc327-6070-4c6c-ac96-5f8f10698c98",
+  "rusher": "9ccd7f34-3756-4645-8ceb-38442c9d1f25",
+  "guard": "e4d63f39-ec5a-45ab-92c0-1bea1fd7a61b",
+  "boss": "a7f94d13-5991-427c-b7fc-28b7943c3f33"
+}

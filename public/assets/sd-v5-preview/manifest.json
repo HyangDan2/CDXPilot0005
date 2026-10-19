@@ -1,0 +1,138 @@
+{
+  "size": 512,
+  "origin": [
+    320,
+    440
+  ],
+  "fps": 10,
+  "frames": [
+    {
+      "frame": 0,
+      "sourceBounds": {
+        "id": 4,
+        "count": 71257,
+        "left": 27,
+        "top": 31,
+        "right": 367,
+        "bottom": 481
+      },
+      "sourceRoot": [
+        280,
+        482
+      ],
+      "scale": 0.8
+    },
+    {
+      "frame": 1,
+      "sourceBounds": {
+        "id": 3,
+        "count": 70110,
+        "left": 391,
+        "top": 30,
+        "right": 712,
+        "bottom": 480
+      },
+      "sourceRoot": [
+        640,
+        482
+      ],
+      "scale": 0.8
+    },
+    {
+      "frame": 2,
+      "sourceBounds": {
+        "id": 1,
+        "count": 70681,
+        "left": 749,
+        "top": 29,
+        "right": 1073,
+        "bottom": 481
+      },
+      "sourceRoot": [
+        1000,
+        482
+      ],
+      "scale": 0.8
+    },
+    {
+      "frame": 3,
+      "sourceBounds": {
+        "id": 2,
+        "count": 71545,
+        "left": 1122,
+        "top": 29,
+        "right": 1491,
+        "bottom": 482
+      },
+      "sourceRoot": [
+        1380,
+        482
+      ],
+      "scale": 0.8
+    },
+    {
+      "frame": 4,
+      "sourceBounds": {
+        "id": 7,
+        "count": 72975,
+        "left": 20,
+        "top": 519,
+        "right": 357,
+        "bottom": 973
+      },
+      "sourceRoot": [
+        275,
+        976
+      ],
+      "scale": 0.8
+    },
+    {
+      "frame": 5,
+      "sourceBounds": {
+        "id": 5,
+        "count": 70019,
+        "left": 384,
+        "top": 518,
+        "right": 715,
+        "bottom": 972
+      },
+      "sourceRoot": [
+        635,
+        976
+      ],
+      "scale": 0.8
+    },
+    {
+      "frame": 6,
+      "sourceBounds": {
+        "id": 6,
+        "count": 72997,
+        "left": 744,
+        "top": 518,
+        "right": 1076,
+        "bottom": 975
+      },
+      "sourceRoot": [
+        1000,
+        976
+      ],
+      "scale": 0.8
+    },
+    {
+      "frame": 7,
+      "sourceBounds": {
+        "id": 8,
+        "count": 73222,
+        "left": 1120,
+        "top": 519,
+        "right": 1477,
+        "bottom": 976
+      },
+      "sourceRoot": [
+        1380,
+        976
+      ],
+      "scale": 0.8
+    }
+  ]
+}

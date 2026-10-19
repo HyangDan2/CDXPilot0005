@@ -1,0 +1,106 @@
+{
+  "size": 560,
+  "origin": [
+    260,
+    530
+  ],
+  "fps": 5,
+  "sequence": [
+    0,
+    1,
+    5,
+    4,
+    3,
+    2,
+    3,
+    4,
+    5,
+    1
+  ],
+  "frames": [
+    {
+      "sourceBounds": {
+        "id": 1,
+        "count": 85514,
+        "left": 58,
+        "top": 10,
+        "right": 504,
+        "bottom": 510
+      },
+      "anchor": [
+        262,
+        510
+      ]
+    },
+    {
+      "sourceBounds": {
+        "id": 2,
+        "count": 85700,
+        "left": 546,
+        "top": 10,
+        "right": 982,
+        "bottom": 510
+      },
+      "anchor": [
+        741,
+        510
+      ]
+    },
+    {
+      "sourceBounds": {
+        "id": 3,
+        "count": 85694,
+        "left": 1050,
+        "top": 10,
+        "right": 1488,
+        "bottom": 510
+      },
+      "anchor": [
+        1245,
+        510
+      ]
+    },
+    {
+      "sourceBounds": {
+        "id": 4,
+        "count": 87614,
+        "left": 59,
+        "top": 522,
+        "right": 511,
+        "bottom": 1021
+      },
+      "anchor": [
+        262,
+        1021
+      ]
+    },
+    {
+      "sourceBounds": {
+        "id": 5,
+        "count": 87345,
+        "left": 546,
+        "top": 522,
+        "right": 993,
+        "bottom": 1021
+      },
+      "anchor": [
+        741,
+        1021
+      ]
+    },
+    {
+      "sourceBounds": {
+        "id": 6,
+        "count": 87058,
+        "left": 1055,
+        "top": 522,
+        "right": 1505,
+        "bottom": 1020
+      },
+      "anchor": [
+        1254,
+        1020
+      ]
+    }
+  ]
+}

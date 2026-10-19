@@ -1,0 +1,222 @@
+<!doctype html>
+<html lang="ko">
+  <meta charset="utf-8" /><meta
+    name="viewport"
+    content="width=device-width,initial-scale=1"
+  /><title>Eira · Art review</title
+  ><style>
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      background: #101c25;
+      color: #e4dfce;
+      font: 15px system-ui;
+      margin: 0;
+      padding: 32px;
+      max-width: 1400px;
+      margin: auto;
+    }
+    a {
+      color: #dec38b;
+    }
+    h1 {
+      font: 36px Georgia;
+      margin: 12px 0;
+    }
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #506064;
+      padding-bottom: 20px;
+    }
+    p {
+      color: #9cafb4;
+      line-height: 1.7;
+    }
+    button {
+      background: #243944;
+      color: #e4dfce;
+      border: 1px solid #566771;
+      padding: 10px 16px;
+      cursor: pointer;
+    }
+    button.active {
+      background: #d9bd81;
+      color: #15242c;
+    }
+    .clips {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin: 24px 0;
+    }
+    .panels {
+      display: flex;
+      gap: 24px;
+      flex-wrap: wrap;
+    }
+    .panel {
+      background: #172a32;
+      padding: 20px;
+    }
+    .checker {
+      background: repeating-conic-gradient(#34464c 0% 25%, #293b43 0% 50%) 0/24px 24px;
+    }
+    canvas {
+      display: block;
+      image-rendering: pixelated;
+      max-width: 100%;
+      height: auto;
+    }
+    .note {
+      font-size: 12px;
+    }
+    label {
+      margin-right: 18px;
+    }
+    input {
+      accent-color: #d9bd81;
+    }
+    .strip {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 24px;
+    }
+    .strip canvas {
+      width: 144px;
+      height: 144px;
+      border: 1px solid #53656c;
+    }
+    .still {
+      display: flex;
+      gap: 24px;
+      margin-top: 35px;
+      align-items: center;
+    }
+    .still img {
+      max-height: 350px;
+      max-width: 40%;
+      object-fit: contain;
+      image-rendering: pixelated;
+    }
+    code {
+      color: #e4c995;
+    }
+    #error {
+      color: #ffae92;
+    }
+  </style>
+  <header>
+    <div>
+      <small>VALKYRIE / ART WORKBENCH</small>
+      <h1>Eira, the oathkeeper.</h1>
+    </div>
+    <a href="./">게임으로 돌아가기 →</a>
+  </header>
+  <p>
+    참고 아트 기반 72개 포즈 · 384×384 고정 캔버스 · 분리된 검 리그<br />원본 해상도의 디테일과 실제
+    게임 표시 크기를 비교합니다. 노란 점은 손잡이 앵커입니다.
+  </p>
+  <div id="clips" class="clips"></div>
+  <p id="error"></p>
+  <div>
+    <button id="play">일시정지</button>
+    <label>FPS <input id="fps" type="range" min="1" max="20" value="8" /></label
+    ><label><input id="anchor" type="checkbox" checked />손 위치 표시</label
+    ><span id="frame"></span>
+  </div>
+  <div class="panels" style="margin-top: 20px">
+    <div class="panel">
+      <p>원본 게임 프레임 · 384px</p>
+      <canvas id="large" class="checker" width="384" height="384"></canvas>
+    </div>
+    <div class="panel">
+      <p>게임 표시 크기 · 약 184px</p>
+      <canvas id="small" class="checker" width="184" height="184"></canvas>
+      <p class="note">
+        그림자를 제외한 실제 몸체 프레임.<br />검은 게임에서 손잡이 기준으로 별도 합성됩니다.
+      </p>
+    </div>
+  </div>
+  <div id="strip" class="strip"></div>
+  <div class="still">
+    <img src="assets/characters/eira-v2/master.png" alt="고해상도 기준 아트" /><img
+      src="assets/characters/eira-v2/portrait.png"
+      alt="얼굴 초상"
+    /><img src="assets/weapons/oathblade-v2.png" alt="독립 장검" />
+  </div>
+  <script type="module">
+    const m = await fetch('assets/characters/eira-v2/manifest.json').then((r) => r.json());
+    const images = {};
+    let name = 'idle',
+      frame = 0,
+      playing = true,
+      last = 0;
+    const large = document.querySelector('#large'),
+      small = document.querySelector('#small');
+    for (const [key, clip] of Object.entries(m.clips)) {
+      const img = new Image();
+      img.src = 'assets/' + clip.file;
+      await img.decode();
+      images[key] = img;
+      const b = document.createElement('button');
+      b.textContent = key;
+      b.dataset.clip = key;
+      b.onclick = () => select(key);
+      document.querySelector('#clips').append(b);
+    }
+    function draw(canvas, index) {
+      const ctx = canvas.getContext('2d'),
+        s = canvas.width;
+      ctx.imageSmoothingEnabled = false;
+      ctx.clearRect(0, 0, s, s);
+      ctx.drawImage(images[name], index * 384, 0, 384, 384, 0, 0, s, s);
+      if (document.querySelector('#anchor').checked) {
+        const h = m.clips[name].frames[index].hand;
+        ctx.fillStyle = '#ffe484';
+        ctx.fillRect((h[0] * s) / 384 - 2, (h[1] * s) / 384 - 2, 4, 4);
+      }
+    }
+    function select(key) {
+      name = key;
+      frame = 0;
+      document
+        .querySelectorAll('[data-clip]')
+        .forEach((b) => b.classList.toggle('active', b.dataset.clip === key));
+      const strip = document.querySelector('#strip');
+      strip.replaceChildren();
+      for (let i = 0; i < m.clips[name].count; i++) {
+        const c = document.createElement('canvas');
+        c.width = c.height = 384;
+        c.className = 'checker';
+        c.onclick = () => {
+          playing = false;
+          frame = i;
+          document.querySelector('#play').textContent = '재생';
+        };
+        draw(c, i);
+        strip.append(c);
+      }
+    }
+    document.querySelector('#play').onclick = () => {
+      playing = !playing;
+      document.querySelector('#play').textContent = playing ? '일시정지' : '재생';
+    };
+    select('idle');
+    function tick(t) {
+      if (playing && t - last > 1000 / Number(document.querySelector('#fps').value)) {
+        frame = (frame + 1) % m.clips[name].count;
+        last = t;
+      }
+      draw(large, frame);
+      draw(small, frame);
+      document.querySelector('#frame').textContent =
+        `${name} · ${frame + 1}/${m.clips[name].count}`;
+      requestAnimationFrame(tick);
+    }
+    requestAnimationFrame(tick);
+  </script>
+</html>

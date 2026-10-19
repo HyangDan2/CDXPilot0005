@@ -1,0 +1,120 @@
+{
+  "version": 1,
+  "frameSize": [
+    48,
+    64
+  ],
+  "columns": 8,
+  "totalFrames": 60,
+  "origin": [
+    0.5,
+    0.9375
+  ],
+  "animations": {
+    "Idle": {
+      "start": 0,
+      "frames": 4,
+      "fps": 10,
+      "loop": true
+    },
+    "Walk": {
+      "start": 4,
+      "frames": 6,
+      "fps": 10,
+      "loop": true
+    },
+    "Run": {
+      "start": 10,
+      "frames": 6,
+      "fps": 14,
+      "loop": true
+    },
+    "Jump": {
+      "start": 16,
+      "frames": 4,
+      "fps": 10,
+      "loop": false
+    },
+    "Fall": {
+      "start": 20,
+      "frames": 4,
+      "fps": 10,
+      "loop": false
+    },
+    "Land": {
+      "start": 24,
+      "frames": 4,
+      "fps": 10,
+      "loop": false
+    },
+    "Attack": {
+      "start": 28,
+      "frames": 4,
+      "fps": 10,
+      "loop": false
+    },
+    "Kick": {
+      "start": 32,
+      "frames": 4,
+      "fps": 10,
+      "loop": false
+    },
+    "RisingSlash": {
+      "start": 36,
+      "frames": 5,
+      "fps": 10,
+      "loop": false
+    },
+    "Hit": {
+      "start": 41,
+      "frames": 3,
+      "fps": 10,
+      "loop": false
+    },
+    "Knockdown": {
+      "start": 44,
+      "frames": 4,
+      "fps": 10,
+      "loop": false
+    },
+    "Recovery": {
+      "start": 48,
+      "frames": 4,
+      "fps": 10,
+      "loop": false
+    },
+    "Guard": {
+      "start": 52,
+      "frames": 4,
+      "fps": 10,
+      "loop": true
+    },
+    "Death": {
+      "start": 56,
+      "frames": 4,
+      "fps": 10,
+      "loop": false
+    }
+  },
+  "sword": {
+    "size": [
+      52,
+      12
+    ],
+    "pivot": [
+      8,
+      6
+    ],
+    "bladeLength": 39
+  },
+  "files": [
+    "characters/player.png",
+    "enemies/grunt.png",
+    "enemies/rusher.png",
+    "enemies/guard.png",
+    "enemies/boss.png",
+    "weapons/oathblade.png",
+    "backgrounds/distant.png",
+    "backgrounds/ruins.png"
+  ]
+}

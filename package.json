@@ -1,0 +1,42 @@
+{
+  "name": "valkyrie-ashen-gate",
+  "version": "0.5.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 0.0.0.0",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview --host 0.0.0.0",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:e2e": "playwright test",
+    "assets:generate": "node scripts/assets.mjs generate",
+    "assets:check": "node scripts/assets.mjs check && node scripts/check-eira.mjs && node scripts/check-sd.mjs && node scripts/check-music.mjs",
+    "verify": "node scripts/check-env.mjs && npm run assets:check && npm run lint && npm run typecheck && npm run test && npm run build",
+    "assets:pack-eira": "node scripts/eira-atlas.mjs && node scripts/eira-stills.mjs",
+    "assets:pack-sd": "node scripts/sd-atlas.mjs",
+    "audio:generate": "node scripts/medieval-music.mjs"
+  },
+  "dependencies": {
+    "phaser": "^3.90.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.0",
+    "@playwright/test": "^1.56.0",
+    "@types/node": "^22.0.0",
+    "eslint": "^9.39.0",
+    "globals": "^16.0.0",
+    "pngjs": "^7.0.0",
+    "prettier": "^3.6.0",
+    "typescript": "~5.9.3",
+    "typescript-eslint": "^8.46.0",
+    "vite": "^7.1.0",
+    "vitest": "^5.0.5"
+  },
+  "engines": {
+    "node": ">=22.13.0"
+  }
+}

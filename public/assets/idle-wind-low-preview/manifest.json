@@ -1,0 +1,90 @@
+{
+  "size": 560,
+  "origin": [
+    260,
+    530
+  ],
+  "fps": 4,
+  "sequence": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5
+  ],
+  "frames": [
+    {
+      "sourceBounds": {
+        "left": 0,
+        "right": 511,
+        "top": 0,
+        "bottom": 510
+      },
+      "anchor": [
+        262,
+        510
+      ]
+    },
+    {
+      "sourceBounds": {
+        "left": 512,
+        "right": 1023,
+        "top": 0,
+        "bottom": 510
+      },
+      "anchor": [
+        741,
+        510
+      ]
+    },
+    {
+      "sourceBounds": {
+        "left": 1024,
+        "right": 1535,
+        "top": 0,
+        "bottom": 510
+      },
+      "anchor": [
+        1245,
+        510
+      ]
+    },
+    {
+      "sourceBounds": {
+        "left": 0,
+        "right": 511,
+        "top": 512,
+        "bottom": 1022
+      },
+      "anchor": [
+        262,
+        1022
+      ]
+    },
+    {
+      "sourceBounds": {
+        "left": 512,
+        "right": 1023,
+        "top": 512,
+        "bottom": 1022
+      },
+      "anchor": [
+        741,
+        1022
+      ]
+    },
+    {
+      "sourceBounds": {
+        "left": 1024,
+        "right": 1535,
+        "top": 512,
+        "bottom": 1022
+      },
+      "anchor": [
+        1254,
+        1022
+      ]
+    }
+  ]
+}
