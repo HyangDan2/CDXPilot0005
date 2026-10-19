@@ -41,14 +41,40 @@ export function updateAI(
     }
     return null;
   }
+  if (a.kind === 'archer') {
+    a.facing = dx >= 0 ? 1 : -1;
+    if (a.ai === 'Attack') {
+      enter(a, 'Recover');
+      return null;
+    }
+    if (a.ai === 'Recover' && a.aiTime < 0.55) {
+      setState(a, 'Idle');
+      return null;
+    }
+    if (a.ai === 'Recover') enter(a, Math.abs(dx) < 130 ? 'Retreat' : 'Chase');
+    if (a.ai === 'Retreat' && a.aiTime < 0.55) {
+      a.x -= a.facing * 105 * dt;
+      setState(a, 'Walk');
+      return null;
+    }
+    if (Math.abs(dx) <= 380 && Math.abs(dy) < 16 && mayAttack && player.hp > 0) {
+      enter(a, 'Attack');
+      startAttack(a, 'enemyShot');
+      return 'enemyShot';
+    }
+    if (Math.abs(dx) > 300) a.x += a.facing * 100 * dt;
+    if (Math.abs(dy) > 8) a.y += Math.sign(dy) * 70 * dt;
+    setState(a, 'Walk');
+    return null;
+  }
   if (a.ai === 'Attack') {
     if (a.state === 'Guard' && a.aiTime < 0.32) {
       a.x += a.facing * 38 * dt;
       return null;
     }
     if (a.state === 'Guard') {
-      startAttack(a, 'enemy');
-      return 'enemy';
+      startAttack(a, 'heavy');
+      return 'heavy';
     }
     enter(a, 'Recover');
     return null;
@@ -72,7 +98,7 @@ export function updateAI(
   }
   if (a.ai === 'Retreat') {
     if (a.aiTime < 0.28) {
-      a.x -= a.facing * 125 * dt;
+      a.x -= a.facing * (a.kind === 'guard' ? 65 : 125) * dt;
       a.y = clamp(a.y + (a.id % 2 ? 1 : -1) * 65 * dt, WORLD.minY, WORLD.maxY);
       setState(a, 'Run');
       return null;
@@ -92,9 +118,20 @@ export function updateAI(
     a.kind === 'boss'
       ? pattern[a.pattern % pattern.length]
       : a.kind === 'rusher'
-        ? 'charge'
-        : 'enemy';
-  const range = attackId === 'charge' ? 245 : attackId === 'slam' ? 170 : 62;
+        ? 'dagger'
+        : a.kind === 'guard'
+          ? 'heavy'
+          : 'enemy';
+  const range =
+    attackId === 'charge'
+      ? 245
+      : attackId === 'slam'
+        ? 170
+        : attackId === 'dagger'
+          ? 44
+          : attackId === 'heavy'
+            ? 78
+            : 62;
   if (
     a.ai !== 'Flank' &&
     Math.abs(dx) <= range &&
@@ -128,7 +165,7 @@ export function updateAI(
       : a.kind === 'boss'
         ? 170
         : a.kind === 'guard'
-          ? 135
+          ? 82
           : burst
             ? 245
             : 158) * (enraged ? 1.3 : 1);

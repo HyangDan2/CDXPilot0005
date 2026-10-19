@@ -61,7 +61,7 @@ export class ArenaScene extends Phaser.Scene {
         this.soundEngine.update(!!this.sim.boss);
         if (this.sim.status !== 'playing') {
           this.ui.setMode(this.sim.status, this.sim);
-          this.soundEngine.pause(true);
+          this.soundEngine.finish(this.sim.status === 'clear');
         }
       }
       this.view.render(

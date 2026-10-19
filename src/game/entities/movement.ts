@@ -1,3 +1,4 @@
+import { attacks, attackPhase } from '../../data/attacks';
 import { PLAYER, WORLD, clamp } from '../config/constants';
 import { isDisabled, setState } from './stateMachine';
 import type { Actor, Input } from './types';
@@ -9,6 +10,41 @@ export function movePlayer(
 ) {
   if (input.x || input.y || input.guard || input.commands.length || a.attack || isDisabled(a))
     a.stopTime = undefined;
+  if (a.state === 'Roll' || a.state === 'Switch') return;
+  if (
+    input.guard &&
+    a.weapon === 'bow' &&
+    a.attack?.id === 'shot' &&
+    attackPhase('shot', a.attack.elapsed) === 'startup'
+  ) {
+    a.attack = null;
+    setState(a, 'Guard', true);
+  }
+  if (
+    input.commands.includes('switch') &&
+    !isDisabled(a) &&
+    !a.attack &&
+    a.z === 0 &&
+    ['Idle', 'Walk', 'Run'].includes(a.state)
+  ) {
+    setState(a, 'Switch');
+    return;
+  }
+  if (input.commands.includes('roll') && !isDisabled(a) && a.z === 0 && a.rollCooldown <= 0) {
+    const d = a.attack && attacks[a.attack.id];
+    const cancel =
+      !a.attack ||
+      (a.attack.id === 'shot' && attackPhase('shot', a.attack.elapsed) === 'startup') ||
+      (d && a.attack.elapsed * 60 >= d.startupFrames + d.activeFrames + d.recoveryFrames * 0.6);
+    if (cancel && setState(a, 'Roll', true)) {
+      a.attack = null;
+      a.vx = a.vy = 0;
+      const length = Math.hypot(input.x, input.y) || 1;
+      a.rollDirection = { x: (input.x || (!input.y ? a.facing : 0)) / length, y: input.y / length };
+      a.rollCooldown = 1.2;
+      return;
+    }
+  }
   if (isDisabled(a) || a.attack) return;
   if (
     a.state === 'Run' &&

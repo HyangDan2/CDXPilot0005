@@ -1,4 +1,6 @@
 export type State =
+  | 'Roll'
+  | 'Switch'
   | 'Idle'
   | 'Walk'
   | 'Run'
@@ -15,8 +17,12 @@ export type State =
   | 'Death';
 export type AIState =
   'Idle' | 'Chase' | 'Flank' | 'Retreat' | 'Attack' | 'Recover' | 'Hit' | 'Down' | 'Death';
-export type Kind = 'player' | 'grunt' | 'rusher' | 'guard' | 'boss';
+export type Kind = 'player' | 'grunt' | 'rusher' | 'guard' | 'archer' | 'boss';
 export type AttackId =
+  | 'shot'
+  | 'enemyShot'
+  | 'dagger'
+  | 'heavy'
   | 'slash1'
   | 'slash2'
   | 'slash3'
@@ -28,7 +34,7 @@ export type AttackId =
   | 'charge'
   | 'slam'
   | 'spin';
-export type Command = 'sword' | 'rising' | 'jump' | 'spin';
+export type Command = 'sword' | 'rising' | 'jump' | 'spin' | 'roll' | 'switch';
 export interface Position {
   x: number;
   y: number;
@@ -37,6 +43,9 @@ export interface Position {
 export interface Actor extends Position {
   id: number;
   kind: Kind;
+  weapon: 'sword' | 'bow';
+  rollCooldown: number;
+  rollDirection: { x: number; y: number };
   hp: number;
   maxHp: number;
   facing: 1 | -1;
@@ -48,7 +57,14 @@ export interface Actor extends Position {
   vx: number;
   vy: number;
   invulnerable: number;
-  attack: { id: AttackId; elapsed: number; hit: Set<number>; costPaid?: boolean } | null;
+  attack: {
+    id: AttackId;
+    elapsed: number;
+    hit: Set<number>;
+    costPaid?: boolean;
+    released?: boolean;
+    projectile?: boolean;
+  } | null;
   ai: AIState;
   aiTime: number;
   pattern: number;

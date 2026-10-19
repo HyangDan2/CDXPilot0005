@@ -3,22 +3,43 @@ import { PNG } from 'pngjs';
 import { components } from './sprite-components.mjs';
 // Source-space pelvis/ground anchors reviewed against original sheets. One scale per sheet.
 const specs = {
+  'smooth-bow': {
+    count: 16,
+    columns: 4,
+    scale: 1.15,
+    roots: [215, 600, 990, 1380, 220, 600, 990, 1380, 210, 600, 990, 1380, 210, 600, 990, 1380],
+    source: 'art/generated/sd-v9/bow.png',
+  },
+  'smooth-roll': {
+    count: 12,
+    columns: 6,
+    scale: 0.95,
+    roots: [250, 650, 1020, 1300, 1720, 2030, 250, 650, 1020, 1300, 1720, 2030],
+    source: 'art/generated/sd-v9/roll.png',
+  },
+  'smooth-archer': {
+    count: 16,
+    columns: 4,
+    scale: 1.2,
+    roots: [240, 580, 960, 1340, 230, 590, 960, 1340, 225, 580, 960, 1340, 230, 580, 960, 1340],
+    source: 'art/generated/sd-v9/archer.png',
+  },
   'smooth-combo': {
     count: 24,
-    columns: 6,
-    scale: 1.3,
+    columns: 4,
+    scale: 1.4,
     roots: [
-      150, 400, 650, 900, 1150, 1400, 150, 400, 650, 900, 1150, 1400, 145, 400, 640, 900, 1150,
-      1400, 150, 400, 650, 900, 1150, 1400,
+      140, 410, 680, 950, 140, 410, 680, 950, 140, 410, 680, 950, 140, 410, 680, 950, 140, 410, 680,
+      950, 140, 410, 680, 950,
     ],
-    source: 'art/generated/sd-v8/combo.png',
+    source: 'art/generated/sd-v9/combo.png',
   },
   'smooth-idle': {
     count: 12,
     columns: 4,
     scale: 0.92,
     roots: [230, 610, 990, 1370, 240, 620, 1000, 1380, 230, 610, 990, 1370],
-    source: 'art/generated/sd-v8/idle.png',
+    source: 'art/generated/sd-v9/idle.png',
   },
   'smooth-move': {
     count: 16,
@@ -245,7 +266,9 @@ for (const [name, spec] of Object.entries(specs)) {
   };
 }
 fs.writeFileSync('public/assets/sd-v3/manifest.json', JSON.stringify(manifest, null, 2) + '\n');
-console.log('Packed SD poses including expanded combo and restored idle frames; original RGBA preserved.');
+console.log(
+  'Packed SD poses including expanded combo and restored idle frames; original RGBA preserved.',
+);
 
 // HUD crop from the same authored SD idle pose, no synthesized repainting.
 const original = PNG.sync.read(fs.readFileSync('art/generated/sd-v3/retro-idle.png'));

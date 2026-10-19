@@ -7,8 +7,13 @@ export class AudioEngine {
   private musicVolume = 0.35;
   private boss = false;
   private enabled = false;
+  private track = 0;
+  private fade: ReturnType<typeof setInterval> | null = null;
   start() {
     try {
+      if (this.fade) clearInterval(this.fade);
+      this.fade = null;
+      this.track = 0;
       this.context ??= new AudioContext();
       if (!this.gain) {
         this.gain = this.context.createGain();
@@ -17,7 +22,7 @@ export class AudioEngine {
       void this.context.resume().catch(() => {});
       this.enabled = true;
       if (!this.music.length)
-        this.music = ['cloister-march', 'ashen-king'].map((name) => {
+        this.music = ['cloister-march', 'ashen-king', 'victory', 'defeat'].map((name) => {
           const a = new Audio(import.meta.env.BASE_URL + 'assets/audio/' + name + '.wav');
           a.loop = true;
           a.preload = 'auto';
@@ -28,6 +33,7 @@ export class AudioEngine {
       for (const a of this.music) {
         a.pause();
         a.currentTime = 0;
+        a.volume = this.musicVolume;
       }
       void this.music[0].play().catch(() => {});
       this.gain.gain.value = this.volume * 0.25;
@@ -47,7 +53,7 @@ export class AudioEngine {
   pause(paused: boolean) {
     this.enabled = !paused;
     for (const a of this.music) a.pause();
-    if (!paused) void this.music[Number(this.boss)]?.play().catch(() => {});
+    if (!paused) void this.music[this.track]?.play().catch(() => {});
     if (this.gain && this.context)
       this.gain.gain.setTargetAtTime(
         paused ? 0 : this.volume * 0.25,
@@ -120,6 +126,7 @@ export class AudioEngine {
     return {
       enabled: this.enabled,
       boss: this.boss,
+      track: this.track,
       tracks: this.music.map((a) => ({
         paused: a.paused,
         time: a.currentTime,
@@ -134,13 +141,37 @@ export class AudioEngine {
     const previous = this.music[Number(this.boss)],
       next = this.music[Number(boss)];
     this.boss = boss;
+    this.track = Number(boss);
     if (previous && next) {
       previous.pause();
       if (Number.isFinite(next.duration)) next.currentTime = previous.currentTime % next.duration;
       void next.play().catch(() => {});
     }
   }
+  finish(won: boolean) {
+    if (this.fade) clearInterval(this.fade);
+    const old = this.music[this.track];
+    this.track = won ? 2 : 3;
+    const next = this.music[this.track];
+    let elapsed = 0;
+    this.fade = setInterval(() => {
+      elapsed += 40;
+      if (old) old.volume = this.musicVolume * Math.max(0, 1 - elapsed / 320);
+      if (elapsed >= 320) {
+        if (this.fade) clearInterval(this.fade);
+        this.fade = null;
+        for (const a of this.music) a.pause();
+        if (next) {
+          next.currentTime = 0;
+          next.volume = this.musicVolume;
+          void next.play().catch(() => {});
+        }
+      }
+    }, 40);
+  }
   destroy() {
+    if (this.fade) clearInterval(this.fade);
+
     for (const a of this.music) {
       a.pause();
       a.removeAttribute('src');

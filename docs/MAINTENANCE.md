@@ -74,3 +74,7 @@ For detailed Eira, use `scripts/eira-spec.mjs` and `src/game/animation/eira.ts`,
 Input changes require doubleTap tests plus the real browser run/interruption test. DoubleTap uses semantic directions with physical key edges; do not use KeyboardEvent.repeat as a tap. Scene cancellation must also respond to model Hit/Attack/Guard states.
 
 Combat changes require juggle.test.ts (including wall edge and 30/60/144 Hz), combat tests, full playthrough and E2E. Never reset juggle.active on mere ground contact. AI tuning requires committed-direction, flank/separation and retreat regressions. Add new AI states to the type union and keep two attack reservations inclusive of guarding enemies.
+
+## Ranged combat / v0.7
+
+Projectile swept collision lives in `entities/projectiles.ts`; timing/damage in `data/attacks.ts`, phase-to-pose selection in `animation/twohand.ts` and `sd.ts`. Keep `public/sd-review.html` selections synchronized. Guard/roll cancellation is in `movement.ts`, roll timing in `physics/world.ts`, immunity in `combat.ts`. Settings uses localStorage keys `valkyrie.sfx` and `valkyrie.bgm`. Test-only `archer` fixture positions an aimed enemy for real projectile damage checks.

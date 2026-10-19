@@ -32,6 +32,10 @@ export class CombatInput {
       else this.motion = null;
     }
     this.held.add(code);
+    if (code === 'KeyL' || code === 'KeyI') {
+      this.queue.push(code === 'KeyL' ? 'roll' : 'switch');
+      return;
+    }
     if (code === 'Space') {
       this.queue.push('jump');
       return;

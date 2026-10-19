@@ -9,6 +9,22 @@ export interface SDPose {
 }
 export function sdFrame(a: Actor): SDPose {
   if (a.kind === 'player') return twohandFrame(a);
+  if (a.kind === 'archer') {
+    let frame = Math.floor(a.stateTime * 2) % 2;
+    if (a.attack) {
+      const phase = attackPhase(a.attack.id, a.attack.elapsed);
+      frame =
+        phase === 'startup'
+          ? 6 + Math.min(3, Math.floor((a.attack.elapsed / 0.8) * 4))
+          : phase === 'active'
+            ? 10
+            : 11;
+    } else if (a.state === 'Walk' || a.state === 'Run')
+      frame = (a.ai === 'Retreat' ? 4 : 2) + (Math.floor(a.stateTime * 8) % 2);
+    else if (a.state === 'Hit') frame = 12 + Math.min(1, Math.floor(a.stateTime * 8));
+    else if (['Death', 'Knockdown', 'Recovery'].includes(a.state)) frame = 15;
+    return { sheet: 'smooth-archer', frame };
+  }
   const sheet = 'smooth-' + a.kind;
   const grunt = a.kind === 'grunt',
     boss = a.kind === 'boss';

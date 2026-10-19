@@ -135,6 +135,10 @@ export class ArenaView {
         }
         if (a.kind !== 'player' && phase === 'startup') {
           const b = hitbox(a);
+          if (a.attack.id === 'enemyShot')
+            this.shadows
+              .lineStyle(2, 0xe78a68, 0.5)
+              .lineBetween(a.x, a.y, a.x + a.facing * 380, a.y);
           this.shadows
             .fillStyle(0xcc6e50, 0.18)
             .fillEllipse(b.x + b.width / 2, a.y, b.width, b.height);
@@ -155,6 +159,22 @@ export class ArenaView {
           this.shadows.lineStyle(1, 0xffcc55).strokeRect(b.x, b.y, b.width, b.height);
         }
       }
+    }
+    for (const arrow of s.arrows) {
+      const y = arrow.y - arrow.z,
+        tail = arrow.x - arrow.facing * 24;
+      this.effects.lineStyle(2, 0xe7d4a5).lineBetween(tail, y, arrow.x, y);
+      this.effects
+        .fillStyle(arrow.player ? 0xdaf5ff : 0xff9870)
+        .fillTriangle(
+          arrow.x + arrow.facing * 6,
+          y,
+          arrow.x - arrow.facing * 3,
+          y - 3,
+          arrow.x - arrow.facing * 3,
+          y + 3,
+        );
+      this.effects.lineStyle(2, 0xc7d0b6).lineBetween(tail, y, tail - arrow.facing * 4, y - 4);
     }
     for (const item of s.loot) {
       const color = item.fraction === 0.5 ? 0xffd16c : item.fraction === 0.2 ? 0x7cc8f0 : 0x86e6a2;

@@ -11,6 +11,9 @@ export function preloadAssets(scene: Phaser.Scene) {
       { frameWidth: 48, frameHeight: 64 },
     );
   for (const name of [
+    'smooth-bow',
+    'smooth-roll',
+    'smooth-archer',
     'smooth-idle',
     'smooth-combo',
     'smooth-move',
@@ -32,7 +35,17 @@ export function preloadAssets(scene: Phaser.Scene) {
   scene.load.image('ruins', base + 'backgrounds/ruins.png');
 }
 export function ensureFallbacks(scene: Phaser.Scene) {
-  for (const key of ['player', 'grunt', 'rusher', 'guard', 'boss', 'sword', 'distant', 'ruins']) {
+  for (const key of [
+    'player',
+    'grunt',
+    'rusher',
+    'guard',
+    'archer',
+    'boss',
+    'sword',
+    'distant',
+    'ruins',
+  ]) {
     if (scene.textures.exists(key)) continue;
     const g = scene.make.graphics({ x: 0, y: 0 });
     if (key === 'sword') {

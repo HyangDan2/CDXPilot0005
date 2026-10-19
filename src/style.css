@@ -759,3 +759,29 @@ dialog dd {
   top: 0;
   object-fit: cover;
 }
+
+#settings-button {
+  border: 1px solid #887951;
+  background: #13232b;
+  color: #f1d190;
+  font-size: 24px;
+  width: 44px;
+  height: 44px;
+  cursor: pointer;
+  border-radius: 5px;
+}
+#guide .control-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  padding: 18px 0;
+}
+#guide .sound-control {
+  display: grid;
+  grid-template-columns: 55px minmax(100px, 1fr);
+  width: 100%;
+}
+#guide {
+  max-height: 85vh;
+  overflow: auto;
+}

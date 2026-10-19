@@ -49,7 +49,7 @@ describe('strict deliberate chords', () => {
     p.state = 'Idle';
     expect(q.consume(p, 0.1)).toBeNull();
   });
-  it('delays only 40ms, released tap is preserved, K becomes guard, old L is inert', () => {
+  it('delays only 40ms, released tap is preserved, K becomes guard, L starts dodge', () => {
     const c = new CombatInput();
     c.press('KeyJ', 0, free);
     c.release('KeyJ');
@@ -62,7 +62,7 @@ describe('strict deliberate chords', () => {
     c.release('KeyJ');
     c.read(190, busy);
     c.press('KeyL', 200, free);
-    expect(c.read(200, free).commands).toEqual([]);
+    expect(c.read(200, free).commands).toEqual(['roll']);
   });
   it.each([1, -1] as const)(
     'recognizes down-forward-J facing %d and consumes the motion',

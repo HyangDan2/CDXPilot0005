@@ -1,8 +1,11 @@
 import { PLAYER } from '../config/constants';
 import type { Actor, Kind } from './types';
-const health = { player: PLAYER.hp, grunt: 62, rusher: 48, guard: 90, boss: 640 };
+const health = { player: PLAYER.hp, grunt: 62, rusher: 48, guard: 120, archer: 42, boss: 640 };
 export function createActor(id: number, kind: Kind, x: number, y: number): Actor {
   return {
+    weapon: kind === 'archer' ? 'bow' : 'sword',
+    rollCooldown: 0,
+    rollDirection: { x: 0, y: 0 },
     id,
     kind,
     x,

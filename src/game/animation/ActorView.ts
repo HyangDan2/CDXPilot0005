@@ -31,7 +31,10 @@ export class ActorView {
       ? authored.frame
       : detailed
         ? pose.frame
-        : manifest.animations[a.state].start + frameFor(a);
+        : (
+            manifest.animations[a.state as keyof typeof manifest.animations] ??
+            manifest.animations.Idle
+          ).start + frameFor(a);
     this.body.setTexture(
       integrated ? 'sd-' + authored.sheet : detailed ? 'eira-' + pose.clip : a.kind,
     );

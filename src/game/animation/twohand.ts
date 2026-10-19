@@ -3,6 +3,28 @@ import { activeProgress } from '../../data/motions';
 import type { Actor } from '../entities/types';
 const step = (t: number, n: number) => Math.min(n - 1, Math.floor(Math.max(0, t) * n));
 export function twohandFrame(a: Actor) {
+  if (a.state === 'Roll')
+    return {
+      sheet: 'smooth-roll',
+      frame: (a.weapon === 'bow' ? 6 : 0) + step(a.stateTime / 0.5, 6),
+    };
+  if (a.state === 'Switch')
+    return {
+      sheet: 'smooth-bow',
+      frame:
+        12 + (a.weapon === 'sword' ? step(a.stateTime / 0.4, 4) : 3 - step(a.stateTime / 0.4, 4)),
+    };
+  if (a.weapon === 'bow') {
+    let frame = 0;
+    if (a.attack?.id === 'shot')
+      frame = a.attack.elapsed < 0.7 ? 4 + step(a.attack.elapsed / 0.7, 3) : 7;
+    else if (a.state === 'Guard') frame = 8;
+    else if (a.state === 'Hit') frame = 9;
+    else if (['Death', 'Knockdown'].includes(a.state)) frame = 11;
+    else if (['Jump', 'Fall', 'Land', 'Recovery'].includes(a.state)) frame = 10;
+    else if (a.state === 'Walk' || a.state === 'Run') frame = 2 + (Math.floor(a.stateTime * 8) % 2);
+    return { sheet: 'smooth-bow', frame };
+  }
   if (a.attack) {
     const d = attacks[a.attack.id],
       phase = attackPhase(a.attack.id, a.attack.elapsed);
@@ -16,17 +38,19 @@ export function twohandFrame(a: Actor) {
           phase === 'startup' ? 8 + step(prep, 2) : phase === 'active' ? 10 + step(active, 5) : 15,
       };
     if (['slash1', 'slash2', 'slash3', 'slash4'].includes(a.attack.id)) {
-      const base = (Number(a.attack.id.slice(-1)) - 1) * 6;
-      return {
-        sheet: 'smooth-combo',
-        frame:
-          base +
-          (phase === 'startup'
-            ? step(prep, 2)
-            : phase === 'active'
-              ? 2 + step(active, 2)
-              : 4 + step(recovery, 2)),
-      };
+      const frames = {
+        slash1: [0, 1, 2, 3, 4, 5],
+        slash2: [8, 9, 10, 11, 7, 8],
+        slash3: [12, 12, 13, 14, 15, 16],
+        slash4: [17, 18, 22, 23, 20, 21],
+      }[a.attack.id as 'slash1' | 'slash2' | 'slash3' | 'slash4'];
+      const index =
+        phase === 'startup'
+          ? step(prep, 2)
+          : phase === 'active'
+            ? 2 + step(active, 2)
+            : 4 + step(recovery, 2);
+      return { sheet: 'smooth-combo', frame: frames[index] };
     }
     const base =
       a.attack.id === 'rising' ? 12 : a.attack.id === 'air' ? 18 : a.attack.id === 'slash2' ? 6 : 0;
@@ -76,5 +100,5 @@ export function twohandFrame(a: Actor) {
   if (a.state === 'Walk') return { sheet: 'smooth-move', frame: Math.floor(a.stateTime * 16) % 8 };
   if (a.stopTime !== undefined && a.stopTime < 0.3)
     return { sheet: 'smooth-stop', frame: step(a.stopTime / 0.3, 6) };
-  return { sheet: 'smooth-idle', frame: Math.floor(a.stateTime * 8) % 12 };
+  return { sheet: 'smooth-idle', frame: Math.floor(a.stateTime * 4) % 12 };
 }

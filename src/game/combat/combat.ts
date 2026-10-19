@@ -41,6 +41,8 @@ export function hitbox(a: Actor) {
 }
 export function canHit(attacker: Actor, target: Actor) {
   if (
+    (['shot', 'enemyShot'].includes(attacker.attack?.id ?? '') && !attacker.attack?.projectile) ||
+    (target.state === 'Roll' && target.stateTime >= 0.1 && target.stateTime < 0.3) ||
     attacker.hp <= 0 ||
     !attacker.attack ||
     attackPhase(attacker.attack.id, attacker.attack.elapsed) !== 'active' ||
@@ -79,7 +81,10 @@ export function applyHit(attacker: Actor, target: Actor) {
     (attacker.x - target.x) * target.facing >= 0 &&
     attacker.attack.id !== 'kick' &&
     attacker.attack.id !== 'rising';
-  const damage = damageAmount(def.damage, guarded || armored);
+  const damage =
+    guarded && target.weapon === 'bow'
+      ? Math.max(1, Math.round(def.damage * 0.4))
+      : damageAmount(def.damage, guarded || armored);
   target.hp = Math.max(0, target.hp - damage);
   target.invulnerable = target.kind === 'player' ? PLAYER.invulnerability : 0.09;
   const knockDirection = ['spin', 'slash4'].includes(attacker.attack.id)
@@ -122,7 +127,9 @@ export function applyHit(attacker: Actor, target: Actor) {
   return damage;
 }
 export function startAttack(a: Actor, id: AttackId, cancel = false) {
-  if (isDisabled(a)) return false;
+  if (isDisabled(a) || a.state === 'Roll' || a.state === 'Switch') return false;
+  if (a.kind === 'player' && a.weapon === 'bow' && id !== 'shot') return false;
+  if (id === 'shot' && a.z > 0) return false;
   if (
     id === 'spin' &&
     (a.z !== 0 || !['Idle', 'Walk', 'Run'].includes(a.state) || a.attack || a.hp <= a.maxHp * 0.2)
@@ -145,7 +152,8 @@ export function advanceAttack(a: Actor, dt: number) {
   }
 }
 export function chooseAttack(a: Actor, command: Command): AttackId | null {
-  if (command === 'jump') return null;
+  if (['jump', 'roll', 'switch'].includes(command)) return null;
+  if (a.weapon === 'bow') return command === 'sword' && a.z === 0 ? 'shot' : null;
   if (a.z > 15) return command === 'sword' ? 'air' : null;
   if (command === 'spin') return 'spin';
   if (command === 'rising') return 'rising';
@@ -160,14 +168,14 @@ export class AttackBuffer {
   private pending: { command: Command; expires: number }[] = [];
   push(commands: Command[], now: number) {
     for (const command of commands)
-      if (command !== 'jump' && command !== 'spin')
+      if (!['jump', 'spin', 'roll', 'switch'].includes(command))
         if (!this.pending.some((p) => p.expires >= now))
           this.pending = [{ command, expires: now + PLAYER.bufferSeconds }];
     this.pending = this.pending.slice(-4);
   }
   consume(a: Actor, now: number): AttackId | null {
     this.pending = this.pending.filter((p) => p.expires >= now);
-    if (a.state === 'Guard' || isDisabled(a)) {
+    if (['Guard', 'Roll', 'Switch'].includes(a.state) || isDisabled(a)) {
       this.clear();
       return null;
     }

@@ -77,3 +77,7 @@ Keep original input art outside generated outputs; add provenance before importi
 See [smooth motion notes](art/SMOOTH_V7.md) for 162 new poses, provenance, anchor changes and validation limitations.
 
 See [v8 combo and branding](art/COMBO_V8.md) for source provenance, prompts and limits.
+
+## v0.7
+
+See [ranged/roll artwork and music provenance](art/RANGED_V9.md). `npm run assets:pack-sd` includes sd-v9 sources. Run `npm run audio:generate` for battle and result music.

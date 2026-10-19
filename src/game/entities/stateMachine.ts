@@ -2,6 +2,8 @@ import type { Actor, State } from './types';
 const free: State[] = ['Idle', 'Walk', 'Run', 'Jump', 'Fall', 'Land', 'Guard'];
 const attacks: State[] = ['Attack', 'Kick', 'RisingSlash'];
 export function canTransition(from: State, to: State, cancel = false): boolean {
+  if (from === 'Roll' || from === 'Switch')
+    return ['Idle', 'Hit', 'Death', 'Knockdown'].includes(to);
   if (from === 'Death') return false;
   if (to === 'Death' || to === 'Hit' || to === 'Knockdown') return true;
   if (from === 'Knockdown') return to === 'Recovery';

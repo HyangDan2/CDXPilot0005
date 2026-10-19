@@ -1,3 +1,5 @@
+import { attacks } from '../../data/attacks';
+import { advanceArrows, type Arrow } from './projectiles';
 import { rollLoot, collectLoot, type Loot } from './loot';
 import { waves } from '../../data/stage';
 import { seededRandom } from '../../utils/random';
@@ -23,6 +25,8 @@ export class Simulation {
   hitStop = 0;
   kills = 0;
   loot: Loot[] = [];
+  arrows: Arrow[] = [];
+  private nextArrow = 1;
   private lootRandom: () => number;
   private nextId = 1;
   private buffer = new AttackBuffer();
@@ -62,6 +66,7 @@ export class Simulation {
     const started = this.buffer.consume(this.player, this.time);
     if (started) this.emit('swing', this.player);
     if (integrate(this.player, dt, this.bounds)) this.emit('land', this.player);
+    this.releaseArrow(this.player, dt);
     advanceAttack(this.player, dt);
     let attacking = this.enemies.filter(
       (e) => e.hp > 0 && (e.attack || e.state === 'Guard'),
@@ -74,6 +79,7 @@ export class Simulation {
         this.emit('swing', e);
       }
       integrate(e, dt, this.bounds);
+      this.releaseArrow(e, dt);
       advanceAttack(e, dt);
       const damage = applyHit(this.player, e);
       if (damage) {
@@ -101,6 +107,32 @@ export class Simulation {
       e.x = clamp(e.x, this.bounds[0], this.bounds[1]);
       e.y = clamp(e.y, WORLD.minY, WORLD.maxY);
     }
+    this.arrows = advanceArrows(
+      this.arrows,
+      [this.player, ...this.enemies],
+      dt,
+      (target, damage) => {
+        this.emit('hit', target, damage);
+        if (target.kind === 'player') {
+          this.buffer.clear();
+          this.combo = 0;
+          this.hitStop = 0.07;
+        } else {
+          this.combo++;
+          this.bestCombo = Math.max(this.bestCombo, this.combo);
+          this.comboUntil = this.time + 2.2;
+          this.score += damage * 10;
+          if (target.hp === 0) {
+            this.kills++;
+            this.score += 200;
+            this.emit('death', target);
+            const fraction = rollLoot(this.lootRandom);
+            if (fraction)
+              this.loot.push({ id: target.id, x: target.x, y: target.y, fraction, age: 0 });
+          }
+        }
+      },
+    );
     for (const item of this.loot) item.age += dt;
     this.loot = this.loot.filter((item) => {
       if (
@@ -143,6 +175,24 @@ export class Simulation {
       );
       if (this.boss) this.emit('boss', this.boss);
     }
+  }
+  private releaseArrow(a: Actor, dt: number) {
+    const attack = a.attack;
+    if (!attack || attack.released || !['shot', 'enemyShot'].includes(attack.id) || a.hp <= 0)
+      return;
+    if (attack.elapsed + dt < attacks[attack.id].startupFrames / 60) return;
+    attack.released = true;
+    this.arrows.push({
+      id: this.nextArrow++,
+      owner: a.id,
+      player: a.kind === 'player',
+      x: a.x + a.facing * 24,
+      y: a.y,
+      z: a.z + 50,
+      facing: a.facing,
+      age: 0,
+    });
+    this.emit('swing', a);
   }
   drainEvents() {
     const events = this.events;

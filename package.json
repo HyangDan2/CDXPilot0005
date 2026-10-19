@@ -1,6 +1,6 @@
 {
   "name": "valkyrie-ashen-gate",
-  "version": "0.6.0",
+  "version": "0.7.0",
   "private": true,
   "type": "module",
   "scripts": {
@@ -18,7 +18,7 @@
     "verify": "node scripts/check-env.mjs && npm run assets:check && npm run lint && npm run typecheck && npm run test && npm run build",
     "assets:pack-eira": "node scripts/eira-atlas.mjs && node scripts/eira-stills.mjs",
     "assets:pack-sd": "node scripts/sd-atlas.mjs",
-    "audio:generate": "node scripts/medieval-music.mjs"
+    "audio:generate": "node scripts/medieval-music.mjs && node scripts/result-music.mjs"
   },
   "dependencies": {
     "phaser": "^3.90.0"

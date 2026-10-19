@@ -8,6 +8,18 @@ export function integrate(
   bounds: [number, number] = [24, WORLD.length - 24],
 ) {
   a.stateTime += dt;
+  a.rollCooldown = Math.max(0, a.rollCooldown - dt);
+  if (a.state === 'Roll') {
+    if (a.stateTime < 0.4) {
+      a.x = clamp(a.x + a.rollDirection.x * 320 * dt, bounds[0], bounds[1]);
+      a.y = clamp(a.y + a.rollDirection.y * 220 * dt, WORLD.minY, WORLD.maxY);
+    }
+    if (a.stateTime >= 0.5) setState(a, 'Idle');
+  }
+  if (a.state === 'Switch' && a.stateTime >= 0.4) {
+    a.weapon = a.weapon === 'bow' ? 'sword' : 'bow';
+    setState(a, 'Idle');
+  }
   if (a.stopTime !== undefined) {
     a.stopTime += dt;
     if (a.stopTime >= 0.3) a.stopTime = undefined;

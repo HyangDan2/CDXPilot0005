@@ -4,6 +4,8 @@ export const SWORD_V2 = swordV2;
 import type { Actor, State } from '../entities/types';
 export const SWORD = { width: 52, height: 12, gripX: 8, gripY: 6, bladeLength: 39 } as const;
 export const animationFrames: Record<State, number> = {
+  Roll: 0,
+  Switch: 0,
   Idle: 4,
   Walk: 6,
   Run: 6,

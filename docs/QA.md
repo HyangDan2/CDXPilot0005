@@ -1,3 +1,13 @@
+## v0.7 verification
+
+- `npm run verify`: assets, ESLint, strict TypeScript,84 unit/integration tests and production build passed.
+- `npm run test:e2e`:11 Chromium tests passed against the built `/valkyrie/` subpath, including real bow input/cancel/release, roll, archer projectile damage, settings pause/resume and result music/restart volume.
+  -368 atlas frames pass transparent-border, dimension and anchor checks. All four PCM tracks pass duration, non-silence, clipping and boundary validation.
+- Visually inspected same-scale pose comparison, bow draw, bow roll, archer and settings screenshots under `docs/screenshots/v9-*`.
+- Fixed asynchronous settings close/resume race. Combo E2E now waits for simulation attack progress rather than adding screenshot latency to the input window.
+- Art is generated keyposes with minor ornament/proportion variation; collision is authored envelopes. See `art/RANGED_V9.md` for provenance and limitations.
+- Remote GitHub Actions/Pages completion must be verified separately; local build is not deployment confirmation.
+
 ## v0.4 QA
 
 63 unit/integration tests and8 Chromium E2E cases. New coverage includes strict40ms chords, command rising, spin cost/armor, loot and BGM lifecycle. See [TWOHAND_V4.md](art/TWOHAND_V4.md) for validation scope and audio limitations.

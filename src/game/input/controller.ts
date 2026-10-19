@@ -6,12 +6,13 @@ export class Controller {
   private taps = new DoubleTap();
   private combat = new CombatInput();
   private down = (e: KeyboardEvent) => {
+    if (document.querySelector('dialog[open]')) return;
     if (e.target instanceof HTMLInputElement && !['Escape', 'F1'].includes(e.code)) return;
     if (['Space', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'F1'].includes(e.code))
       e.preventDefault();
     this.held.add(e.code);
     this.taps.press(e.code, performance.now(), e.repeat);
-    if (['KeyJ', 'KeyK', 'Space'].includes(e.code)) this.taps.cancel();
+    if (['KeyJ', 'KeyK', 'KeyL', 'KeyI', 'Space'].includes(e.code)) this.taps.cancel();
     this.combat.press(e.code, performance.now(), this.context(), e.repeat);
     if (!e.repeat && e.code === 'Escape') this.onPause();
     if (!e.repeat && e.code === 'F1') this.onDebug();

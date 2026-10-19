@@ -52,7 +52,7 @@ describe('AI and stage', () => {
     updateAI(g, p, 0.4);
     expect(g.state).toBe('Guard');
     updateAI(g, p, 0.6);
-    expect(g.attack?.id).toBe('enemy');
+    expect(g.attack?.id).toBe('heavy');
   });
   it('boss cycles triple melee, charge and slam', () => {
     const p = createActor(0, 'player', 100, 400),
@@ -107,9 +107,9 @@ it('adds extra charge and slam patterns below half boss health', () => {
 
 it('commits attack direction and depth after the telegraph begins', () => {
   const p = createActor(0, 'player', 100, 400),
-    e = createActor(1, 'rusher', 250, 400);
+    e = createActor(1, 'rusher', 140, 400);
   updateAI(e, p, 0.3);
-  expect(e.attack?.id).toBe('charge');
+  expect(e.attack?.id).toBe('dagger');
   const facing = e.facing,
     y = e.y;
   p.x = 400;

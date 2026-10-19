@@ -1,3 +1,12 @@
+## 0.7.0
+
+- I sword/bow switch, slow J shot, L dodge with vulnerable startup/landing and cooldown.
+- Bow guard40% incoming damage versus sword20%; draw cancels on hit/guard/roll.
+- Archer projectile enemy, agile low-damage dagger and slow high-damage heavy roles.
+- Calm idle, longer sword combo, generated bow/roll/archer atlases.
+- Upper-right settings, persistent separate SFX/BGM; major victory and minor defeat music.
+- Added projectile, cancellation, roll-window and browser audio/settings regressions.
+
 ## 0.6.0 — 2026-10-20
 
 - Four-stage vulnerable sword chain with increasing damage and interrupt reset; one buffered follow-up, mandatory windup and recovery gap.

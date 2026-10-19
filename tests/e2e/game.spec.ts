@@ -194,6 +194,9 @@ test('K guard, directional rising, strict spin and BGM lifecycle', async ({ page
   await page.keyboard.press('l');
   await page.waitForTimeout(80);
   expect(await page.evaluate(() => window.__VALKYRIE__!.snapshot().player.attack)).toBeNull();
+  await expect
+    .poll(() => page.evaluate(() => window.__VALKYRIE__!.snapshot().player.state))
+    .toBe('Idle');
   await page.keyboard.press('s');
   await page.keyboard.press('d');
   await page.keyboard.press('j');
@@ -217,7 +220,9 @@ test('K guard, directional rising, strict spin and BGM lifecycle', async ({ page
   await page.locator('#stage').screenshot({ path: info.outputPath('twohand-spin.png') });
   await page.keyboard.up('j');
   await page.keyboard.up('k');
+  await page.getByRole('button', { name: 'Settings', exact: true }).click();
   await page.getByRole('slider', { name: 'BGM Volume', exact: true }).fill('20');
+  await page.getByRole('button', { name: 'Close field guide' }).click();
   expect(await page.evaluate(() => window.__VALKYRIE__!.snapshot().audio.tracks[0].volume)).toBe(
     0.2,
   );
@@ -239,7 +244,7 @@ test('K guard, directional rising, strict spin and BGM lifecycle', async ({ page
     .toBe(true);
   await page.keyboard.press('Escape');
   await page.getByRole('button', { name: 'RESTART JOURNEY' }).click();
-  expect(await page.evaluate(() => window.__VALKYRIE__!.snapshot().audio.tracks.length)).toBe(2);
+  expect(await page.evaluate(() => window.__VALKYRIE__!.snapshot().audio.tracks.length)).toBe(4);
   await expect
     .poll(() =>
       page.evaluate(
@@ -257,15 +262,20 @@ test('four-strike keyboard chain and social assets', async ({ page }, info) => {
     await expect
       .poll(() => page.evaluate(() => window.__VALKYRIE__!.snapshot().player.attack))
       .toBe(id);
-    await page.locator('#stage').screenshot({ path: info.outputPath(`${id}.png`) });
     if (id !== 'slash4') {
-      await page.waitForTimeout(210);
+      const ready = id === 'slash3' ? 0.28 : 0.26;
+      await expect
+        .poll(() => page.evaluate(() => window.__VALKYRIE__!.snapshot().player.attackElapsed), {
+          intervals: [10],
+        })
+        .toBeGreaterThanOrEqual(ready);
       await page.keyboard.press('j');
     }
   }
   await expect
     .poll(() => page.evaluate(() => window.__VALKYRIE__!.snapshot().player.attack))
     .toBeNull();
+  await page.locator('#stage').screenshot({ path: info.outputPath('combo-complete.png') });
   await expect(page.locator('meta[property="og:image"]')).toHaveAttribute(
     'content',
     'https://hyangdan2.github.io/CDXPilot0005/social/valkyrie.jpg',
@@ -280,4 +290,74 @@ test('four-strike keyboard chain and social assets', async ({ page }, info) => {
     const response = await page.request.get(path);
     expect(response.ok()).toBeTruthy();
   }
+});
+
+test('bow draw, guard cancel, roll, settings and result music', async ({ page }, info) => {
+  await page.goto('?test=1');
+  await page.getByRole('button', { name: 'BEGIN YOUR OATH' }).click();
+  await page.keyboard.press('i');
+  await expect
+    .poll(() => page.evaluate(() => window.__VALKYRIE__!.snapshot().player.weapon))
+    .toBe('bow');
+  await page.keyboard.press('j');
+  await expect
+    .poll(() => page.evaluate(() => window.__VALKYRIE__!.snapshot().player.attack))
+    .toBe('shot');
+  expect(await page.evaluate(() => window.__VALKYRIE__!.snapshot().arrows)).toBe(0);
+  await page.locator('#stage').screenshot({ path: info.outputPath('bow-draw.png') });
+  await page.keyboard.down('k');
+  await expect
+    .poll(() => page.evaluate(() => window.__VALKYRIE__!.snapshot().player.state))
+    .toBe('Guard');
+  expect(await page.evaluate(() => window.__VALKYRIE__!.snapshot().player.attack)).toBeNull();
+  await page.keyboard.up('k');
+  await expect
+    .poll(() => page.evaluate(() => window.__VALKYRIE__!.snapshot().player.state))
+    .toBe('Idle');
+  await page.keyboard.press('l');
+  await expect
+    .poll(() => page.evaluate(() => window.__VALKYRIE__!.snapshot().player.state))
+    .toBe('Roll');
+  await page.waitForTimeout(160);
+  await page.locator('#stage').screenshot({ path: info.outputPath('bow-roll.png') });
+  await expect
+    .poll(() => page.evaluate(() => window.__VALKYRIE__!.snapshot().player.state))
+    .toBe('Idle');
+  await page.keyboard.press('j');
+  await expect.poll(() => page.evaluate(() => window.__VALKYRIE__!.snapshot().arrows)).toBe(1);
+  await page.getByRole('button', { name: 'Settings', exact: true }).click();
+  const t = await page.evaluate(() => window.__VALKYRIE__!.snapshot().time);
+  await page.getByRole('slider', { name: 'BGM Volume', exact: true }).fill('25');
+  await page.keyboard.press('i');
+  await page.waitForTimeout(100);
+  expect(await page.evaluate(() => window.__VALKYRIE__!.snapshot().time)).toBe(t);
+  await page.screenshot({ path: info.outputPath('settings.png'), fullPage: true });
+  await page.keyboard.press('Escape');
+  await expect
+    .poll(() => page.evaluate(() => window.__VALKYRIE__!.snapshot().mode))
+    .toBe('playing');
+  expect(await page.evaluate(() => localStorage.getItem('valkyrie.bgm'))).toBe('25');
+  await page.evaluate(() => window.__VALKYRIE__!.fixture('over'));
+  await expect
+    .poll(() => page.evaluate(() => window.__VALKYRIE__!.snapshot().audio.tracks[3].paused))
+    .toBe(false);
+  await page.getByRole('button', { name: 'RESTART JOURNEY' }).click();
+  await expect
+    .poll(() => page.evaluate(() => window.__VALKYRIE__!.snapshot().audio.tracks[0].volume))
+    .toBe(0.25);
+  await page.evaluate(() => window.__VALKYRIE__!.fixture('clear'));
+  await expect
+    .poll(() => page.evaluate(() => window.__VALKYRIE__!.snapshot().audio.tracks[2].paused))
+    .toBe(false);
+});
+
+test('archer telegraph and real projectile damage', async ({ page }, info) => {
+  await page.goto('?test=1');
+  await page.getByRole('button', { name: 'BEGIN YOUR OATH' }).click();
+  await page.evaluate(() => window.__VALKYRIE__!.fixture('archer'));
+  await page.waitForTimeout(350);
+  await page.locator('#stage').screenshot({ path: info.outputPath('archer-tell.png') });
+  await expect
+    .poll(() => page.evaluate(() => window.__VALKYRIE__!.snapshot().player.hp))
+    .toBeLessThan(180);
 });
