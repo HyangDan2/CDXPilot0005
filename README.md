@@ -1,3 +1,11 @@
+## v0.5.0 · 모션 확장
+
+Eira 기본 동작 84프레임과 적 72프레임으로 제작 수를 두 배 늘리고, 달리기 정지 6프레임을 추가했습니다. 대기 시 낮은 머리카락, 이동 시 출렁임, 일체형 직선 검, 원호를 따라 상승하는 라이징과 4단계 판정을 적용했습니다.
+
+- [게임 주소](https://hyangdan2.github.io/CDXPilot0005/)
+- [동작 검수](https://hyangdan2.github.io/CDXPilot0005/sd-review.html)
+- [제작 및 검증 한계](docs/art/SMOOTH_V7.md)
+
 ## v0.4.0 · 양손검 커맨드 전투
 
 J 공격 · K 검 가드 · ↓앞J 라이징(400ms) · J+K 회전 필살기(40ms 이내, 양 키 해제 후 지상 대기/이동에서만). 필살기는 첫 적중 때 최대 HP20%를 한 번 차감합니다. 자동 회복 대신 적당5% 확률로10/20/50% 회복약이 드롭됩니다. 중세풍 오리지널 합성 BGM2곡과 독립 음량 조절을 추가했습니다. [제작·검증 기록](docs/art/TWOHAND_V4.md).
@@ -83,7 +91,7 @@ E2E 결과는 `playwright-report/`, 스크린샷·실패 trace는 `test-results/
 
 ## GitHub Pages 배포
 
-이 폴더는 원래 Git 저장소가 아니었습니다. **원격 저장소 생성·push·실제 Pages 배포는 아직 수행하지 않았습니다.** 아래는 사용자가 저장소를 만든 뒤의 절차입니다.
+저장소는 `HyangDan2/CDXPilot0005`이며 Pages 소스는 GitHub Actions입니다. 배포 성공 여부는 Actions의 `Verify and deploy` 실행 결과에서 확인합니다. 아래 절차는 새 저장소에 다시 설치할 때 사용합니다.
 
 1. GitHub에 저장소를 생성하고 이 폴더를 `main` 브랜치로 push합니다. `node_modules`, `dist`, 테스트 리포트는 커밋하지 않습니다. PNG와 lockfile은 커밋합니다.
 2. 저장소 Settings → Pages → Build and deployment에서 **GitHub Actions**를 선택합니다.
@@ -97,4 +105,4 @@ Vite `base: './'`, 모든 로더의 `import.meta.env.BASE_URL`과 상대 URL로 
 
 [아키텍처](docs/ARCHITECTURE.md) · [Harness](docs/HARNESS.md) · [유지보수](docs/MAINTENANCE.md) · [아트 파이프라인](docs/ART_PIPELINE.md) · [게임 디자인](docs/GAME_DESIGN.md) · [계획](docs/IMPLEMENTATION_PLAN.md) · [변경 이력](docs/CHANGELOG.md)
 
-초기 버전은 절차적 아트로 제작했으며, v0.2의 주인공은 이후 제공된 참고 아트에 기반해 내장 이미지 생성 도구로 제작했습니다. 적과 배경은 기존 절차적 아트를 유지합니다. 주인공은 AI 생성 키포즈 애니메이션이며 수작업 보간 애니메이션과 동일한 완성도를 주장하지 않습니다. 효과와 음악은 자체 합성입니다. 키보드 싱글플레이 1개 스테이지이며 저장·게임패드·터치·멀티플레이는 없습니다. 브라우저 자동화는 Chromium만 검증했습니다.
+초기 버전은 절차적 아트로 제작했으며, v0.2의 주인공은 이후 제공된 참고 아트에 기반해 내장 이미지 생성 도구로 제작했습니다. v0.5에서는 주인공과 적 모두 생성한 SD 아트를 사용하며 배경은 절차적 아트를 유지합니다. 주인공은 AI 생성 키포즈 애니메이션이며 수작업 보간 애니메이션과 동일한 완성도를 주장하지 않습니다. 효과와 음악은 자체 합성입니다. 키보드 싱글플레이 1개 스테이지이며 저장·게임패드·터치·멀티플레이는 없습니다. 브라우저 자동화는 Chromium만 검증했습니다.
