@@ -1,0 +1,20 @@
+# Touch and grounded walk update
+
+## Artwork provenance
+Built-in imagegen (not paid API/CLI fallback), original user-approved Eira v10 sources. Originals preserved. Sources and registration: `art/generated/sd-v11/`. Prompt set below records intended constraints; small generated ornament and limb variations remain.
+
+- `bow.png`: `7bb79d07-72e0-42ae-9bcb-67f07133fe2f`, from `ee47d92a-149d-4d35-887a-22f37151215c` edit of v10 bow. Preserve 4x4 poses/identity; remove arrows from first two idle hands, lower idle braid behind back; extend aiming arrows 25%; empty released bow in row2 col4; generous transparent margins. First output rejected for retained release arrow and tight margins.
+- `bow-walk.png`: `db24c5f5-5318-4886-afe2-0b0a6c50242e`, transparent gutter isolation of `9fc90f2a-904a-476d-ab64-91ec1f6723d8` (that candidate failed component separation), precise bowstring repair of `39617749-8bbf-4630-b363-716ba08688b6`, v10 bow reference. Repair prompt: add continuous thin taut ivory strings from top tip to bottom tip of all eight bows, preserve every pose and empty hands. Eight sequential relaxed walking poses in 4x2 arrangement: contact/down/passing/reach, opposite foot repeat; fixed shoulders/head size, bow upright, other hand empty, no arrows/swords; original feather helmet, silver braid, blue/gold armor, ivory cloth, transparent gutters.
+- `sword-walk.png`: `54c8ebdf-3081-48ac-a228-7c40d3a62e49`, framing repair of `c410af28-fe1f-4083-b7c8-8acc7f8c52c4`. V10 idle identity and move pose reference; eight relaxed walking phases, stable head/torso, straight two-handed low sword, contact/down/passing/reach per leg. Initial result rejected for feather tip clipping; repaired with complete silhouettes and transparent margins.
+- `idle.png`: `868b1f89-075b-4183-9b43-a44cbb66491c`, precise edit of v10 idle. Preserve 4x3 poses/face/armor/straight two-handed blade; braid falls behind shoulder/back with gravity, ribbon at hip and tiny movement rather than outward diagonal.
+
+Rebuild: `node scripts/prepare-sd-v11.mjs && npm run assets:pack-sd`. This performs component extraction, source edge validation, ground-contact registration, nearest-neighbor scale/packing only; no procedural repainting. Fixed 512px transparent runtime frames, ground Y420. V11 overrides v10 registration without modifying either original generation.
+
+## Timing and scope
+Sword and bow walking share weighted 720ms cadence: 120/100/65/75ms repeated for opposite leg. Sword uses eight newly authored poses with steadier shoulders and clear passing feet. Bow now has eight unique authored walking poses instead of two; source order is remapped [3,0,1,2,7,4,5,6] so passing/reach silhouettes follow contact rather than preceding it. Bow running, switching, guard, jump state mapping and all combat timing remain unchanged. Idle arrow removed; firing shaft length increased from24 to32 world pixels for player only. Swept arrow collision remains at its leading point, so a longer decorative shaft does not extend attack range or hit behind the arrowhead.
+
+## Touch
+Coarse-pointer devices show landscape overlaid joystick and attack/guard/roll/jump/switch/spin controls. Stick deadzone18%, outer82% runs. Each attack release emits exactly one command; upward32px swipe chooses rising. No repeated fire from holding. Pointer ownership allows movement plus guard/actions. Cancel/lost capture/blur/visibility/rotation clear ownership and commands. Portrait pauses; returning landscape requires explicit Resume. Touch controls feed normal simulation commands and preserve spin HP/state restrictions. Settings offers size/opacity/inset sliders. Game touch-action:none blocks browser pan/pinch/doubletap; dialog remains scrollable, OS accessibility magnification remains outside page control.
+
+## Verification limitations
+Desktop Chromium mobile emulation verifies touch inputs, orientation, overlays and browser zoom scale. Physical iOS Safari/Android devices and OS magnification were not tested. Generated hands/ornaments retain slight pose-to-pose differences; visual checks cannot assert pixel-identical anatomy. No remote deployment is implied by local verification.

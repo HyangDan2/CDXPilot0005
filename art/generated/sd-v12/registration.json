@@ -1,0 +1,236 @@
+{
+  "smooth-idle": {
+    "count": 12,
+    "columns": 4,
+    "scale": 0.8624,
+    "roots": [
+      192,
+      566,
+      927,
+      1286,
+      191,
+      565,
+      925,
+      1287,
+      190,
+      564,
+      927,
+      1287
+    ],
+    "source": "art/generated/sd-v12/idle.png"
+  },
+  "smooth-sword-walk": {
+    "count": 8,
+    "columns": 4,
+    "scale": 0.7458,
+    "roots": [
+      220,
+      625,
+      1085,
+      1547,
+      215,
+      628,
+      1053,
+      1556
+    ],
+    "source": "art/generated/sd-v12/sword-walk.png"
+  },
+  "smooth-move": {
+    "count": 16,
+    "columns": 4,
+    "scale": 0.8334,
+    "roots": [
+      190,
+      426,
+      693,
+      924,
+      197,
+      441,
+      691,
+      930,
+      227,
+      497,
+      733,
+      947,
+      222,
+      437,
+      696,
+      931
+    ],
+    "source": "art/generated/sd-v12/move.png"
+  },
+  "smooth-combo": {
+    "count": 24,
+    "columns": 4,
+    "scale": 1.3175,
+    "roots": [
+      132,
+      399,
+      682,
+      910,
+      113,
+      370,
+      632,
+      902,
+      113,
+      381,
+      630,
+      890,
+      116,
+      389,
+      665,
+      910,
+      110,
+      375,
+      622,
+      899,
+      125,
+      391,
+      625,
+      902
+    ],
+    "source": "art/generated/sd-v12/combo.png"
+  },
+  "smooth-attack": {
+    "count": 12,
+    "columns": 3,
+    "scale": 0.9935,
+    "roots": [
+      254,
+      551,
+      836,
+      191,
+      567,
+      881,
+      226,
+      530,
+      849,
+      162,
+      507,
+      829
+    ],
+    "source": "art/generated/sd-v12/attack.png"
+  },
+  "smooth-defense": {
+    "count": 16,
+    "columns": 4,
+    "scale": 0.9666,
+    "roots": [
+      200,
+      496,
+      805,
+      1100,
+      229,
+      588,
+      807,
+      1097,
+      224,
+      511,
+      770,
+      1083,
+      179,
+      471,
+      798,
+      1087
+    ],
+    "source": "art/generated/sd-v12/defense.png"
+  },
+  "smooth-reaction": {
+    "count": 16,
+    "columns": 4,
+    "scale": 0.9557,
+    "roots": [
+      192,
+      458,
+      753,
+      1042,
+      233,
+      481,
+      798,
+      1066,
+      139,
+      457,
+      787,
+      1052,
+      205,
+      519,
+      837,
+      1077
+    ],
+    "source": "art/generated/sd-v12/reaction.png"
+  },
+  "smooth-stop": {
+    "count": 6,
+    "columns": 3,
+    "scale": 0.5952,
+    "roots": [
+      359,
+      867,
+      1379,
+      352,
+      831,
+      1367
+    ],
+    "source": "art/generated/sd-v12/stop.png"
+  },
+  "smooth-roll": {
+    "count": 12,
+    "columns": 6,
+    "scale": 0.8625,
+    "roots": [
+      212,
+      575,
+      961,
+      1292,
+      1691,
+      2021,
+      228,
+      588,
+      975,
+      1277,
+      1714,
+      2059
+    ],
+    "source": "art/generated/sd-v12/roll.png"
+  },
+  "smooth-bow": {
+    "count": 16,
+    "columns": 4,
+    "scale": 1.0118,
+    "roots": [
+      208,
+      515,
+      836,
+      1143,
+      173,
+      495,
+      797,
+      1144,
+      179,
+      518,
+      818,
+      1153,
+      190,
+      508,
+      797,
+      1140
+    ],
+    "source": "art/generated/sd-v12/bow.png"
+  },
+  "smooth-bow-walk": {
+    "count": 8,
+    "columns": 4,
+    "scale": 0.7375,
+    "roots": [
+      225,
+      665,
+      1105,
+      1545,
+      225,
+      665,
+      1105,
+      1545
+    ],
+    "source": "art/generated/sd-v12/bow-walk.png"
+  }
+}

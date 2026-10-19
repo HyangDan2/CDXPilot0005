@@ -26,7 +26,11 @@ it('clears every encounter using movement and attacks without health or damage o
     s.step(1 / 60, input);
     s.drainEvents();
   }
+  expect(s.player.hp).toBeGreaterThan(0);
+  // Boss defeat clears surviving reinforcements rather than requiring all four kills.
+  expect(s.kills).toBeGreaterThanOrEqual(13);
+  expect(s.kills).toBeLessThanOrEqual(17);
   expect({ status: s.status, wave: s.wave, hp: s.player.hp, kills: s.kills }).toEqual(
-    expect.objectContaining({ status: 'clear', wave: 4, kills: 13 }),
+    expect.objectContaining({ status: 'clear', wave: 4 }),
   );
 });

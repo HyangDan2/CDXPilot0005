@@ -160,9 +160,15 @@ export class ArenaView {
         }
       }
     }
+    for (const warning of s.reinforcements.warnings) {
+      this.effects.lineStyle(3, 0xffb35c, 0.8).strokeEllipse(warning.x, warning.y, 56, 20);
+      this.effects
+        .lineStyle(2, 0xffe0a3, 0.9)
+        .lineBetween(warning.x, warning.y - 48, warning.x, warning.y - 22);
+    }
     for (const arrow of s.arrows) {
       const y = arrow.y - arrow.z,
-        tail = arrow.x - arrow.facing * 24;
+        tail = arrow.x - arrow.facing * (arrow.player ? 48 : 24);
       this.effects.lineStyle(2, 0xe7d4a5).lineBetween(tail, y, arrow.x, y);
       this.effects
         .fillStyle(arrow.player ? 0xdaf5ff : 0xff9870)

@@ -66,3 +66,20 @@ See docs/art/UPGRADE_QA.md for sequential generation and visual review. Final ve
 ## v0.6 local verification — 2026-10-20
 
 `npm run verify`: passed324-frame alpha/border validation, audio, lint, typecheck,74 unit/integration tests and production build. `npm run test:e2e`:9 Chromium tests passed, including actual keyboard four-strike chain and social/favicon HTTP loading. Inspected packed combo and gameplay preparation screenshots, feather restoration and32px icon. Remote GitHub runner was still queued at time of local verification; no remote deployment success claimed.
+
+## Touch / v11 update (2026-10-20)
+
+- `npm run verify`: passed lint, strict typecheck, 86 unit/integration tests, asset checks and production build.
+- `PORT=4183 npm run test:e2e`: 12 passed. Port4173 was occupied by an unrelated preview server; no process was terminated. Playwright now accepts PORT.
+- Final bow frame ordering and transparent bowstring repair: `node scripts/prepare-sd-v11.mjs && npm run assets:pack-sd && npm run assets:check` passed (372 transparent/unclipped frames,29 sheets); `PORT=4183 npm run test:e2e -- --grep 'SD review|landscape touch'`:2 passed, including production rebuild.
+- Mobile emulation: real CDP multi-touch movement+guard, attack hold/cancel, bow fire, rising swipe, two-finger pinch (viewport scale1), portrait pause, landscape resume with cleared movement, settings adjustment. Existing keyboard/combat suites passed.
+- Visual review: final bow idle/walk review screenshots, sword walking contact sheet, mobile landscape overlay, fixed-canvas sprites and weapon/feather margins. Saved `docs/screenshots/v11-*`.
+- Not verified: physical iOS Safari / Android devices. No remote publication performed in this update. Minor generated pose/ornament variations remain.
+
+### 2026-10-20 v12
+
+- `npm run verify`: pass; asset validation 372 frames/29 sheets, ESLint, TypeScript, 90 unit/integration tests and production build.
+- All 11 revised Eira source sheets visually reviewed; packed contact sheet and bow gait preview saved in `docs/screenshots/v12-*`.
+- Initial E2E run: 12/13 passed; production page returned 404 while another concurrent verification rebuilt `dist`. Re-running E2E after build completion avoids this artifact-directory race. Do not run two production build writers against the same `dist` during browser tests.
+- Physical mobile hardware and remote deployment are not verified.
+- Final sequential `PORT=4183 npm run test:e2e`: **13/13 passed** (56.0 seconds), including production URL, mobile multitouch/rotation, recharge and boss support. `git diff --check`: pass.

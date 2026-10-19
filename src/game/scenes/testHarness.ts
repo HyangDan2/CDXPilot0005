@@ -41,11 +41,18 @@ export function installHarness(scene: ArenaScene) {
         s.player.y = 400;
         s.enemies = [createActor(100, 'archer', 760, 400)];
       }
-      if (name === 'boss') {
+      if (name === 'boss' || name === 'bossSupport') {
         s.wave = 3;
         s.active = false;
         s.enemies = [];
         s.player.x = waves[3].trigger;
+      }
+      if (name === 'bossSupport') {
+        s.active = true;
+        const boss = createActor(100, 'boss', 3300, 420);
+        boss.hp = boss.maxHp * 0.7;
+        boss.aiTime = -100;
+        s.enemies = [boss];
       }
       if (name === 'over') s.player.hp = 0;
       if (name === 'clear') {
@@ -81,7 +88,7 @@ declare global {
         time: number;
         status: string;
       };
-      fixture: (name: 'combat' | 'archer' | 'boss' | 'over' | 'clear') => void;
+      fixture: (name: 'combat' | 'archer' | 'boss' | 'bossSupport' | 'over' | 'clear') => void;
     };
   }
 }

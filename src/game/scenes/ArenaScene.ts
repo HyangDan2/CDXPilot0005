@@ -39,6 +39,8 @@ export class ArenaScene extends Phaser.Scene {
           this.sim.player.z === 0,
         facing: this.sim.player.facing,
       }),
+      () => this.ui.mode === 'playing',
+      () => this.pause(),
     );
     this.view = new ArenaView(this);
     const enter = (e: KeyboardEvent) => {
@@ -84,6 +86,7 @@ export class ArenaScene extends Phaser.Scene {
     return this.soundEngine.status();
   }
   start() {
+    if (this.controller.touchBlocked) return;
     this.sim = new Simulation();
     this.controller.clear();
     this.clock.reset();
@@ -100,7 +103,7 @@ export class ArenaScene extends Phaser.Scene {
     }
   }
   resume() {
-    if (this.ui.mode === 'paused') {
+    if (this.ui.mode === 'paused' && !this.controller.touchBlocked) {
       this.controller.clear();
       this.clock.reset();
       this.ui.setMode('playing');

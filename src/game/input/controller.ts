@@ -1,7 +1,9 @@
+import { TouchControls } from './touch';
 import { DoubleTap } from './doubleTap';
 import { CombatInput, type CombatContext } from './combatInput';
 import type { Input } from '../entities/types';
 export class Controller {
+  private touch: TouchControls;
   private held = new Set<string>();
   private taps = new DoubleTap();
   private combat = new CombatInput();
@@ -26,12 +28,16 @@ export class Controller {
     private onPause: () => void,
     private onDebug: () => void,
     private context: () => CombatContext,
+    active: () => boolean,
+    pause: () => void,
   ) {
+    this.touch = new TouchControls(active, pause);
     window.addEventListener('keydown', this.down);
     window.addEventListener('keyup', this.up);
     window.addEventListener('blur', this.clear);
   }
   clear = () => {
+    this.touch?.clear();
     this.held.clear();
     this.taps.clear();
     this.combat.clear();
@@ -39,19 +45,24 @@ export class Controller {
   read(): Input {
     const has = (...keys: string[]) => keys.some((k) => this.held.has(k));
     const combat = this.combat.read(performance.now(), this.context());
+    const touch = this.touch.read();
     const input = {
-      x: Number(has('KeyD', 'ArrowRight')) - Number(has('KeyA', 'ArrowLeft')),
-      y: Number(has('KeyS', 'ArrowDown')) - Number(has('KeyW', 'ArrowUp')),
-      dash: this.taps.active,
-      guard: combat.guard,
-      commands: combat.commands,
+      x: touch.x || Number(has('KeyD', 'ArrowRight')) - Number(has('KeyA', 'ArrowLeft')),
+      y: touch.y || Number(has('KeyS', 'ArrowDown')) - Number(has('KeyW', 'ArrowUp')),
+      dash: touch.dash || this.taps.active,
+      guard: touch.guard || combat.guard,
+      commands: [...combat.commands, ...touch.commands],
     };
     return input;
+  }
+  get touchBlocked() {
+    return this.touch.blocked;
   }
   cancelRun() {
     this.taps.cancel();
   }
   destroy() {
+    this.touch.destroy();
     window.removeEventListener('keydown', this.down);
     window.removeEventListener('keyup', this.up);
     window.removeEventListener('blur', this.clear);

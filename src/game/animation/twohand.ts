@@ -1,3 +1,4 @@
+import { walkFrame } from './walk';
 import { attacks, attackPhase } from '../../data/attacks';
 import { activeProgress } from '../../data/motions';
 import type { Actor } from '../entities/types';
@@ -22,7 +23,8 @@ export function twohandFrame(a: Actor) {
     else if (a.state === 'Hit') frame = 9;
     else if (['Death', 'Knockdown'].includes(a.state)) frame = 11;
     else if (['Jump', 'Fall', 'Land', 'Recovery'].includes(a.state)) frame = 10;
-    else if (a.state === 'Walk' || a.state === 'Run') frame = 2 + (Math.floor(a.stateTime * 8) % 2);
+    else if (a.state === 'Walk') return { sheet: 'smooth-bow-walk', frame: walkFrame(a.stateTime) };
+    else if (a.state === 'Run') frame = 2 + (Math.floor(a.stateTime * 8) % 2);
     return { sheet: 'smooth-bow', frame };
   }
   if (a.attack) {
@@ -97,7 +99,7 @@ export function twohandFrame(a: Actor) {
     return { sheet: 'smooth-reaction', frame: 14 + step(a.stateTime / 0.35, 2) };
   if (a.state === 'Run')
     return { sheet: 'smooth-move', frame: 8 + (Math.floor(a.stateTime * 24) % 8) };
-  if (a.state === 'Walk') return { sheet: 'smooth-move', frame: Math.floor(a.stateTime * 16) % 8 };
+  if (a.state === 'Walk') return { sheet: 'smooth-sword-walk', frame: walkFrame(a.stateTime) };
   if (a.stopTime !== undefined && a.stopTime < 0.3)
     return { sheet: 'smooth-stop', frame: step(a.stopTime / 0.3, 6) };
   return { sheet: 'smooth-idle', frame: Math.floor(a.stateTime * 4) % 12 };

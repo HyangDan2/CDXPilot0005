@@ -785,3 +785,241 @@ dialog dd {
   max-height: 85vh;
   overflow: auto;
 }
+
+/* Touch belongs to the play surface; the settings dialog remains scrollable. */
+#stage {
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+#touch-controls,
+#rotate-notice {
+  display: none;
+}
+.touch-options {
+  display: grid;
+  gap: 14px;
+}
+.touch-options label {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+}
+.touch-device {
+  overscroll-behavior: none;
+}
+.touch-device #touch-controls {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 3;
+}
+.touch-device #stage[data-mode='playing'] #touch-controls {
+  display: block;
+}
+#touch-controls button,
+#touch-stick {
+  pointer-events: auto;
+  touch-action: none;
+  border: 1px solid #e7cc91;
+  background: #12232cb8;
+  color: #ffe6ac;
+  opacity: var(--touch-opacity, 0.65);
+}
+#touch-controls button {
+  width: 58px;
+  height: 58px;
+  border-radius: 50%;
+  font-size: 12px;
+}
+#touch-controls button small {
+  display: block;
+  font-size: 8px;
+  margin-top: 4px;
+}
+#touch-stick {
+  position: absolute;
+  left: max(var(--touch-inset, 20px), env(safe-area-inset-left));
+  bottom: max(24px, env(safe-area-inset-bottom));
+  width: 126px;
+  height: 126px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  transform: scale(var(--touch-scale, 1));
+  transform-origin: bottom left;
+}
+#touch-stick span {
+  width: 48px;
+  height: 48px;
+  background: #d7c68b99;
+  border: 1px solid #f6e5b8;
+  border-radius: 50%;
+}
+#touch-stick small {
+  position: absolute;
+  bottom: 9px;
+  font-size: 8px;
+  pointer-events: none;
+}
+.touch-actions {
+  position: absolute;
+  right: max(var(--touch-inset, 20px), env(safe-area-inset-right));
+  bottom: max(20px, env(safe-area-inset-bottom));
+  width: 194px;
+  height: 132px;
+  transform: scale(var(--touch-scale, 1));
+  transform-origin: bottom right;
+}
+.touch-actions button {
+  position: absolute;
+  bottom: 0;
+}
+.touch-actions [data-action='jump'] {
+  bottom: 72px;
+  left: 68px;
+}
+.touch-actions [data-action='guard'] {
+  left: 0;
+}
+.touch-actions [data-action='attack'] {
+  left: 64px;
+  width: 66px !important;
+  height: 66px !important;
+}
+.touch-actions [data-action='roll'] {
+  right: 0;
+}
+.touch-special {
+  position: absolute;
+  right: max(var(--touch-inset, 20px), env(safe-area-inset-right));
+  top: 76px;
+  display: flex;
+  gap: 12px;
+}
+.touch-special button {
+  width: 48px !important;
+  height: 48px !important;
+}
+.touch-portrait #rotate-notice {
+  display: flex;
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  background: #101a21f5;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 24px;
+  font-size: 32px;
+  text-align: center;
+  padding: 24px;
+}
+#rotate-notice strong {
+  font-size: 22px;
+}
+#rotate-notice span {
+  font-size: 13px;
+}
+@media (orientation: landscape) {
+  .touch-device .shell {
+    max-width: none;
+    padding: 0;
+    height: 100dvh;
+    display: grid;
+    place-items: center;
+  }
+  .touch-device .masthead,
+  .touch-device .chapter-heading,
+  .touch-device .below-game,
+  .touch-device .page-foot {
+    display: none;
+  }
+  .touch-device #stage {
+    width: min(100vw, calc(100dvh * 16 / 9));
+  }
+  .touch-device .masthead {
+    display: block;
+    position: fixed;
+    right: max(16px, env(safe-area-inset-right));
+    top: max(10px, env(safe-area-inset-top));
+    height: 44px;
+    z-index: 6;
+    border: 0;
+  }
+  .touch-device .masthead .wordmark,
+  .touch-device .header-right > span {
+    display: none;
+  }
+  .touch-device .header-right {
+    font-size: 0;
+  }
+  .touch-device #pause-button {
+    right: 74px;
+    top: 12px;
+    width: 44px;
+    height: 44px;
+  }
+  .touch-device #hud {
+    padding: 12px;
+  }
+  .touch-device .player-hud {
+    transform: scale(0.8);
+    transform-origin: top left;
+  }
+  .touch-device .wave-hud {
+    top: 15px;
+  }
+  .touch-device #boss-hud {
+    bottom: 12px;
+    width: 35%;
+    left: 30%;
+  }
+  .touch-device .scene-caption {
+    display: none;
+  }
+  .touch-device #guide {
+    max-height: 90dvh;
+  }
+}
+
+#roll-meter {
+  height: 5px;
+  margin-top: 7px;
+  border: 1px solid #7898ab77;
+  background: #101a20bd;
+}
+#roll-fill {
+  height: 100%;
+  width: 100%;
+  background: #76b6dc;
+}
+#roll-meter[data-ready='true'] #roll-fill {
+  background: #ead18b;
+}
+.roll-caption {
+  display: flex;
+  justify-content: space-between;
+  font-size: 7px;
+  letter-spacing: 1px;
+  margin-top: 3px;
+}
+#touch-controls [data-action='roll'] {
+  background: linear-gradient(to top, #627e98c0 var(--charge, 100%), #12232cb8 var(--charge, 100%));
+}
+#touch-controls [data-action='roll'][data-ready='true'] {
+  border-color: #ffe4a0;
+  box-shadow: inset 0 0 10px #d7b45a55;
+}
+#reinforcement-warning {
+  position: absolute;
+  top: 80px;
+  left: 50%;
+  transform: translateX(-50%);
+  color: #ffce86;
+  font-size: 11px;
+  letter-spacing: 1px;
+  background: #241915cc;
+  padding: 8px 14px;
+  text-align: center;
+}

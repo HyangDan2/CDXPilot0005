@@ -171,6 +171,8 @@ const specs = {
 };
 // v10 overrides preserve original source definitions for reproducible registration.
 Object.assign(specs, JSON.parse(fs.readFileSync('art/generated/sd-v10/registration.json', 'utf8')));
+Object.assign(specs, JSON.parse(fs.readFileSync('art/generated/sd-v11/registration.json', 'utf8')));
+Object.assign(specs, JSON.parse(fs.readFileSync('art/generated/sd-v12/registration.json', 'utf8')));
 const size = 512,
   origin = [192 / size, 420 / size];
 const manifest = { version: 3, size, origin, scale: 0.5, sheets: {} };

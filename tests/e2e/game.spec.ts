@@ -173,7 +173,11 @@ test('SD review plays integrated weapon poses for the whole cast', async ({ page
   ]) {
     await page.locator('#clip').selectOption(clip);
     await expect(page.locator('#status')).toContainText(clip);
-    if (['idle', 'slash', 'rising', 'spin', 'bowShot', 'roll'].includes(clip))
+    if (
+      ['idle', 'walk', 'bowIdle', 'bowWalk', 'slash', 'rising', 'spin', 'bowShot', 'roll'].includes(
+        clip,
+      )
+    )
       await page.screenshot({ path: info.outputPath(`v10-${clip}.png`), fullPage: true });
   }
   await page.locator('#clip').selectOption('guard');

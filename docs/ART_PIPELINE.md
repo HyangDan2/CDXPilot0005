@@ -85,3 +85,10 @@ See [ranged/roll artwork and music provenance](art/RANGED_V9.md). `npm run asset
 ## Eira original style restoration
 
 [Style v10](art/STYLE_V10.md) documents the single original idle reference, nine regenerated Eira sheets, prompts, source IDs and registration. Enemy sheets remain unchanged.
+
+
+See [Touch / v11 artwork](art/TOUCH_V11.md) for current source provenance, registration rebuild, touch input lifecycle and platform verification limits.
+
+## v12 costume and bow continuity
+
+See [READINESS_V12.md](art/READINESS_V12.md) for all 11 source sheets, original generation IDs, prompts, rejected-sheet repair and visual limitations. Run `node scripts/prepare-sd-v12.mjs` before `npm run assets:pack-sd` to reproduce the 146 revised Eira poses. v12 registration overrides v11; originals are preserved.

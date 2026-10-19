@@ -1,3 +1,5 @@
+import { PLAYER } from '../config/constants';
+import { canRoll } from '../entities/movement';
 import { waves } from '../../data/stage';
 import type { Simulation } from '../entities/simulation';
 export type Mode = 'title' | 'playing' | 'paused' | 'over' | 'clear';
@@ -22,13 +24,13 @@ export class Interface {
    <header class="masthead"><a class="wordmark" href="./" aria-label="Valkyrie home"><span class="rune">ᛉ</span> VALKYRIE<span class="edition">THE ASHEN GATE</span></a><div class="header-right"><button id="settings-button" aria-label="Settings">⚙</button><span class="status-dot"></span> LOCAL ARCADE <span class="version">VOL. 01 — 2026</span></div></header>
    <section class="chapter-heading"><div><div class="eyebrow">A FORGOTTEN REALM. AN UNBROKEN OATH.</div><h1>The Ashen Gate<span class="chapter-number"> / I</span></h1></div><div class="chapter-meta"><span class="small-rune">◇</span><div>STORY MODE<small>1 PLAYER · KEYBOARD</small></div></div></section>
    <section id="stage" aria-label="Valkyrie game"><div id="game"></div><div class="screen-vignette"></div>
-    <div id="hud" hidden><div class="player-hud"><div class="portrait"><span>ᛉ</span><img src="${import.meta.env.BASE_URL}assets/sd-v3/portrait.png" alt="Eira" /></div><div class="vital"><div class="hud-label">EIRA <span id="weapon-label">SWORD</span></div><div class="hp-track"><div id="hp-fill"></div></div><div class="hp-caption"><span id="hp-text"></span><span>VITALITY</span></div></div></div><div class="wave-hud"><span id="wave-label"></span><small id="wave-name"></small></div><button id="pause-button" class="icon-button" aria-label="Pause game">Ⅱ</button><div id="combo" hidden><strong></strong><span>HIT COMBO</span></div><div id="boss-hud" hidden><div class="hud-label">HROTH, THE HOLLOW KING <span id="boss-phase"></span></div><div class="hp-track"><div id="boss-fill"></div></div></div><div id="travel-hint">FOLLOW THE FALLEN LIGHT <span>→</span></div></div>
+    <div id="hud" hidden><div class="player-hud"><div class="portrait"><span>ᛉ</span><img src="${import.meta.env.BASE_URL}assets/sd-v3/portrait.png" alt="Eira" /></div><div class="vital"><div class="hud-label">EIRA <span id="weapon-label">SWORD</span></div><div class="hp-track"><div id="hp-fill"></div></div><div class="hp-caption"><span id="hp-text"></span><span>VITALITY</span></div><div id="roll-meter" role="progressbar" aria-label="Dodge recharge" aria-valuemin="0" aria-valuemax="100"><div id="roll-fill"></div></div><div class="roll-caption">DODGE <span id="roll-label">READY</span></div></div></div><div class="wave-hud"><span id="wave-label"></span><small id="wave-name"></small></div><button id="pause-button" class="icon-button" aria-label="Pause game">Ⅱ</button><div id="combo" hidden><strong></strong><span>HIT COMBO</span></div><div id="boss-hud" hidden><div class="hud-label">HROTH, THE HOLLOW KING <span id="boss-phase"></span></div><div class="hp-track"><div id="boss-fill"></div></div></div><div id="reinforcement-warning" hidden>⚠ REINFORCEMENTS INCOMING</div><div id="travel-hint">FOLLOW THE FALLEN LIGHT <span>→</span></div></div>
     <div id="overlay"></div><div class="scene-caption"><span>THE RUINS OF HALVARD</span><span>ᛟ &nbsp; ᛉ &nbsp; ᚱ</span></div>
    </section>
 
    <footer class="below-game"><div><span class="footer-diamond">◆</span> <strong>THE FIRST OATH</strong><span class="footer-description">Beyond the gate, the old gods are silent.</span></div><button id="help-button">FIELD GUIDE <span>↗</span></button></footer>
    <div class="page-foot"><span>AN ORIGINAL PIXEL ARCADE ADVENTURE</span><span>F1 DEBUG &nbsp; · &nbsp; ESC PAUSE &nbsp; · &nbsp; v0.7.1</span></div>
-  </div><dialog id="guide"><button id="close-guide" aria-label="Close field guide">×</button><div class="eyebrow">THE OATHKEEPER'S FIELD GUIDE</div><h2>Settings &amp; controls</h2>   <section class="control-bar" aria-label="Game controls"><div class="controls-group"><span class="keys"><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd></span><span>Move</span></div><div class="controls-group"><kbd>J</kbd><span>Slash</span><kbd>K</kbd><span>Guard</span><kbd>↓ → J</kbd><span>Rising</span><kbd>J+K</kbd><span>Spin</span></div><div class="controls-group secondary"><kbd>SPACE</kbd><span>Jump</span><kbd>→ →</kbd><span>Run</span></div><div class="sound-control"><label for="volume">♪ <span>SFX</span></label><input id="volume" type="range" min="0" max="100" value="35" aria-label="Volume"/><label for="music-volume">BGM</label><input id="music-volume" type="range" min="0" max="100" value="35" aria-label="BGM Volume"/></div></section><p><kbd>I</kbd> Switch sword / bow · <kbd>L</kbd> Dodge roll · <kbd>J</kbd> Attack / shoot · <kbd>K</kbd> Guard</p><p>Bow shots: 0.7s draw, 0.6s recovery. Bow guard takes 40% damage; sword guard takes 20%. Roll is briefly invulnerable during its middle, with a vulnerable landing.</p><p>Move with WASD or arrow keys. Match an enemy's ground depth to strike them. Clear each encounter, then follow the light to the right.</p><dl><dt>J · K · ↓ → J</dt><dd>Tap J to chain four strikes: overhead cut, rising cut, thrust, turning finisher. Each strike has a vulnerable wind-up; taking a hit resets the chain. Hold K to guard the front. Down, forward, J within 400ms launches a rising slash; facing left uses ↓ ← J.</dd><dt>J + K · deliberate simultaneous press</dt><dd>Release both keys first, then press within 40ms while idle or moving on the ground. Never cancels an attack or guard. Spin resists stagger and reduces incoming damage; its first hit costs 20% of maximum HP, once per use. Requires more HP than the cost.</dd><dt>SPACE + J</dt><dd>Jump, then attack in the air. Double-tap and hold a direction to run; K holds sword guard.</dd><dt>Watch the red tell</dt><dd>Enemy attacks have a wind-up. Step up or down to evade. The king grows faster below half health.</dd><dt>Break the loop</dt><dd>Repeated launches weaken. Three additional air hits force a protected knockdown; wait for recovery before re-engaging. The king resists launch.</dd><dt>Between encounters</dt><dd>No automatic healing. Each defeated enemy has a 5% chance to drop a potion: green +10%, blue +20%, gold +50% maximum HP. Walk over it to collect.</dd></dl><p class="guide-note">Desktop keyboard recommended. Sound begins when you enter the game.</p></dialog>`;
+  </div><dialog id="guide"><button id="close-guide" aria-label="Close field guide">×</button><div class="eyebrow">THE OATHKEEPER'S FIELD GUIDE</div><h2>Settings &amp; controls</h2>   <section class="control-bar" aria-label="Game controls"><div class="controls-group"><span class="keys"><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd></span><span>Move</span></div><div class="controls-group"><kbd>J</kbd><span>Slash</span><kbd>K</kbd><span>Guard</span><kbd>↓ → J</kbd><span>Rising</span><kbd>J+K</kbd><span>Spin</span></div><div class="controls-group secondary"><kbd>SPACE</kbd><span>Jump</span><kbd>→ →</kbd><span>Run</span></div><div class="sound-control"><label for="volume">♪ <span>SFX</span></label><input id="volume" type="range" min="0" max="100" value="35" aria-label="Volume"/><label for="music-volume">BGM</label><input id="music-volume" type="range" min="0" max="100" value="35" aria-label="BGM Volume"/></div></section><p><kbd>I</kbd> Switch sword / bow · <kbd>L</kbd> Dodge roll · <kbd>J</kbd> Attack / shoot · <kbd>K</kbd> Guard</p><p>Bow shots: 0.7s draw, 0.6s recovery. Bow guard takes 40% damage; sword guard takes 20%. Roll is briefly invulnerable during its middle, with a vulnerable landing.</p><p>Move with WASD or arrow keys. Match an enemy's ground depth to strike them. Clear each encounter, then follow the light to the right.</p><dl><dt>J · K · ↓ → J</dt><dd>Tap J to chain four strikes: overhead cut, rising cut, thrust, turning finisher. Each strike has a vulnerable wind-up; taking a hit resets the chain. Hold K to guard the front. Down, forward, J within 400ms launches a rising slash; facing left uses ↓ ← J.</dd><dt>J + K · deliberate simultaneous press</dt><dd>Release both keys first, then press within 40ms while idle or moving on the ground. Never cancels an attack or guard. Spin resists stagger and reduces incoming damage; its first hit costs 20% of maximum HP, once per use. Requires more HP than the cost.</dd><dt>SPACE + J</dt><dd>Jump, then attack in the air. Double-tap and hold a direction to run; K holds sword guard.</dd><dt>Watch the red tell</dt><dd>Enemy attacks have a wind-up. Step up or down to evade. The king grows faster below half health.</dd><dt>Break the loop</dt><dd>Repeated launches weaken. Three additional air hits force a protected knockdown; wait for recovery before re-engaging. The king resists launch.</dd><dt>Between encounters</dt><dd>No automatic healing. Each defeated enemy has a 5% chance to drop a potion: green +10%, blue +20%, gold +50% maximum HP. Walk over it to collect.</dd></dl><section class="touch-options"><label>터치 버튼 크기 <input id="touch-size" type="range" min="80" max="120" value="100" /></label><label>터치 투명도 <input id="touch-opacity" type="range" min="30" max="90" value="65" /></label><label>터치 좌우 여백 <input id="touch-inset" type="range" min="12" max="64" value="20" /></label></section><p class="guide-note">Touch: left stick moves; outer ring runs. Tap attack or swipe upward for rising. Hold guard. Separate buttons roll, jump, switch and spin. Sound begins when you enter the game.</p></dialog>`;
     document.querySelector<HTMLImageElement>('.portrait img')?.addEventListener('error', (e) => {
       (e.target as HTMLImageElement).hidden = true;
     });
@@ -76,10 +78,38 @@ export class Interface {
       restoreSettingsState();
     });
     guide.addEventListener('close', restoreSettingsState);
+    for (const [id, property, factor, unit] of [
+      ['touch-size', '--touch-scale', 0.01, ''],
+      ['touch-opacity', '--touch-opacity', 0.01, ''],
+      ['touch-inset', '--touch-inset', 1, 'px'],
+    ] as const) {
+      const slider = document.querySelector<HTMLInputElement>('#' + id)!;
+      const apply = () =>
+        document.documentElement.style.setProperty(
+          property,
+          String(Number(slider.value) * factor) + unit,
+        );
+      try {
+        const saved = localStorage.getItem('valkyrie.' + id);
+        if (saved) slider.value = saved;
+      } catch {
+        /* Optional. */
+      }
+      apply();
+      slider.addEventListener('input', () => {
+        apply();
+        try {
+          localStorage.setItem('valkyrie.' + id, slider.value);
+        } catch {
+          /* Optional. */
+        }
+      });
+    }
     this.setMode('title');
   }
   setMode(mode: Mode, sim?: Simulation) {
     this.mode = mode;
+    document.querySelector('#stage')?.setAttribute('data-mode', mode);
     this.hud.hidden = mode === 'title';
     this.overlay.hidden = mode === 'playing';
     this.overlay.className = mode === 'title' ? 'title-overlay' : 'menu-overlay';
@@ -104,6 +134,25 @@ export class Interface {
     this.overlay.querySelector('#resume-button')?.addEventListener('click', this.actions.resume);
   }
   update(s: Simulation) {
+    const charge = Math.max(0, Math.min(1, 1 - s.player.rollCooldown / PLAYER.rollCooldown));
+    const percent = charge === 1 ? 100 : Math.floor(charge * 100);
+    const ready = canRoll(s.player);
+    const meter = document.querySelector<HTMLElement>('#roll-meter')!;
+    meter.setAttribute('aria-valuenow', String(percent));
+    meter.dataset.ready = String(ready);
+    document.querySelector<HTMLElement>('#roll-fill')!.style.width = `${percent}%`;
+    const label = charge < 1 ? `${percent}%` : ready ? 'READY' : 'WAIT';
+    document.querySelector('#roll-label')!.textContent = label;
+    const button = document.querySelector<HTMLButtonElement>('[data-action="roll"]');
+    if (button) {
+      button.style.setProperty('--charge', `${percent}%`);
+      button.dataset.ready = String(ready);
+      button.setAttribute('aria-label', `회피 ${label}`);
+      button.innerHTML = `회피<small>${label}</small>`;
+    }
+    document.querySelector<HTMLElement>('#reinforcement-warning')!.hidden =
+      s.reinforcements.warnings.length === 0;
+
     document.querySelector('#weapon-label')!.textContent =
       s.player.weapon === 'bow' ? 'BOW · I SWITCH' : 'SWORD · I SWITCH';
     document.querySelector<HTMLElement>('#hp-fill')!.style.width =

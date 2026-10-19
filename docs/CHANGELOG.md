@@ -1,5 +1,11 @@
 ## 0.7.1
 
+## Unreleased — touch controls and grounded walking
+
+- Landscape touch overlay, portrait pause, game-area gesture suppression, configurable touch controls.
+- Eight-frame bow walking and weighted sword walking; lowered idle braids, empty bow-idle hand, longer arrows.
+- Keyboard controls and combat balance preserved.
+
 - Redrew all nine modern Eira animation sheets (130 poses) from the first approved idle identity: silver-gray braid, slender SD proportions and consistent blue/gold costume.
 - Preserved controls, combat timing and enemy assets; compacted special-attack atlas indices and synchronized review clips.
 - Corrected source padding, sword tips and bow props; aligned regenerated poses and refreshed portrait from the original reference.
@@ -63,3 +69,10 @@ Two-handed sword art; K guard replaces kick; down-forward-J rising replaces L; s
 - Responsive title/HUD/pause/volume/field-guide UI and F1 diagnostics.
 - PNG pipeline, Vitest model/playthrough coverage, Playwright Chromium production-path coverage, CI/Pages configuration and maintenance documentation.
 - Known scope: programmatic MVP art; keyboard desktop only; one stage; remote deployment and non-Chromium browsers not yet verified.
+
+## 2026-10-20 — Eira v12 and boss support
+
+- Added HP-adjacent roll recharge meter and mobile charge indication, including READY/WAIT state distinction.
+- Revised all 146 Eira poses for ivory skirt/gold hem and fitted boot continuity; low bow idle and matching eight-frame walk, arrow-free equip/unequip.
+- Lengthened player flight arrows from 32 to 48 pixels without changing damage or collision.
+- Added telegraphed, capped boss support at 70% and 35% HP; boss defeat clears remaining support immediately.

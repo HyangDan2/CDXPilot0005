@@ -30,18 +30,13 @@ export function movePlayer(
     setState(a, 'Switch');
     return;
   }
-  if (input.commands.includes('roll') && !isDisabled(a) && a.z === 0 && a.rollCooldown <= 0) {
-    const d = a.attack && attacks[a.attack.id];
-    const cancel =
-      !a.attack ||
-      (a.attack.id === 'shot' && attackPhase('shot', a.attack.elapsed) === 'startup') ||
-      (d && a.attack.elapsed * 60 >= d.startupFrames + d.activeFrames + d.recoveryFrames * 0.6);
-    if (cancel && setState(a, 'Roll', true)) {
+  if (input.commands.includes('roll') && canRoll(a)) {
+    if (setState(a, 'Roll', true)) {
       a.attack = null;
       a.vx = a.vy = 0;
       const length = Math.hypot(input.x, input.y) || 1;
       a.rollDirection = { x: (input.x || (!input.y ? a.facing : 0)) / length, y: input.y / length };
-      a.rollCooldown = 1.2;
+      a.rollCooldown = PLAYER.rollCooldown;
       return;
     }
   }
@@ -74,4 +69,23 @@ export function movePlayer(
   if (input.x) a.facing = input.x > 0 ? 1 : -1;
   if (a.z === 0 && a.vz === 0 && a.state !== 'Land')
     setState(a, input.x || input.y ? (input.dash ? 'Run' : 'Walk') : 'Idle');
+}
+
+/** Shared with HUD so READY means the command can actually be accepted. */
+export function canRoll(a: Actor): boolean {
+  if (
+    a.hp <= 0 ||
+    isDisabled(a) ||
+    a.z !== 0 ||
+    a.rollCooldown > 0 ||
+    a.state === 'Roll' ||
+    a.state === 'Switch'
+  )
+    return false;
+  const d = a.attack && attacks[a.attack.id];
+  return (
+    !a.attack ||
+    (a.attack.id === 'shot' && attackPhase('shot', a.attack.elapsed) === 'startup') ||
+    !!(d && a.attack.elapsed * 60 >= d.startupFrames + d.activeFrames + d.recoveryFrames * 0.6)
+  );
 }

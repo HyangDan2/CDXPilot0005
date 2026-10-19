@@ -1,3 +1,4 @@
+import { Reinforcements } from './reinforcements';
 import { attacks } from '../../data/attacks';
 import { advanceArrows, type Arrow } from './projectiles';
 import { rollLoot, collectLoot, type Loot } from './loot';
@@ -26,6 +27,7 @@ export class Simulation {
   kills = 0;
   loot: Loot[] = [];
   arrows: Arrow[] = [];
+  reinforcements = new Reinforcements();
   private nextArrow = 1;
   private lootRandom: () => number;
   private nextId = 1;
@@ -47,6 +49,7 @@ export class Simulation {
   }
   step(dt: number, input: Input) {
     if (this.status !== 'playing') return;
+    if (this.finishBoss()) return;
     this.time += dt;
     this.buffer.push(input.commands, this.time);
     if (this.hitStop > 0) {
@@ -152,6 +155,18 @@ export class Simulation {
       this.status = 'over';
       return;
     }
+    if (this.finishBoss()) return;
+    if (this.boss && this.active)
+      this.reinforcements.update(
+        this.boss,
+        this.player,
+        this.enemies,
+        this.bounds,
+        dt,
+        (kind, x, y) => {
+          this.enemies.push(createActor(this.nextId++, kind, x, y));
+        },
+      );
     if (this.active && this.enemies.every((e) => e.hp <= 0)) {
       this.active = false;
       this.wave++;
@@ -173,8 +188,28 @@ export class Simulation {
           380 + this.random() * 90,
         ),
       );
-      if (this.boss) this.emit('boss', this.boss);
+      if (this.boss) {
+        this.reinforcements.clear();
+        this.emit('boss', this.boss);
+      }
     }
+  }
+  private finishBoss() {
+    if (
+      this.player.hp <= 0 ||
+      !this.active ||
+      this.wave !== waves.length - 1 ||
+      !this.enemies.some((e) => e.kind === 'boss' && e.hp <= 0)
+    )
+      return false;
+    this.status = 'clear';
+    this.wave = waves.length;
+    this.active = false;
+    this.enemies = [];
+    this.arrows = [];
+    this.reinforcements.clear();
+    this.emit('clear', this.player);
+    return true;
   }
   private releaseArrow(a: Actor, dt: number) {
     const attack = a.attack;

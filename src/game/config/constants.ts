@@ -14,6 +14,7 @@ export const PLAYER = {
   jump: 440,
   invulnerability: 0.7,
   bufferSeconds: 0.2,
+  rollCooldown: 1.2,
 } as const;
 export const clamp = (v: number, lo: number, hi: number) => Math.max(lo, Math.min(hi, v));
 

@@ -1,0 +1,78 @@
+{
+  "smooth-idle": {
+    "count": 12,
+    "columns": 4,
+    "scale": 0.8774,
+    "roots": [
+      185,
+      548,
+      901,
+      1263,
+      184,
+      549,
+      900,
+      1264,
+      184,
+      549,
+      901,
+      1264
+    ],
+    "source": "art/generated/sd-v11/idle.png"
+  },
+  "smooth-bow": {
+    "count": 16,
+    "columns": 4,
+    "scale": 1.132,
+    "roots": [
+      185,
+      502,
+      834,
+      1158,
+      172,
+      499,
+      816,
+      1151,
+      180,
+      547,
+      845,
+      1152,
+      182,
+      504,
+      828,
+      1153
+    ],
+    "source": "art/generated/sd-v11/bow.png"
+  },
+  "smooth-bow-walk": {
+    "count": 8,
+    "columns": 4,
+    "scale": 0.6632,
+    "roots": [
+      210,
+      599,
+      989,
+      1361,
+      216,
+      586,
+      984,
+      1353
+    ],
+    "source": "art/generated/sd-v11/bow-walk.png"
+  },
+  "smooth-sword-walk": {
+    "count": 8,
+    "columns": 4,
+    "scale": 0.7551,
+    "roots": [
+      212,
+      617,
+      1045,
+      1544,
+      209,
+      621,
+      1048,
+      1553
+    ],
+    "source": "art/generated/sd-v11/sword-walk.png"
+  }
+}
