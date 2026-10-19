@@ -1,0 +1,38 @@
+{
+  "reference": "/Users/jaehyukshim/.codex/generated_images/01a14dd8-f4a2-7390-bef3-da8bb3daee5d/exec-6b14adb3-1020-4ac3-b180-c4fc724bcd22.png",
+  "common": "Create game animation sprites of the EXACT character in this reference, matching its chunky 1990s pixel style and character design. Slender semi-SD about4 heads tall excluding feathers, small delicate head, neutral SILVER GRAY hair with red braid ribbon, blue eyes, broad royal blue armor plates with gold edges and central diamond breastplate, long ivory layered skirt with LONG gold cylindrical tassels, no gold crisscross bodysuit or spherical bead fringe. Both large white helmet feather wings and red gold circular medallion, NO projecting visor. Crisp pixel clusters, stepped edges, restrained dithering; NOT smooth vector cartoon, NOT glossy toy, NOT blue braid. Same scale, costume, head and long straight sword across ALL frames. Sword held by TWO anatomically correct hands on a SINGLE hilt, connected shoulder-elbow-forearm-wrist, not bent/missing/shortened. Complete silhouettes fully separated with at least30 pixels transparent margin all sides INCLUDING sheet border, no background, no FX or text. Do NOT crop any feather, braid, blade or foot. ",
+  "jobs": [
+    [
+      "move",
+      "Exactly16 poses,4columns4rows. First8: full walking loop, alternating planted foot/contact/passing, two hands hold long sword low in front trailing down-left. Last8: running loop forward facing right, alternating stride and tuck, torso leans forward, braid follows with natural delayed waves. Front three-quarter face visible. Same standing body height as reference; preserve simple walk/run actions."
+    ],
+    [
+      "combo",
+      "Exactly24 poses,4columns6rows in row-major order, sequence indices0..23. 0,1 high guard preparation with near forearm crossing FRONT OF FACE naturally;2,3 downward slash contact one knee bent;4,5 low follow-through.6,7 low-to-mid ascending preparation;8,9 low guard preparation;10,11 upward cut fully elevated.12 low drawn-back thrust preparation;13,14 long forward thrust extended straight right;15,16 thrust recovery.17 drawn-back twisting preparation;18 cross-body windup;19 low slash recovery;20,21 low recovery stance;22 rear-view mid-turn sweeping sword LEFT;23 front-view turn finish sweeping right. Four-hit combo: downward cut, ascending cut, thrust, full-turn finisher. Keep every sword SAME long length. Preserve two-handed grip and small head."
+    ],
+    [
+      "attack",
+      "Exactly24 poses6columns4rows. Row1 six phases of forward sword slash: windup0,1, contact2,3, recovery4,5. Row2 six reverse slash phases. Row3 six Rising Slash phases: crouch blade low-left, starting upward sweep, blade low-right, blade horizontal right, diagonal up-right, airborne sword vertical overhead. Row4 six aerial slash phases: legs tucked, windup blade raised, downward cut, followthrough, recovery. Rigid straight long sword rotates along circular arc, never bends. Both hands connected."
+    ],
+    [
+      "defense",
+      "Exactly16 poses4columns4rows. First8 poses sword guard: lowcarry, raise blade, vertical front guard, guarded stance, bent knees braced guard, recoil block, lower sword, lowcarry. Last8 spin skill: twist windup, raised sword, forward sweep, quarterturn, backview sword extends LEFT, turnthrough, front finish swordright, low recovery. Two hands on long straight sword always. Both white feather wings. No effects."
+    ],
+    [
+      "reaction",
+      "Exactly16 poses4columns4rows. Row1 jump preparation crouch, launch, ascent knees tucked, apex. Row2 descent tuck, one foot reaching down, low landing crouch, rising landing recovery. Row3 two hurt/stagger poses with pained expression, airborne knockback, falling backward. Row4 two prone downed poses, kneeling getting up, standing recovery. Every pose holds same complete straight long sword, no missing blade. Match reference face and outfit, expressions subtle."
+    ],
+    [
+      "stop",
+      "Exactly6 poses3columns2rows. Running stop sequence: long stride braking torso leaned, second deceleration step, knees easing, returning upright, settling, calm idle in reference pose. Hands carry swordlow in front trailing downleft. Braid initially flowing behind then settles down-left, delayed tip. Keep SAME body height and headsize all6, natural footplant."
+    ],
+    [
+      "bow",
+      "Exactly16 poses4columns4rows. Row1 two calm bow idle poses then two alternating walking poses. Row2 nock arrow, half draw, full draw with string at cheek, release with drawing hand followingthrough. Row3 bow braced guard, hit reaction, low crouch landing, prone defeated. Row4 equip transition: lower sword and reach for bow, reach over shoulder, bring bow forward, bow ready. Fine golden wood bow, thin string and one arrow. Character SAME reference armored Valkyrie, not archer costume. Stowed sword consistent. Anatomically correct elbow and wrist."
+    ],
+    [
+      "roll",
+      "Exactly12 poses6columns2rows. First row sword dodge roll six phases: low crouch, tucked forward, side-on halfway rotation, upside-down tuck, landing crouch, standing recovery. Second row same six phases with bow held close, quiver visible. Same slender proportions and outfit reference, keep long straight sword safely along body in sword poses, bow intact in bow poses. Feathers and braid follow rotation. Each isolated pose fully padded."
+    ]
+  ]
+}

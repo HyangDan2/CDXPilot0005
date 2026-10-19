@@ -1,3 +1,12 @@
+## v0.7.1 Eira style restoration
+
+- Regenerated9 Eira sheets/130 poses from the first approved idle reference. Enemy PNGs and simulation rules are unchanged.
+- `npm run verify`: passed assets/lint/typecheck/84 unit+integration tests/build.
+- `npm run test:e2e`:11 passed; review coverage now visits all20 Eira clips. One initial preview-server port collision cleared before retry.
+- Final special-attack display-scale adjustment and centered, unclipped review canvases passed a targeted Chromium review rerun. The scale adjustment passed `npm run assets:check`; all356 packed frames have valid bounds and transparent borders. Source registration rejects clipped silhouettes.
+- Visually compared idle/move/combo/bow/jump/rising/guard/roll at identical rendering scale. Small ornament/hand-shape differences remain a limitation of generated keyposes.
+- Provenance, prompts and registration are in `art/STYLE_V10.md` and `art/generated/sd-v10`.
+
 ## v0.7 verification
 
 - `npm run verify`: assets, ESLint, strict TypeScript,84 unit/integration tests and production build passed.

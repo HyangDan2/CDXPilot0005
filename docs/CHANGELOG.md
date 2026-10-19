@@ -1,3 +1,9 @@
+## 0.7.1
+
+- Redrew all nine modern Eira animation sheets (130 poses) from the first approved idle identity: silver-gray braid, slender SD proportions and consistent blue/gold costume.
+- Preserved controls, combat timing and enemy assets; compacted special-attack atlas indices and synchronized review clips.
+- Corrected source padding, sword tips and bow props; aligned regenerated poses and refreshed portrait from the original reference.
+
 ## 0.7.0
 
 - I sword/bow switch, slow J shot, L dodge with vulnerable startup/landing and cooldown.

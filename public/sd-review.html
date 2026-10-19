@@ -106,8 +106,8 @@
       slash2: ['smooth-combo', [8, 9, 10, 11, 7, 8], [83, 83, 58, 58, 133, 133]],
       slash3: ['smooth-combo', [12, 12, 13, 14, 15, 16], [100, 100, 50, 50, 142, 142]],
       slash4: ['smooth-combo', [17, 18, 22, 23, 20, 21], [133, 133, 83, 83, 208, 208]],
-      rising: seq('smooth-attack', range(12, 6), 684),
-      air: seq('smooth-attack', range(18, 6), 400),
+      rising: seq('smooth-attack', range(0, 6), 684),
+      air: seq('smooth-attack', range(6, 6), 400),
       guard: seq('smooth-defense', range(0, 8), 830),
       spin: seq('smooth-defense', range(8, 8), 900),
       jump: seq('smooth-reaction', range(0, 8), 620),
@@ -173,9 +173,9 @@
     function contact() {
       const [sheet, frames] = sequence(),
         c = $('contact');
-      c.width = frames.length * 200;
-      c.height = 235;
-      frames.forEach((f, i) => draw(c, sheet, f, 0.4, i * 200 + 80, 210));
+      c.width = frames.length * 256;
+      c.height = 256;
+      frames.forEach((f, i) => draw(c, sheet, f, 0.5, i * 256 + 128, 210));
       scrub.max = frames.length - 1;
     }
     function options() {
@@ -228,8 +228,8 @@
         const c = $(id),
           ctx = c.getContext('2d');
         ctx.clearRect(0, 0, c.width, c.height);
-        const x = c.width * 0.4,
-          y = c.height * 0.86;
+        const x = c.width * 0.5,
+          y = c.height * (420 / 512);
         ctx.strokeStyle = '#d9bd73';
         ctx.beginPath();
         ctx.moveTo(0, y);

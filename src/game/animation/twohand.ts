@@ -53,7 +53,7 @@ export function twohandFrame(a: Actor) {
       return { sheet: 'smooth-combo', frame: frames[index] };
     }
     const base =
-      a.attack.id === 'rising' ? 12 : a.attack.id === 'air' ? 18 : a.attack.id === 'slash2' ? 6 : 0;
+      a.attack.id === 'rising' ? 0 : a.attack.id === 'air' ? 6 : a.attack.id === 'slash2' ? 6 : 0;
     if (a.attack.id === 'rising')
       return {
         sheet: 'smooth-attack',

@@ -169,6 +169,8 @@ const specs = {
     roots: [200, 570, 950, 1330, 180, 520, 990, 1320, 190, 540, 950, 1330],
   },
 };
+// v10 overrides preserve original source definitions for reproducible registration.
+Object.assign(specs, JSON.parse(fs.readFileSync('art/generated/sd-v10/registration.json', 'utf8')));
 const size = 512,
   origin = [192 / size, 420 / size];
 const manifest = { version: 3, size, origin, scale: 0.5, sheets: {} };
@@ -176,7 +178,9 @@ fs.mkdirSync('public/assets/sd-v3', { recursive: true });
 for (const [name, spec] of Object.entries(specs)) {
   const source = PNG.sync.read(fs.readFileSync(spec.source ?? `art/generated/sd-v3/${name}.png`));
   const { parts, labels } = components(source);
-  const large = parts.filter((p) => p.count > 2000).sort((a, b) => a.bottom - b.bottom);
+  const large = parts
+    .filter((p) => p.count > 2000 && p.bottom >= (spec.minSourceBottom ?? 0))
+    .sort((a, b) => a.bottom - b.bottom);
   if (large.length !== spec.count)
     throw Error(`${name}: ${large.length} silhouettes, expected ${spec.count}`);
   const sorted = [];
@@ -270,8 +274,15 @@ console.log(
   'Packed SD poses including expanded combo and restored idle frames; original RGBA preserved.',
 );
 
-// HUD crop from the same authored SD idle pose, no synthesized repainting.
-const original = PNG.sync.read(fs.readFileSync('art/generated/sd-v3/retro-idle.png'));
+// HUD uses the same original identity reference, cropped and nearest-neighbor scaled only.
+const original = PNG.sync.read(fs.readFileSync('art/generated/sd-v10/style-reference.png'));
 const portrait = new PNG({ width: 140, height: 160 });
-PNG.bitblt(original, portrait, 255, 30, 140, 160, 0, 0);
+for (let y = 0; y < 160; y++)
+  for (let x = 0; x < 140; x++) {
+    const sx = 535 + Math.floor((x * 300) / 140),
+      sy = 295 + Math.floor((y * 343) / 160);
+    const si = (sy * original.width + sx) * 4,
+      di = (y * 140 + x) * 4;
+    original.data.copy(portrait.data, di, si, si + 4);
+  }
 fs.writeFileSync('public/assets/sd-v3/portrait.png', PNG.sync.write(portrait));

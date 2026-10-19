@@ -81,3 +81,7 @@ See [v8 combo and branding](art/COMBO_V8.md) for source provenance, prompts and 
 ## v0.7
 
 See [ranged/roll artwork and music provenance](art/RANGED_V9.md). `npm run assets:pack-sd` includes sd-v9 sources. Run `npm run audio:generate` for battle and result music.
+
+## Eira original style restoration
+
+[Style v10](art/STYLE_V10.md) documents the single original idle reference, nine regenerated Eira sheets, prompts, source IDs and registration. Enemy sheets remain unchanged.

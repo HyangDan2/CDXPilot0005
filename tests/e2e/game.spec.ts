@@ -149,6 +149,33 @@ test('SD review plays integrated weapon poses for the whole cast', async ({ page
   page.on('pageerror', (e) => errors.push(e.message));
   await page.goto('sd-review.html');
   await expect(page.locator('#status')).toContainText('player');
+  for (const clip of [
+    'idle',
+    'walk',
+    'run',
+    'stop',
+    'slash',
+    'slash2',
+    'slash3',
+    'slash4',
+    'rising',
+    'air',
+    'spin',
+    'jump',
+    'hit',
+    'roll',
+    'bowIdle',
+    'bowWalk',
+    'bowShot',
+    'bowGuard',
+    'bowRoll',
+    'switch',
+  ]) {
+    await page.locator('#clip').selectOption(clip);
+    await expect(page.locator('#status')).toContainText(clip);
+    if (['idle', 'slash', 'rising', 'spin', 'bowShot', 'roll'].includes(clip))
+      await page.screenshot({ path: info.outputPath(`v10-${clip}.png`), fullPage: true });
+  }
   await page.locator('#clip').selectOption('guard');
   await expect(page.locator('#status')).toContainText('guard');
   await page.getByRole('button', { name: '일시정지' }).click();

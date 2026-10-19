@@ -62,7 +62,7 @@ describe('authored SD motion and collision', () => {
   it('uses two-handed slash, spin, rising and enemy weapons at their active timing', () => {
     expect(sdFrame(attacking('spin', 0.8))).toEqual({ sheet: 'smooth-defense', frame: 14 });
     expect(sdFrame(attacking('slash1', 0.8))).toEqual({ sheet: 'smooth-combo', frame: 3 });
-    expect(sdFrame(attacking('rising', 0.8))).toEqual({ sheet: 'smooth-attack', frame: 17 });
+    expect(sdFrame(attacking('rising', 0.8))).toEqual({ sheet: 'smooth-attack', frame: 5 });
     for (const kind of ['player', 'grunt', 'rusher', 'guard', 'boss'] as Actor['kind'][]) {
       const a = createActor(1, kind, 0, 420);
       for (const state of [
