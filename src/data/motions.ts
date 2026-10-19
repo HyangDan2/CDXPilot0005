@@ -16,8 +16,10 @@ const strike = (
   depth = 25,
 ): StrikeShape => ({ offsetX, width, minZ, maxZ, depth });
 export const strikeTracks: Partial<Record<AttackId, readonly StrikeShape[]>> = {
-  slash1: [strike(3, 78, 16, 73), strike(8, 98, 42, 73)],
-  slash2: [strike(8, 98, 42, 73), strike(3, 78, 16, 73)],
+  slash1: [strike(5, 70, 55, 120), strike(8, 98, 5, 65)],
+  slash2: [strike(8, 98, 5, 65), strike(5, 75, 55, 120)],
+  slash3: [strike(8, 100, 35, 75, 18), strike(8, 125, 35, 75, 18)],
+  slash4: [strike(-85, 105, 15, 95, 34), strike(0, 110, 15, 95, 34)],
   kick: [strike(4, 49, 33, 69, 22), strike(8, 54, 53, 88, 22)],
   rising: [
     strike(3, 58, 20, 65, 27),

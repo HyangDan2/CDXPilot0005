@@ -82,8 +82,11 @@ export function applyHit(attacker: Actor, target: Actor) {
   const damage = damageAmount(def.damage, guarded || armored);
   target.hp = Math.max(0, target.hp - damage);
   target.invulnerable = target.kind === 'player' ? PLAYER.invulnerability : 0.09;
-  const knockDirection =
-    attacker.attack.id === 'spin' ? (target.x >= attacker.x ? 1 : -1) : attacker.facing;
+  const knockDirection = ['spin', 'slash4'].includes(attacker.attack.id)
+    ? target.x >= attacker.x
+      ? 1
+      : -1
+    : attacker.facing;
   target.vx = armored ? 0 : def.knockbackX * knockDirection * (guarded ? 0.2 : 1);
   target.vy = armored ? 0 : def.knockbackY;
   if (armored) {
@@ -146,19 +149,25 @@ export function chooseAttack(a: Actor, command: Command): AttackId | null {
   if (a.z > 15) return command === 'sword' ? 'air' : null;
   if (command === 'spin') return 'spin';
   if (command === 'rising') return 'rising';
-  return a.attack?.id === 'slash1' ? 'slash2' : 'slash1';
+  const next: Partial<Record<AttackId, AttackId>> = {
+    slash1: 'slash2',
+    slash2: 'slash3',
+    slash3: 'slash4',
+  };
+  return (a.attack && next[a.attack.id]) || 'slash1';
 }
 export class AttackBuffer {
   private pending: { command: Command; expires: number }[] = [];
   push(commands: Command[], now: number) {
     for (const command of commands)
       if (command !== 'jump' && command !== 'spin')
-        this.pending.push({ command, expires: now + PLAYER.bufferSeconds });
+        if (!this.pending.some((p) => p.expires >= now))
+          this.pending = [{ command, expires: now + PLAYER.bufferSeconds }];
     this.pending = this.pending.slice(-4);
   }
   consume(a: Actor, now: number): AttackId | null {
     this.pending = this.pending.filter((p) => p.expires >= now);
-    if (a.state === 'Guard') {
+    if (a.state === 'Guard' || isDisabled(a)) {
       this.clear();
       return null;
     }
@@ -170,7 +179,7 @@ export class AttackBuffer {
     if (a.attack) {
       const def = attacks[a.attack.id];
       cancel =
-        a.attack.elapsed * 60 >= def.startupFrames + def.activeFrames &&
+        a.attack.elapsed * 60 >= def.startupFrames + def.activeFrames + 6 &&
         def.cancelInto.includes(id);
       if (!cancel) return null;
     }

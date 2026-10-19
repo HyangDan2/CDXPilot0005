@@ -1,3 +1,9 @@
+## 0.6.0 — 2026-10-20
+
+- Four-stage vulnerable sword chain with increasing damage and interrupt reset; one buffered follow-up, mandatory windup and recovery gap.
+- Add24 authored combo poses, restore both idle helmet plumes, improve small-component atlas ownership.
+- Add generated1200×630 social preview, PNG/ICO favicons, Apple icon and Open Graph/Twitter metadata.
+
 ## 0.5.0 — 2026-10-20
 
 - Add 84 Eira and 72 enemy authored poses, doubling prior asset counts; add six interruptible run-stop poses.

@@ -75,3 +75,5 @@ Keep original input art outside generated outputs; add provenance before importi
 ## Smooth v7
 
 See [smooth motion notes](art/SMOOTH_V7.md) for 162 new poses, provenance, anchor changes and validation limitations.
+
+See [v8 combo and branding](art/COMBO_V8.md) for source provenance, prompts and limits.

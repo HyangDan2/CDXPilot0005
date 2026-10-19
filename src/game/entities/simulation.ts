@@ -93,6 +93,7 @@ export class Simulation {
       }
       const received = applyHit(e, this.player);
       if (received) {
+        this.buffer.clear();
         this.emit('hit', this.player, received);
         this.hitStop = 0.07;
         this.combo = 0;

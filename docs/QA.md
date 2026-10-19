@@ -43,3 +43,7 @@ Implemented and locally verified: movement/depth/jump/dash; two slashes/kick/ris
 ## v0.2 upgrade verification
 
 See docs/art/UPGRADE_QA.md for sequential generation and visual review. Final verify passed with 43 Vitest tests in 9 files; all 6 Chromium E2E tests passed. Tests include actual double-tap run/cancellation, active AI, bounded juggle at multiple render rates and 72 detailed pose frames. Build and PNG checks passed. Original v0.1 title/gameplay screenshots are preserved in screenshots/v0.1; current screenshots show the new reference-based art. Remote hosting and cross-browser checks remain unverified.
+
+## v0.6 local verification — 2026-10-20
+
+`npm run verify`: passed324-frame alpha/border validation, audio, lint, typecheck,74 unit/integration tests and production build. `npm run test:e2e`:9 Chromium tests passed, including actual keyboard four-strike chain and social/favicon HTTP loading. Inspected packed combo and gameplay preparation screenshots, feather restoration and32px icon. Remote GitHub runner was still queued at time of local verification; no remote deployment success claimed.

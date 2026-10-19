@@ -1,4 +1,5 @@
 import { it, expect } from 'vitest';
+import { attacks } from '../../src/data/attacks';
 import { createActor } from '../../src/game/entities/actor';
 import { applyHit, startAttack } from '../../src/game/combat/combat';
 import { integrate, FixedClock } from '../../src/game/physics/world';
@@ -9,7 +10,7 @@ function hit(a: Actor, b: Actor, id: AttackId = 'rising') {
   a.x = b.x - 45;
   a.y = b.y;
   startAttack(a, id);
-  a.attack!.elapsed = id === 'rising' ? 0.2 : 0.12;
+  a.attack!.elapsed = (attacks[id].startupFrames + 2) / 60;
   return applyHit(a, b);
 }
 it('reduces second launch and rejects all hits after third forced knockdown', () => {

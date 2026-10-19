@@ -17,7 +17,17 @@ export type AIState =
   'Idle' | 'Chase' | 'Flank' | 'Retreat' | 'Attack' | 'Recover' | 'Hit' | 'Down' | 'Death';
 export type Kind = 'player' | 'grunt' | 'rusher' | 'guard' | 'boss';
 export type AttackId =
-  'slash1' | 'slash2' | 'kick' | 'rising' | 'air' | 'enemy' | 'charge' | 'slam' | 'spin';
+  | 'slash1'
+  | 'slash2'
+  | 'slash3'
+  | 'slash4'
+  | 'kick'
+  | 'rising'
+  | 'air'
+  | 'enemy'
+  | 'charge'
+  | 'slam'
+  | 'spin';
 export type Command = 'sword' | 'rising' | 'jump' | 'spin';
 export interface Position {
   x: number;

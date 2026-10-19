@@ -15,6 +15,19 @@ export function twohandFrame(a: Actor) {
         frame:
           phase === 'startup' ? 8 + step(prep, 2) : phase === 'active' ? 10 + step(active, 5) : 15,
       };
+    if (['slash1', 'slash2', 'slash3', 'slash4'].includes(a.attack.id)) {
+      const base = (Number(a.attack.id.slice(-1)) - 1) * 6;
+      return {
+        sheet: 'smooth-combo',
+        frame:
+          base +
+          (phase === 'startup'
+            ? step(prep, 2)
+            : phase === 'active'
+              ? 2 + step(active, 2)
+              : 4 + step(recovery, 2)),
+      };
+    }
     const base =
       a.attack.id === 'rising' ? 12 : a.attack.id === 'air' ? 18 : a.attack.id === 'slash2' ? 6 : 0;
     if (a.attack.id === 'rising')

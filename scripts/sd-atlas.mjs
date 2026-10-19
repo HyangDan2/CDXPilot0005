@@ -3,12 +3,22 @@ import { PNG } from 'pngjs';
 import { components } from './sprite-components.mjs';
 // Source-space pelvis/ground anchors reviewed against original sheets. One scale per sheet.
 const specs = {
+  'smooth-combo': {
+    count: 24,
+    columns: 6,
+    scale: 1.3,
+    roots: [
+      150, 400, 650, 900, 1150, 1400, 150, 400, 650, 900, 1150, 1400, 145, 400, 640, 900, 1150,
+      1400, 150, 400, 650, 900, 1150, 1400,
+    ],
+    source: 'art/generated/sd-v8/combo.png',
+  },
   'smooth-idle': {
     count: 12,
     columns: 4,
     scale: 0.92,
     roots: [230, 610, 990, 1370, 240, 620, 1000, 1380, 230, 610, 990, 1370],
-    source: 'art/generated/sd-v7/idle.png',
+    source: 'art/generated/sd-v8/idle.png',
   },
   'smooth-move': {
     count: 16,
@@ -152,20 +162,33 @@ for (const [name, spec] of Object.entries(specs)) {
   for (let i = 0; i < large.length; i += spec.columns)
     sorted.push(...large.slice(i, i + spec.columns).sort((a, b) => a.left - b.left));
   const owner = new Int16Array(parts.length + 1).fill(-1);
+  const majorIndex = new Map(sorted.map((b, i) => [b.id, i]));
   for (const p of parts) {
+    if (majorIndex.has(p.id)) {
+      owner[p.id] = majorIndex.get(p.id);
+      continue;
+    }
     let best = Infinity,
       index = -1;
-    sorted.forEach((b, i) => {
-      const x = (p.left + p.right) / 2,
-        y = (p.top + p.bottom) / 2;
-      const d =
-        Math.max(b.left - x, 0, x - b.right) ** 2 + Math.max(b.top - y, 0, y - b.bottom) ** 2;
-      if (d < best) {
-        best = d;
-        index = i;
+    // Compare actual neighboring silhouette pixels, not overlapping bounding boxes.
+    for (let y = p.top; y <= p.bottom; y++)
+      for (let x = p.left; x <= p.right; x++) {
+        if (labels[y * source.width + x] !== p.id) continue;
+        for (let dy = -10; dy <= 10; dy++)
+          for (let dx = -10; dx <= 10; dx++) {
+            const d = dx * dx + dy * dy;
+            if (d >= best || d >= 100) continue;
+            const xx = x + dx,
+              yy = y + dy;
+            if (xx < 0 || yy < 0 || xx >= source.width || yy >= source.height) continue;
+            const i = majorIndex.get(labels[yy * source.width + xx]);
+            if (i !== undefined) {
+              best = d;
+              index = i;
+            }
+          }
       }
-    });
-    if (best < 100) owner[p.id] = index;
+    owner[p.id] = index;
   }
   const sheet = new PNG({ width: size * 4, height: size * Math.ceil(spec.count / 4) }),
     frames = [];
@@ -222,7 +245,7 @@ for (const [name, spec] of Object.entries(specs)) {
   };
 }
 fs.writeFileSync('public/assets/sd-v3/manifest.json', JSON.stringify(manifest, null, 2) + '\n');
-console.log('Packed SD poses including 162 smooth-motion frames; original RGBA preserved.');
+console.log('Packed SD poses including expanded combo and restored idle frames; original RGBA preserved.');
 
 // HUD crop from the same authored SD idle pose, no synthesized repainting.
 const original = PNG.sync.read(fs.readFileSync('art/generated/sd-v3/retro-idle.png'));

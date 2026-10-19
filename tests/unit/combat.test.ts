@@ -14,12 +14,12 @@ describe('combat', () => {
     const a = createActor(0, 'player', 100, 400),
       b = createActor(1, 'grunt', 150, 400);
     startAttack(a, 'slash1');
-    a.attack!.elapsed = 0.12;
+    a.attack!.elapsed = 0.24;
     return { a, b };
   };
   it('has startup active recovery windows', () => {
     expect(attackPhase('slash1', 0)).toBe('startup');
-    expect(attackPhase('slash1', 0.12)).toBe('active');
+    expect(attackPhase('slash1', 0.24)).toBe('active');
     expect(attackPhase('slash1', 0.3)).toBe('recovery');
   });
   it('checks facing, depth and height', () => {
@@ -31,7 +31,7 @@ describe('combat', () => {
     b.x = 30;
     expect(canHit(a, b)).toBe(false);
     b.x = 150;
-    b.z = 120;
+    b.z = 150;
     expect(canHit(a, b)).toBe(false);
   });
   it('hits each target only once per swing', () => {
@@ -74,11 +74,11 @@ describe('combat', () => {
       q = new AttackBuffer();
     q.push(['sword'], 0);
     expect(q.consume(a, 0)).toBe('slash1');
-    q.push(['sword'], 0.15);
-    expect(q.consume(a, 0.15)).toBe(null);
-    a.attack!.elapsed = 0.23;
-    expect(q.consume(a, 0.23)).toBe('slash2');
-    a.attack!.elapsed = 0.26;
+    q.push(['sword'], 0.25);
+    expect(q.consume(a, 0.25)).toBe(null);
+    a.attack!.elapsed = 0.39;
+    expect(q.consume(a, 0.39)).toBe('slash2');
+    a.attack!.elapsed = 0.39;
     q.push(['rising'], 0.6);
     expect(q.consume(a, 0.6)).toBe('rising');
   });

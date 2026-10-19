@@ -248,3 +248,36 @@ test('K guard, directional rising, strict spin and BGM lifecycle', async ({ page
     )
     .toBe(1);
 });
+
+test('four-strike keyboard chain and social assets', async ({ page }, info) => {
+  await page.goto('?test=1');
+  await page.getByRole('button', { name: 'BEGIN YOUR OATH' }).click();
+  await page.keyboard.press('j');
+  for (const id of ['slash1', 'slash2', 'slash3', 'slash4']) {
+    await expect
+      .poll(() => page.evaluate(() => window.__VALKYRIE__!.snapshot().player.attack))
+      .toBe(id);
+    await page.locator('#stage').screenshot({ path: info.outputPath(`${id}.png`) });
+    if (id !== 'slash4') {
+      await page.waitForTimeout(210);
+      await page.keyboard.press('j');
+    }
+  }
+  await expect
+    .poll(() => page.evaluate(() => window.__VALKYRIE__!.snapshot().player.attack))
+    .toBeNull();
+  await expect(page.locator('meta[property="og:image"]')).toHaveAttribute(
+    'content',
+    'https://hyangdan2.github.io/CDXPilot0005/social/valkyrie.jpg',
+  );
+  for (const path of [
+    'favicon-16.png',
+    'favicon-32.png',
+    'favicon.ico',
+    'apple-touch-icon.png',
+    'social/valkyrie.jpg',
+  ]) {
+    const response = await page.request.get(path);
+    expect(response.ok()).toBeTruthy();
+  }
+});

@@ -30,7 +30,10 @@ export function integrate(
     }
   }
   if (a.state === 'Land' && a.stateTime > 0.1) setState(a, 'Idle');
-  if (a.state === 'Hit' && a.stateTime > (a.kind === 'boss' ? 0.13 : 0.3))
+  if (
+    a.state === 'Hit' &&
+    a.stateTime > (a.kind === 'boss' ? 0.13 : a.kind === 'player' ? 0.3 : 0.18)
+  )
     setState(a, a.z > 0 ? 'Fall' : 'Idle');
   if (a.state === 'Knockdown' && a.z === 0 && a.vz <= 0) {
     a.juggle.groundedTime += dt;
