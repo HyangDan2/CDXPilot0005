@@ -87,7 +87,7 @@ describe('AI and stage', () => {
     expect(s.player.z).toBeGreaterThan(0);
     input.commands = ['sword'];
     s.step(1 / 60, input);
-    expect(s.player.attack?.id).toBe('slash1');
+    expect(s.player.attack?.id).toBe('air');
   });
 });
 

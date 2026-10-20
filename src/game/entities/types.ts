@@ -57,6 +57,8 @@ export interface Actor extends Position {
   vx: number;
   vy: number;
   invulnerable: number;
+  /** Consumed on attack start; restored only by landing. */
+  airAttackUsed: boolean;
   attack: {
     id: AttackId;
     elapsed: number;

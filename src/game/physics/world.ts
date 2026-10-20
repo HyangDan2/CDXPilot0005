@@ -38,6 +38,7 @@ export function integrate(
       a.z = 0;
       a.vz = 0;
       landed = true;
+      a.airAttackUsed = false;
       if (a.state === 'Fall' || a.state === 'Jump') setState(a, 'Land');
     }
   }

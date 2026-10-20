@@ -1,3 +1,7 @@
+## Unreleased — one air attack per jump
+
+- Limit sword air attacks to one per airborne interval, including takeoff and low descent. Restore the attack on landing, retain the limit after interruption, and discard extra airborne inputs so they do not trigger a ground attack on landing.
+
 ## Unreleased — GameHub header placement
 
 - Move GameHub navigation beside the upper settings button on desktop and landscape touch layouts.

@@ -129,7 +129,9 @@ export function applyHit(attacker: Actor, target: Actor) {
 export function startAttack(a: Actor, id: AttackId, cancel = false) {
   if (isDisabled(a) || a.state === 'Roll' || a.state === 'Switch') return false;
   if (a.kind === 'player' && a.weapon === 'bow' && id !== 'shot') return false;
-  if (id === 'shot' && a.z > 0) return false;
+  const airborne = a.z > 0 || a.vz > 0;
+  if (id === 'shot' && airborne) return false;
+  if (a.kind === 'player' && airborne && (id !== 'air' || a.airAttackUsed)) return false;
   if (
     id === 'spin' &&
     (a.z !== 0 || !['Idle', 'Walk', 'Run'].includes(a.state) || a.attack || a.hp <= a.maxHp * 0.2)
@@ -140,6 +142,7 @@ export function startAttack(a: Actor, id: AttackId, cancel = false) {
   const state = id === 'kick' ? 'Kick' : id === 'rising' ? 'RisingSlash' : 'Attack';
   if (!setState(a, state, cancel)) return false;
   a.stateTime = 0;
+  if (a.kind === 'player' && airborne) a.airAttackUsed = true;
   a.attack = { id, elapsed: 0, hit: new Set() };
   return true;
 }
@@ -153,8 +156,9 @@ export function advanceAttack(a: Actor, dt: number) {
 }
 export function chooseAttack(a: Actor, command: Command): AttackId | null {
   if (['jump', 'roll', 'switch'].includes(command)) return null;
-  if (a.weapon === 'bow') return command === 'sword' && a.z === 0 ? 'shot' : null;
-  if (a.z > 15) return command === 'sword' ? 'air' : null;
+  if (a.z > 0 || a.vz > 0)
+    return a.weapon === 'sword' && command === 'sword' && !a.airAttackUsed ? 'air' : null;
+  if (a.weapon === 'bow') return command === 'sword' ? 'shot' : null;
   if (command === 'spin') return 'spin';
   if (command === 'rising') return 'rising';
   const next: Partial<Record<AttackId, AttackId>> = {
@@ -175,7 +179,11 @@ export class AttackBuffer {
   }
   consume(a: Actor, now: number): AttackId | null {
     this.pending = this.pending.filter((p) => p.expires >= now);
-    if (['Guard', 'Roll', 'Switch'].includes(a.state) || isDisabled(a)) {
+    if (
+      ['Guard', 'Roll', 'Switch'].includes(a.state) ||
+      isDisabled(a) ||
+      ((a.z > 0 || a.vz > 0) && a.airAttackUsed)
+    ) {
       this.clear();
       return null;
     }

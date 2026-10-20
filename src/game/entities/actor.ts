@@ -21,6 +21,7 @@ export function createActor(id: number, kind: Kind, x: number, y: number): Actor
     vy: 0,
     invulnerable: 0,
     attack: null,
+    airAttackUsed: false,
     ai: 'Idle',
     aiTime: 0,
     pattern: 0,
