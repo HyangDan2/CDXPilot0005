@@ -51,6 +51,10 @@ export class AudioEngine {
       );
   }
   pause(paused: boolean) {
+    if (paused && this.fade) {
+      clearInterval(this.fade);
+      this.fade = null;
+    }
     this.enabled = !paused;
     for (const a of this.music) a.pause();
     if (!paused) void this.music[this.track]?.play().catch(() => {});

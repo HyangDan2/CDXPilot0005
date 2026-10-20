@@ -9,7 +9,12 @@ export class Controller {
   private combat = new CombatInput();
   private down = (e: KeyboardEvent) => {
     if (document.querySelector('dialog[open]')) return;
-    if (e.target instanceof HTMLInputElement && !['Escape', 'F1'].includes(e.code)) return;
+    if (
+      e.target instanceof Element &&
+      e.target.closest('a, button, input, select, textarea') &&
+      !['Escape', 'F1'].includes(e.code)
+    )
+      return;
     if (['Space', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'F1'].includes(e.code))
       e.preventDefault();
     this.held.add(e.code);

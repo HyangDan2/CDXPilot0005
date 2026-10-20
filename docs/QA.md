@@ -1,3 +1,12 @@
+## GameHub return — 2026-10-20 (Asia/Seoul)
+
+- `npm run verify`: passed asset validation, ESLint, strict TypeScript, 92 unit/integration tests and production build with bundled Node 24.19.0.
+- `PORT=4185 npm run test:e2e`: 19 Chromium tests passed. Default port 4173 was occupied by another local project; the first rerun could not start its server, then the documented port override succeeded.
+- Six focused browser cases cover exact same-tab destination from title/pause/defeat/clear, direct entry with an ignored return-URL parameter, Enter isolation, one touch navigation, paused time, resume focus, settings preservation, Back, portrait rotation, and cancellation of pending result music on pagehide. External navigation is fulfilled with a local hub substitute for these tests.
+- Visually inspected desktop title/result and 667×375 touch-emulated title/pause screenshots in `test-results/`. The link has a 44px minimum height and a visible keyboard focus outline; menus leave combat touch regions inactive.
+- No art was generated or replaced. Existing authored-frame limitations remain. Physical iOS/Android devices and non-Chromium engines were not tested.
+- Hosted round-trip acceptance is recorded in the integration completion report after the Pages workflow completes.
+
 ## v0.7.1 Eira style restoration
 
 - Regenerated9 Eira sheets/130 poses from the first approved idle reference. Enemy PNGs and simulation rules are unchanged.

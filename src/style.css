@@ -1023,3 +1023,61 @@ dialog dd {
   padding: 8px 14px;
   text-align: center;
 }
+
+/* Secondary navigation stays within menus, away from combat touch controls. */
+.hub-link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  min-width: 44px;
+  width: fit-content;
+  margin: 8px auto 0;
+  padding: 10px 16px;
+  color: var(--gold);
+  font-size: 14px;
+  text-underline-offset: 4px;
+}
+.title-content .hub-link {
+  margin-left: 0;
+}
+.menu-card #hub-exit-note {
+  margin: 8px 0 0;
+  line-height: 1.5;
+}
+#overlay {
+  overflow-y: auto;
+  touch-action: pan-y;
+}
+.menu-card {
+  max-width: 100%;
+  padding: 12px 20px;
+}
+@media (max-height: 500px), (max-width: 900px) {
+  .title-content {
+    top: 5%;
+    padding-bottom: 12px;
+  }
+  .title-content h2 {
+    margin-top: 8px;
+  }
+  .title-content p {
+    margin: 10px 0;
+  }
+  .start-note {
+    display: none;
+  }
+  .menu-card .menu-rune {
+    display: none;
+  }
+  .menu-card h2 {
+    font-size: 22px;
+    margin: 8px 0;
+  }
+  .menu-card p {
+    margin: 8px 0;
+  }
+  .menu-card button {
+    margin: 6px auto;
+  }
+}

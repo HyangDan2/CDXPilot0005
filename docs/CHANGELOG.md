@@ -1,3 +1,9 @@
+## Unreleased — GameHub return
+
+- Add accessible same-tab 게임 허브로 links to title, pause, victory and defeat menus.
+- Warn that leaving a paused run discards unsaved progress; preserve stored settings.
+- Prevent menu activation from triggering gameplay shortcuts and silence audio on page exit.
+
 ## 0.7.1
 
 ## Unreleased — touch controls and grounded walking

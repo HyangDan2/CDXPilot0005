@@ -29,6 +29,7 @@ export class ArenaScene extends Phaser.Scene {
     });
     document.querySelector('#game')!.append(this.game.canvas);
     this.game.canvas.setAttribute('aria-label', 'Valkyrie game world');
+    this.game.canvas.tabIndex = -1;
     this.controller = new Controller(
       () => (this.ui.mode === 'paused' ? this.resume() : this.pause()),
       () => (this.debug = !this.debug),
@@ -44,11 +45,20 @@ export class ArenaScene extends Phaser.Scene {
     );
     this.view = new ArenaView(this);
     const enter = (e: KeyboardEvent) => {
-      if (e.code === 'Enter' && this.ui.mode === 'title') this.start();
+      if (document.querySelector('dialog[open]')) return;
+      if (e.target instanceof Element && e.target.closest('a, button, input, select, textarea'))
+        return;
+      if (e.code === 'Enter' && !e.repeat && this.ui.mode === 'title') this.start();
     };
     window.addEventListener('keydown', enter);
     const blur = () => this.pause();
     window.addEventListener('blur', blur);
+    const leavePage = () => {
+      this.pause();
+      this.controller.clear();
+      this.soundEngine.pause(true);
+    };
+    window.addEventListener('pagehide', leavePage);
     this.events.on('update', (_time: number, delta: number) => {
       if (this.ui.mode === 'playing') {
         this.clock.advance(delta / 1000, (dt) => {
@@ -80,6 +90,7 @@ export class ArenaScene extends Phaser.Scene {
       this.soundEngine.destroy();
       window.removeEventListener('keydown', enter);
       window.removeEventListener('blur', blur);
+      window.removeEventListener('pagehide', leavePage);
     });
   }
   audioStatus() {
@@ -92,6 +103,7 @@ export class ArenaScene extends Phaser.Scene {
     this.clock.reset();
     this.view.reset();
     this.ui.setMode('playing');
+    this.game.canvas.focus({ preventScroll: true });
     this.ui.update(this.sim);
     this.soundEngine.start();
   }
@@ -107,6 +119,7 @@ export class ArenaScene extends Phaser.Scene {
       this.controller.clear();
       this.clock.reset();
       this.ui.setMode('playing');
+      this.game.canvas.focus({ preventScroll: true });
       this.soundEngine.pause(false);
     }
   }

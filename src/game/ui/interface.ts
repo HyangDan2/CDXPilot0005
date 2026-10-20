@@ -1,3 +1,4 @@
+import { HUB_URL } from '../config/navigation';
 import { PLAYER } from '../config/constants';
 import { canRoll } from '../entities/movement';
 import { waves } from '../../data/stage';
@@ -117,8 +118,9 @@ export class Interface {
       this.overlay.innerHTML = '';
       return;
     }
+    const hubLink = `<a class="hub-link" href="${HUB_URL}"${mode === 'paused' ? ' aria-describedby="hub-exit-note"' : ''}>게임 허브로</a>`;
     if (mode === 'title')
-      this.overlay.innerHTML = `<div class="title-content"><div class="eyebrow"><span class="gold-line"></span> CHAPTER ONE</div><h2>VALKYRIE</h2><div class="title-subtitle">THE ASHEN GATE</div><p>The light has left these halls.<br>Give the darkness something to fear.</p><button class="primary-button" id="start-button">BEGIN YOUR OATH <span>→</span></button><div class="start-note">PRESS ENTER TO BEGIN</div></div><div class="hero-caption"><span>ᛉ</span><div>EIRA<small>THE LAST OATHKEEPER</small></div></div>`;
+      this.overlay.innerHTML = `<div class="title-content"><div class="eyebrow"><span class="gold-line"></span> CHAPTER ONE</div><h2>VALKYRIE</h2><div class="title-subtitle">THE ASHEN GATE</div><p>The light has left these halls.<br>Give the darkness something to fear.</p><button class="primary-button" id="start-button">BEGIN YOUR OATH <span>→</span></button><div class="start-note">PRESS ENTER TO BEGIN</div>${hubLink}</div><div class="hero-caption"><span>ᛉ</span><div>EIRA<small>THE LAST OATHKEEPER</small></div></div>`;
     else {
       const title =
         mode === 'paused'
@@ -127,8 +129,9 @@ export class Interface {
             ? 'The oath endures.'
             : 'Even light can fall.';
       const label = mode === 'paused' ? 'PAUSED' : mode === 'clear' ? 'STAGE CLEAR' : 'GAME OVER';
-      this.overlay.innerHTML = `<div class="menu-card"><span class="menu-rune">ᛉ</span><div class="eyebrow">${label}</div><h2>${title}</h2><p>${mode === 'paused' ? 'Your journey will wait.' : `Score ${String(sim?.score ?? 0).padStart(6, '0')} &nbsp; · &nbsp; Best combo ${sim?.bestCombo ?? 0}`}</p>${mode === 'paused' ? '<button class="primary-button" id="resume-button">RESUME JOURNEY <span>→</span></button>' : ''}<button class="${mode === 'paused' ? 'text-button' : 'primary-button'}" id="restart-button">${mode === 'clear' ? 'PLAY AGAIN' : 'RESTART JOURNEY'} <span>↻</span></button></div>`;
+      this.overlay.innerHTML = `<div class="menu-card"><span class="menu-rune">ᛉ</span><div class="eyebrow">${label}</div><h2>${title}</h2><p>${mode === 'paused' ? 'Your journey will wait.' : `Score ${String(sim?.score ?? 0).padStart(6, '0')} &nbsp; · &nbsp; Best combo ${sim?.bestCombo ?? 0}`}</p>${mode === 'paused' ? '<button class="primary-button" id="resume-button">RESUME JOURNEY <span>→</span></button>' : ''}<button class="${mode === 'paused' ? 'text-button' : 'primary-button'}" id="restart-button">${mode === 'clear' ? 'PLAY AGAIN' : 'RESTART JOURNEY'} <span>↻</span></button>${mode === 'paused' ? '<p id="hub-exit-note">허브로 나가면 현재 진행 상황은 저장되지 않습니다.</p>' : ''}${hubLink}</div>`;
     }
+    if (mode !== 'title') this.overlay.querySelector<HTMLButtonElement>('button')?.focus();
     this.overlay.querySelector('#start-button')?.addEventListener('click', this.actions.start);
     this.overlay.querySelector('#restart-button')?.addEventListener('click', this.actions.start);
     this.overlay.querySelector('#resume-button')?.addEventListener('click', this.actions.resume);
