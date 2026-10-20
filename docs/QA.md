@@ -1,3 +1,11 @@
+## GameHub header placement — 2026-10-20 (Asia/Seoul)
+
+- Moved the single GameHub link to the header, directly left of Settings, across title/gameplay/pause/results. Removed duplicate menu links. Landscape touch keeps both header actions visible; pause has separate space to their left.
+- Playing/paused activation pauses the game and opens a labelled native dialog. Cancel, Space on Cancel, and Escape return focus to the header link while retaining the pause menu. Confirmation uses a same-tab anchor and closes the dialog before navigation, so Back does not restore a stale exit dialog.
+- `npm run verify`: passed assets/lint/typecheck, 92 unit/integration tests and build. `PORT=4185 npm run test:e2e`: all 20 Chromium tests passed, including header adjacency, mobile touch confirmation, cancellation focus, no input leakage, exact destination, settings and Back. An initial test incorrectly treated Space on the focused Cancel button as an ignored gameplay shortcut; corrected it to verify native button activation and cancellation.
+- Visually inspected desktop header/title and 667×375 touch-emulated header/title/pause/confirmation screenshots in `test-results/`. No artwork changes. Physical devices and other browser engines remain unverified.
+- Hosted navigation acceptance follows the successful Pages workflow; the final completion report records its result.
+
 ## GameHub return — 2026-10-20 (Asia/Seoul)
 
 - `npm run verify`: passed asset validation, ESLint, strict TypeScript, 92 unit/integration tests and production build with bundled Node 24.19.0.

@@ -1024,60 +1024,61 @@ dialog dd {
   text-align: center;
 }
 
-/* Secondary navigation stays within menus, away from combat touch controls. */
-.hub-link {
+/* Global navigation sits beside settings; run exits pause for confirmation. */
+.header-actions {
   display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.hub-link {
+  display: inline-flex;
   align-items: center;
   justify-content: center;
   min-height: 44px;
-  min-width: 44px;
-  width: fit-content;
-  margin: 8px auto 0;
-  padding: 10px 16px;
+  padding: 10px 12px;
+  border: 1px solid #887951;
+  border-radius: 5px;
+  background: #13232b;
   color: var(--gold);
-  font-size: 14px;
-  text-underline-offset: 4px;
+  font-size: 13px;
+  letter-spacing: 0;
+  white-space: nowrap;
+  text-decoration: none;
 }
-.title-content .hub-link {
-  margin-left: 0;
+.exit-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 16px;
 }
-.menu-card #hub-exit-note {
-  margin: 8px 0 0;
-  line-height: 1.5;
+.exit-actions button {
+  min-height: 44px;
+  font-size: 13px;
+  letter-spacing: 0;
 }
-#overlay {
-  overflow-y: auto;
-  touch-action: pan-y;
+#hub-exit {
+  max-width: min(480px, calc(100vw - 32px));
+  max-height: calc(100dvh - 32px);
+  overflow: auto;
+  padding: 24px;
 }
-.menu-card {
-  max-width: 100%;
-  padding: 12px 20px;
+#hub-exit h2 {
+  font-size: 24px;
+  margin: 0 0 16px;
 }
-@media (max-height: 500px), (max-width: 900px) {
-  .title-content {
-    top: 5%;
-    padding-bottom: 12px;
-  }
-  .title-content h2 {
-    margin-top: 8px;
-  }
-  .title-content p {
-    margin: 10px 0;
-  }
-  .start-note {
+@media (max-width: 600px) {
+  .header-right > .status-dot,
+  .header-right > .version {
     display: none;
   }
-  .menu-card .menu-rune {
-    display: none;
+  .header-right {
+    font-size: 0;
+    gap: 0;
   }
-  .menu-card h2 {
-    font-size: 22px;
-    margin: 8px 0;
-  }
-  .menu-card p {
-    margin: 8px 0;
-  }
-  .menu-card button {
-    margin: 6px auto;
+}
+@media (orientation: landscape) {
+  .touch-device #pause-button {
+    right: 194px;
   }
 }

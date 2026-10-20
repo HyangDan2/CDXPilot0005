@@ -25,7 +25,6 @@ for (const mode of ['title', 'paused', 'over', 'clear'] as const) {
     await expect(link).toHaveAttribute('href', destination);
     await expect(link).not.toHaveAttribute('target', '_blank');
     if (mode === 'paused') {
-      await expect(page.locator('#hub-exit-note')).toContainText('저장되지 않습니다');
       await link.focus();
       const before = await page.evaluate(() => window.__VALKYRIE__!.snapshot());
       await page.keyboard.press('j');
@@ -33,12 +32,14 @@ for (const mode of ['title', 'paused', 'over', 'clear'] as const) {
       expect(await page.evaluate(() => window.__VALKYRIE__!.snapshot().time)).toBe(before.time);
       await page.locator('#resume-button').click();
       await expect(page.locator('#stage')).toHaveAttribute('data-mode', 'playing');
-      await expect(link).toHaveCount(0);
+      await expect(link).toBeVisible();
       await page.keyboard.press('Escape');
       await expect(page.locator('#resume-button')).toBeFocused();
     }
     await link.focus();
-    await page.locator('#stage').screenshot({ path: info.outputPath(`hub-${mode}.png`) });
+    await expect(page.locator('.header-actions > #hub-button + #settings-button')).toBeVisible();
+    await expect(page.locator('#overlay .hub-link')).toHaveCount(0);
+    await page.screenshot({ path: info.outputPath(`hub-${mode}.png`), fullPage: true });
     // Observe mode synchronously after the title's global Enter handler runs.
     await page.evaluate(() =>
       window.addEventListener('keydown', () => {
@@ -46,6 +47,11 @@ for (const mode of ['title', 'paused', 'over', 'clear'] as const) {
       }),
     );
     await page.keyboard.press('Enter');
+    if (mode === 'paused') {
+      await expect(page.locator('#hub-exit')).toBeVisible();
+      await expect(page.locator('#hub-exit-note')).toContainText('저장되지 않습니다');
+      await page.getByRole('link', { name: '허브로 이동', exact: true }).press('Enter');
+    } else await expect(page.locator('#hub-exit')).not.toBeVisible();
     await expect(page).toHaveURL(destination);
     expect(navigations).toBe(1);
     expect(context.pages()).toHaveLength(1);
@@ -79,6 +85,9 @@ test('small landscape touch menus and rotation preserve paused exit', async ({ b
   await expect(link).toBeInViewport();
   const bounds = (await link.boundingBox())!;
   expect(bounds.height).toBeGreaterThanOrEqual(44);
+  const settings = (await page.locator('#settings-button').boundingBox())!;
+  expect(settings.x - (bounds.x + bounds.width)).toBeCloseTo(8, 0);
+  expect(settings.y).toBeCloseTo(bounds.y, 0);
   await page.screenshot({ path: info.outputPath('hub-mobile-title.png') });
   await page.locator('#start-button').tap();
   await page.locator('#pause-button').tap();
@@ -89,6 +98,9 @@ test('small landscape touch menus and rotation preserve paused exit', async ({ b
   await expect(link).toBeInViewport();
   await page.screenshot({ path: info.outputPath('hub-mobile-pause.png') });
   await link.tap();
+  await expect(page.locator('#hub-exit')).toBeVisible();
+  await page.screenshot({ path: info.outputPath('hub-mobile-confirmation.png') });
+  await page.getByRole('link', { name: '허브로 이동', exact: true }).tap();
   await expect(page).toHaveURL(destination);
   expect(navigations).toBe(1);
   await context.close();
@@ -116,4 +128,39 @@ test('settings returns keyboard control and page exit cancels result music trans
       window.__VALKYRIE__!.snapshot().audio.tracks.every((track) => track.paused),
     ),
   ).toBe(true);
+});
+
+test('playing header exit pauses, blocks shortcuts and restores focus on both cancellations', async ({
+  page,
+}, info) => {
+  await page.goto('?test=1');
+  await page.locator('#start-button').click();
+  const hub = page.getByRole('link', { name: '게임 허브로', exact: true });
+  await hub.click();
+  await expect(page.locator('#hub-exit')).toBeVisible();
+  await expect(page.locator('#stage')).toHaveAttribute('data-mode', 'paused');
+  await expect(page.locator('#cancel-hub-exit')).toBeFocused();
+  const before = await page.evaluate(() => window.__VALKYRIE__!.snapshot());
+  await page.keyboard.press('j');
+  await page.keyboard.press('ArrowRight');
+  const after = await page.evaluate(() => window.__VALKYRIE__!.snapshot());
+  expect(after.time).toBe(before.time);
+  expect(after.player).toEqual(before.player);
+  await page.screenshot({ path: info.outputPath('hub-exit-confirmation.png'), fullPage: true });
+  await page.keyboard.press('Space');
+  await expect(page.locator('#hub-exit')).not.toBeVisible();
+  await expect(hub).toBeFocused();
+  await hub.press('Enter');
+  await page.locator('#cancel-hub-exit').click();
+  await expect(page.locator('#hub-exit')).not.toBeVisible();
+  await expect(hub).toBeFocused();
+  await expect(page.locator('#stage')).toHaveAttribute('data-mode', 'paused');
+  await hub.press('Enter');
+  await page.keyboard.press('Escape');
+  await expect(hub).toBeFocused();
+  await expect(page.locator('#stage')).toHaveAttribute('data-mode', 'paused');
+  await page.locator('#resume-button').click();
+  await expect(page.locator('canvas')).toBeFocused();
+  await expect(page.locator('#stage')).toHaveAttribute('data-mode', 'playing');
+  expect(await page.evaluate(() => window.__VALKYRIE__!.snapshot().player.attack)).toBeNull();
 });

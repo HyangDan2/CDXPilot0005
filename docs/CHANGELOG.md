@@ -1,3 +1,8 @@
+## Unreleased — GameHub header placement
+
+- Move GameHub navigation beside the upper settings button on desktop and landscape touch layouts.
+- Leaving a playing or paused run opens a paused confirmation dialog. Cancel/Escape restores header focus; title/results navigate directly.
+
 ## Unreleased — GameHub return
 
 - Add accessible same-tab 게임 허브로 links to title, pause, victory and defeat menus.
