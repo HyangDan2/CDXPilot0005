@@ -1,0 +1,42 @@
+{
+  "smooth-bow": {
+    "count": 16,
+    "columns": 4,
+    "scale": 1.0118,
+    "roots": [
+      208,
+      515,
+      836,
+      1143,
+      173,
+      495,
+      797,
+      1144,
+      179,
+      518,
+      818,
+      1153,
+      190,
+      508,
+      797,
+      1140
+    ],
+    "source": "art/generated/hand-fix-v13/bow.png"
+  },
+  "smooth-bow-walk": {
+    "count": 8,
+    "columns": 4,
+    "scale": 0.7375,
+    "roots": [
+      225,
+      665,
+      1105,
+      1545,
+      225,
+      665,
+      1105,
+      1545
+    ],
+    "source": "art/generated/hand-fix-v13/bow-walk.png"
+  }
+}

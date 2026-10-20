@@ -4,18 +4,18 @@ import { sdFrame } from '../../src/game/animation/sd';
 import { Simulation } from '../../src/game/entities/simulation';
 import { emptyInput } from '../../src/game/entities/types';
 
-it('plays both relaxed bow poses in a slow loop, in either facing direction', () => {
+it('plays both relaxed bow poses in a approved 1.8-second loop, in either facing direction', () => {
   const actor = createActor(0, 'player', 100, 400);
   actor.weapon = 'bow';
   for (const facing of [-1, 1] as const) {
     actor.facing = facing;
     for (const [time, frame] of [
       [0, 0],
-      [1.49, 0],
-      [1.5, 1],
-      [2.99, 1],
-      [3, 0],
-      [4.5, 1],
+      [0.89, 0],
+      [0.9, 1],
+      [1.79, 1],
+      [1.8, 0],
+      [2.7, 1],
     ]) {
       actor.stateTime = time;
       expect(sdFrame(actor)).toEqual({ sheet: 'smooth-bow', frame });

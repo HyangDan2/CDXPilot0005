@@ -1,0 +1,14 @@
+[
+  {
+    "sheet": "bow",
+    "changed": 2710,
+    "alphaPreserved": true,
+    "outsideMaskUnchanged": true
+  },
+  {
+    "sheet": "bow-walk",
+    "changed": 2249,
+    "alphaPreserved": true,
+    "outsideMaskUnchanged": true
+  }
+]

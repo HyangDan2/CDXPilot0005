@@ -1,3 +1,4 @@
+import { routeTarget } from '../../src/game/physics/obstacles';
 import { expect, it } from 'vitest';
 import { Simulation } from '../../src/game/entities/simulation';
 import { emptyInput, type Command } from '../../src/game/entities/types';
@@ -22,13 +23,30 @@ it('clears every encounter using movement and attacks without health or damage o
       if (Math.abs(dx) < 85 && Math.abs(dy) < 22 && tick % 14 === 0) {
         input.commands = [(['sword', 'sword', 'sword', 'rising'] as Command[])[action++ % 4]];
       }
-    } else input.x = p.x < (waves[s.wave]?.trigger ?? 3600) + 5 ? 1 : 0;
+    } else {
+      // Travel between encounters must now walk around intact level geometry.
+      const destination = { x: (waves[s.wave]?.trigger ?? 3600) + 5, y: 408 };
+      const waypoint = routeTarget(p, destination, s.environment.solids);
+      input.x = Math.abs(waypoint.x - p.x) > 2 ? Math.sign(waypoint.x - p.x) : 0;
+      input.y = Math.abs(waypoint.y - p.y) > 2 ? Math.sign(waypoint.y - p.y) : 0;
+    }
     s.step(1 / 60, input);
     s.drainEvents();
   }
-  expect(s.player.hp).toBeGreaterThan(0);
+  expect(
+    s.player.hp,
+    JSON.stringify({
+      wave: s.wave,
+      kills: s.kills,
+      player: s.player,
+      enemies: s.enemies.map((e) => ({ kind: e.kind, hp: e.hp, x: e.x, y: e.y })),
+    }),
+  ).toBeGreaterThan(0);
   // Boss defeat clears surviving reinforcements rather than requiring all four kills.
-  expect(s.kills).toBeGreaterThanOrEqual(13);
+  expect(
+    s.kills,
+    JSON.stringify({ player: s.player, wave: s.wave, walls: s.environment.barricades }),
+  ).toBeGreaterThanOrEqual(13);
   expect(s.kills).toBeLessThanOrEqual(17);
   expect({ status: s.status, wave: s.wave, hp: s.player.hp, kills: s.kills }).toEqual(
     expect.objectContaining({ status: 'clear', wave: 4 }),

@@ -1,3 +1,4 @@
+import { stageDepth } from '../../data/environment';
 import { clamp, WORLD, JUGGLE } from '../config/constants';
 import { setState } from '../entities/stateMachine';
 import type { Actor, Position } from '../entities/types';
@@ -12,7 +13,7 @@ export function integrate(
   if (a.state === 'Roll') {
     if (a.stateTime < 0.4) {
       a.x = clamp(a.x + a.rollDirection.x * 320 * dt, bounds[0], bounds[1]);
-      a.y = clamp(a.y + a.rollDirection.y * 220 * dt, WORLD.minY, WORLD.maxY);
+      a.y = clamp(a.y + a.rollDirection.y * 220 * dt, ...stageDepth(a.x));
     }
     if (a.stateTime >= 0.5) setState(a, 'Idle');
   }
@@ -26,7 +27,7 @@ export function integrate(
   }
   a.invulnerable = Math.max(0, a.invulnerable - dt);
   a.x = clamp(a.x + a.vx * dt, bounds[0], bounds[1]);
-  a.y = clamp(a.y + a.vy * dt, WORLD.minY, WORLD.maxY);
+  a.y = clamp(a.y + a.vy * dt, ...stageDepth(a.x));
   a.vx *= Math.exp(-10 * dt);
   a.vy *= Math.exp(-10 * dt);
   let landed = false;

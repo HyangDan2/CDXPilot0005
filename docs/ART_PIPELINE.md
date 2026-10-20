@@ -92,3 +92,27 @@ See [Touch / v11 artwork](art/TOUCH_V11.md) for current source provenance, regis
 ## v12 costume and bow continuity
 
 See [READINESS_V12.md](art/READINESS_V12.md) for all 11 source sheets, original generation IDs, prompts, rejected-sheet repair and visual limitations. Run `node scripts/prepare-sd-v12.mjs` before `npm run assets:pack-sd` to reproduce the 146 revised Eira poses. v12 registration overrides v11; originals are preserved.
+
+## Non-destructive size review
+
+See [2026-10-20 size audit](art/SIZE_REVIEW_2026-10-20.md). `node scripts/audit-actor-size.mjs` records measurements and hashes without repacking runtime artwork. `/actor-size-review.html` compares an existing-frame idle sequence and a provisional uniform air-attack scale; both are preview-only. The reference copy is byte-identical to the approved v10 source.
+
+## Approved idle cadence and bow preview
+
+[Idle application / bow review](art/BOW_IDLE_REVIEW_2026-10-20.md) records the applied existing-frame sword sequence, two preview-only bow cadence candidates, and why integrated air-attack scaling was retired to preserve sword length. All original PNGs remain unchanged. Open `/bow-idle-review.html` for visual comparison.
+
+## Courtyard environment prototype — 2026-10-20
+
+The widened courtyard tiles, wooden barricade, debris, vent grille, warning markings and flame triangles are original procedural Phaser graphics authored in `src/game/scenes/EnvironmentView.ts`. They use no external artwork or generated bitmap files. Barricade geometry, height and maximum HP come from `src/data/environment.ts`; the view displays simulation-owned HP and flame phase. Barricade depth sorting uses its ground/depth center, independently of its visible height. The warning sound is an original synthesized tone in `src/game/ui/AudioEngine.ts` and follows the existing SFX volume control.
+
+These are prototype visuals. The flames use geometric shapes and the barricade has a single damaged appearance plus debris, rather than authored animation frames. No character sheets, source PNGs, manifests or asset generation steps change. If replaced with raster art, preserve originals and introduce fixed transparent canvases and collision/anchor metadata through the existing asset pipeline.
+
+## Localized bow hand colors and effects preview
+
+[Hand fix and effects](art/HAND_FIX_AND_EFFECTS_2026-10-20.md) records the selected built-in imagegen output, final prompt, restricted RGB compositing and alpha/geometry invariants. Run `node scripts/pack-hand-fixes.mjs` before `npm run assets:pack-sd` to rebuild the two corrected bow sheets. Original v12 sources remain unchanged. `/attack-effects-review.html` shows silhouette-protected effects outside gameplay.
+
+## Stone cloister cover — phase 2
+
+The three masonry piers, capstones, seams, runes, ground footprints and passage chevrons are original code-authored Phaser graphics in `src/game/scenes/EnvironmentView.ts`. Their geometry/height comes from `pillarDefinitions` in `src/data/environment.ts`; ground vertices come from the same `depthProfile` used by simulation. Each pier sorts by ground/depth center and fades only for visual occlusion; collision and arrow interception remain unchanged when translucent.
+
+No external or AI-generated raster assets are introduced by phase 2, and no sprite sheets or asset-generation commands are changed for this feature. Stone geometry is deliberately simple prototype art; alpha fading and marked footprints keep the combat area readable.

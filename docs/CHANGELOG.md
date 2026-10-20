@@ -1,6 +1,37 @@
+## Unreleased — stone cover and S passage
+
+- Add three permanent, 120-unit-high stone piers to the widened second encounter. Alternating bottom/top/bottom gaps form an S passage; stone blocks arrows from both sides and melee through its footprint.
+- Author second-wave spawn positions, placing its archer in the upper lane at (1580, 365). Archers seek a clear line around cover and align after detours; committed shots can still be absorbed when a target takes cover.
+- Share nearest-surface arrow queries between simulation, AI and clipped aiming telegraphs. Keep paths and overlap recovery inside the piecewise-linear floor boundary.
+- Fade stone that obscures actors, mark ground footprints/passages and add original procedural masonry art.
+- Add cover, routing, spawn, progression, combat and keyboard/touch browser regressions; retain the full-run survival and clear assertions.
+
+## Unreleased — bow hand correction and approved idle A
+
+- Correct over-saturated red hand shading in bow and bow-walk with localized authored color transfers; preserve original geometry, alpha, costume and weapons.
+- Apply approved 1.8-second bow idle cadence. Add preview-only sword, air and bow effects with character-silhouette exclusion.
+
 ## Unreleased — one air attack per jump
 
 - Limit sword air attacks to one per airborne interval, including takeoff and low descent. Restore the attack on landing, retain the limit after interruption, and discard extra airborne inputs so they do not trigger a ground attack on landing.
+
+## Unreleased — courtyard environment prototype
+
+- Widen the first encounter's depth from 104 to 150 world units, with tapered entrances and a visible tiled floor.
+- Add an original procedural wooden barricade with 64 HP. Melee and arrows can destroy it; actors can detour or jump over its 60-unit height. Rolls, knockback and charges respect its collision.
+- Add a furnace vent with 2.8s rest, 1.4s visual/audio warning and 1.2s active fire. Ground fire deals 12 damage at most every 0.75s to either side; jump height 40+ and the established roll window avoid it, while guard does not reduce it.
+- Route enemies around intact geometry, preserve seeded loot/kill rewards for environmental defeats, and reset environment state on restart.
+- Add simulation and keyboard/touch browser regressions; extend the full-run test driver to navigate between encounters around surviving geometry.
+
+## Unreleased — approved sword idle continuity
+
+- Apply the approved three-second sword idle sequence without rescaling or repainting the character.
+- Add two preview-only bow idle cadence options; retire the air-attack shrink preview to preserve sword length.
+
+## Unreleased — character size inspection preview
+
+- Add a non-destructive 24-frame size audit and comparison page with pause, slow playback, facing, scale and landmark controls.
+- Preview an idle sequence adjustment and provisional air-attack scaling without changing production artwork or gameplay.
 
 ## Unreleased — GameHub header placement
 

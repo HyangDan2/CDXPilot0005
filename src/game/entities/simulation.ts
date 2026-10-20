@@ -1,3 +1,6 @@
+import { StageEnvironment } from './environment';
+import { collideSolids, meleeOccluded } from '../physics/obstacles';
+import { stageDepth } from '../../data/environment';
 import { Reinforcements } from './reinforcements';
 import { attacks } from '../../data/attacks';
 import { advanceArrows, type Arrow } from './projectiles';
@@ -28,6 +31,7 @@ export class Simulation {
   loot: Loot[] = [];
   arrows: Arrow[] = [];
   reinforcements = new Reinforcements();
+  environment = new StageEnvironment();
   private nextArrow = 1;
   private lootRandom: () => number;
   private nextId = 1;
@@ -56,6 +60,8 @@ export class Simulation {
       this.hitStop -= dt;
       return;
     }
+    this.environment.advance(dt, (e) => this.events.push(e));
+    const beforePlayer = { x: this.player.x, y: this.player.y };
     if (this.time > this.comboUntil) this.combo = 0;
     const oldVz = this.player.vz;
     const spin =
@@ -69,22 +75,29 @@ export class Simulation {
     const started = this.buffer.consume(this.player, this.time);
     if (started) this.emit('swing', this.player);
     if (integrate(this.player, dt, this.bounds)) this.emit('land', this.player);
+    collideSolids(this.player, beforePlayer, this.environment.solids);
     this.releaseArrow(this.player, dt);
     advanceAttack(this.player, dt);
+    this.environment.strike(this.player, (e) => this.events.push(e));
     let attacking = this.enemies.filter(
       (e) => e.hp > 0 && (e.attack || e.state === 'Guard'),
     ).length;
     for (const e of this.enemies) {
-      const id = updateAI(e, this.player, dt, attacking < 2, this.enemies);
+      const before = { x: e.x, y: e.y };
+      const id = updateAI(e, this.player, dt, attacking < 2, this.enemies, this.environment.solids);
       if (!id && e.state === 'Guard' && e.aiTime === 0) attacking++;
       if (id) {
         attacking++;
         this.emit('swing', e);
       }
       integrate(e, dt, this.bounds);
+      collideSolids(e, before, this.environment.solids);
       this.releaseArrow(e, dt);
       advanceAttack(e, dt);
-      const damage = applyHit(this.player, e);
+      this.environment.strike(e, (event) => this.events.push(event));
+      const damage = meleeOccluded(this.player, e, this.environment.solids)
+        ? 0
+        : applyHit(this.player, e);
       if (damage) {
         this.combo++;
         this.bestCombo = Math.max(this.bestCombo, this.combo);
@@ -92,15 +105,11 @@ export class Simulation {
         this.score += damage * 10 * this.combo;
         this.hitStop = this.player.attack?.id === 'rising' ? 0.045 : 0.033;
         this.emit('hit', e, damage);
-        if (e.hp === 0) {
-          this.kills++;
-          this.score += 200;
-          this.emit('death', e);
-          const fraction = rollLoot(this.lootRandom);
-          if (fraction) this.loot.push({ id: e.id, x: e.x, y: e.y, fraction, age: 0 });
-        }
+        if (e.hp === 0) this.defeat(e);
       }
-      const received = applyHit(e, this.player);
+      const received = meleeOccluded(e, this.player, this.environment.solids)
+        ? 0
+        : applyHit(e, this.player);
       if (received) {
         this.buffer.clear();
         this.emit('hit', this.player, received);
@@ -108,7 +117,7 @@ export class Simulation {
         this.combo = 0;
       }
       e.x = clamp(e.x, this.bounds[0], this.bounds[1]);
-      e.y = clamp(e.y, WORLD.minY, WORLD.maxY);
+      e.y = clamp(e.y, ...stageDepth(e.x));
     }
     this.arrows = advanceArrows(
       this.arrows,
@@ -125,17 +134,24 @@ export class Simulation {
           this.bestCombo = Math.max(this.bestCombo, this.combo);
           this.comboUntil = this.time + 2.2;
           this.score += damage * 10;
-          if (target.hp === 0) {
-            this.kills++;
-            this.score += 200;
-            this.emit('death', target);
-            const fraction = rollLoot(this.lootRandom);
-            if (fraction)
-              this.loot.push({ id: target.id, x: target.x, y: target.y, fraction, age: 0 });
-          }
+          if (target.hp === 0) this.defeat(target);
         }
       },
+      (arrow, before, end) => this.environment.interceptArrow(arrow, before, end),
     );
+    for (const a of [this.player, ...this.enemies]) {
+      const damage = this.environment.burn(a);
+      if (!damage) continue;
+      this.emit('hit', a, damage);
+      if (a.kind === 'player') {
+        this.buffer.clear();
+        this.combo = 0;
+      }
+      if (a.hp === 0) {
+        if (a.kind === 'player') this.emit('death', a);
+        else this.defeat(a);
+      }
+    }
     for (const item of this.loot) item.age += dt;
     this.loot = this.loot.filter((item) => {
       if (
@@ -184,15 +200,23 @@ export class Simulation {
         createActor(
           this.nextId++,
           kind,
-          Math.min(wave.end - 60, wave.trigger + 250 + i * 80),
-          380 + this.random() * 90,
+          wave.spawns?.[i]?.x ?? Math.min(wave.end - 60, wave.trigger + 250 + i * 80),
+          wave.spawns?.[i]?.y ?? 380 + this.random() * 90,
         ),
       );
+      for (const enemy of this.enemies) collideSolids(enemy, enemy, this.environment.solids);
       if (this.boss) {
         this.reinforcements.clear();
         this.emit('boss', this.boss);
       }
     }
+  }
+  private defeat(a: Actor) {
+    this.kills++;
+    this.score += 200;
+    this.emit('death', a);
+    const fraction = rollLoot(this.lootRandom);
+    if (fraction) this.loot.push({ id: a.id, x: a.x, y: a.y, fraction, age: 0 });
   }
   private finishBoss() {
     if (

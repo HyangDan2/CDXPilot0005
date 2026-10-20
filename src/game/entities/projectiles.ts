@@ -16,6 +16,7 @@ export function advanceArrows(
   actors: Actor[],
   dt: number,
   hit: (target: Actor, damage: number) => void,
+  intercept?: (arrow: Arrow, before: number, end: number) => boolean,
 ) {
   return arrows.filter((arrow) => {
     const before = arrow.x;
@@ -34,6 +35,7 @@ export function advanceArrows(
         target.z + 95 < arrow.z
       )
         continue;
+      if (intercept?.(arrow, before, target.x - arrow.facing * 16)) return false;
       const id = arrow.player ? 'shot' : 'enemyShot';
       const source: Actor = {
         ...target,
@@ -52,6 +54,6 @@ export function advanceArrows(
         return false;
       }
     }
-    return true;
+    return !intercept?.(arrow, before, arrow.x);
   });
 }

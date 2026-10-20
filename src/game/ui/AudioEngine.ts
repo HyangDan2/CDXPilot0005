@@ -109,6 +109,9 @@ export class AudioEngine {
       case 'land':
         this.tone(85, 0.1, 'triangle', 0.2, 35);
         break;
+      case 'hazardWarning':
+        this.tone(330, 0.45, 'triangle', 0.3, 660);
+        break;
       case 'boss':
         this.tone(55, 1.5, 'sawtooth', 0.25, 70);
         break;

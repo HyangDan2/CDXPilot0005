@@ -3,6 +3,8 @@ import { walkFrame } from './walk';
 import { attacks, attackPhase } from '../../data/attacks';
 import { activeProgress } from '../../data/motions';
 import type { Actor } from '../entities/types';
+// Approved idle cadence: preserve authored pixels and avoid the low final poses.
+const swordIdleFrames = [0, 1, 2, 3, 4, 5, 6, 7, 6, 4, 2, 1] as const;
 const step = (t: number, n: number) => Math.min(n - 1, Math.floor(Math.max(0, t) * n));
 export function twohandFrame(a: Actor) {
   if (a.state === 'Roll')
@@ -112,5 +114,8 @@ export function twohandFrame(a: Actor) {
   if (a.state === 'Walk') return { sheet: 'smooth-sword-walk', frame: walkFrame(a.stateTime) };
   if (a.stopTime !== undefined && a.stopTime < 0.3)
     return { sheet: 'smooth-stop', frame: step(a.stopTime / 0.3, 6) };
-  return { sheet: 'smooth-idle', frame: Math.floor(a.stateTime * 4) % 12 };
+  return {
+    sheet: 'smooth-idle',
+    frame: swordIdleFrames[Math.floor(Math.max(0, a.stateTime) * 4) % swordIdleFrames.length],
+  };
 }

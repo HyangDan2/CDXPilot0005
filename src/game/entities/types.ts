@@ -88,7 +88,17 @@ export interface Input {
 }
 export const emptyInput = (): Input => ({ x: 0, y: 0, dash: false, guard: false, commands: [] });
 export type GameEvent = {
-  type: 'swing' | 'hit' | 'kick' | 'jump' | 'land' | 'boss' | 'death' | 'clear' | 'heal';
+  type:
+    | 'swing'
+    | 'hit'
+    | 'kick'
+    | 'jump'
+    | 'land'
+    | 'boss'
+    | 'death'
+    | 'clear'
+    | 'heal'
+    | 'hazardWarning';
   x: number;
   y: number;
   value?: number;

@@ -1,0 +1,283 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>VALKYRIE · 캐릭터 크기 점검</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        font-family: system-ui, sans-serif;
+        background: #101923;
+        color: #e5edf4;
+      }
+      body {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 32px;
+      }
+      h1 {
+        font-size: 30px;
+        margin: 8px 0;
+      }
+      h2 {
+        font-size: 21px;
+        margin: 0 0 12px;
+      }
+      p {
+        line-height: 1.65;
+        color: #b9c8d5;
+      }
+      small,
+      .eyebrow {
+        color: #d9b577;
+      }
+      .eyebrow {
+        letter-spacing: 2px;
+        font-size: 12px;
+      }
+      .panel {
+        border: 1px solid #354553;
+        border-radius: 12px;
+        background: #17232f;
+        padding: 20px;
+        margin-top: 22px;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+      }
+      .reference {
+        display: grid;
+        grid-template-columns: 130px 1fr;
+        gap: 24px;
+        align-items: center;
+      }
+      .reference img {
+        width: 110px;
+        height: 165px;
+        object-fit: contain;
+      }
+      canvas {
+        width: auto;
+        max-width: 100%;
+        height: auto;
+        display: block;
+        background: #111d28;
+        image-rendering: pixelated;
+        border-radius: 8px;
+      }
+      button,
+      select,
+      input {
+        font: inherit;
+      }
+      button,
+      select {
+        padding: 8px 14px;
+        border: 1px solid #5b7181;
+        background: #243847;
+        color: #fff;
+        border-radius: 6px;
+      }
+      label {
+        display: inline-flex;
+        gap: 8px;
+        align-items: center;
+        margin: 8px 16px 8px 0;
+      }
+      .controls {
+        position: relative;
+        top: 0;
+        background: #101923ed;
+        padding: 12px 0;
+        z-index: 2;
+      }
+      input[type='range'] {
+        width: 180px;
+      }
+      strong {
+        color: #f0d5a4;
+      }
+      .caption {
+        min-height: 26px;
+        color: #b5c6d4;
+        margin: 8px 0;
+        font-size: 14px;
+      }
+      table {
+        border-collapse: collapse;
+        width: 100%;
+        font-size: 13px;
+      }
+      td,
+      th {
+        text-align: left;
+        padding: 7px;
+        border-bottom: 1px solid #344654;
+      }
+      details {
+        margin-top: 16px;
+      }
+      summary {
+        cursor: pointer;
+        color: #c7dbeb;
+      }
+      a {
+        color: #8fd9ee;
+      }
+      .badge {
+        font-size: 12px;
+        border: 1px solid #687858;
+        padding: 4px 9px;
+        border-radius: 30px;
+        color: #c5d7af;
+      }
+      @media (max-width: 720px) {
+        body {
+          padding: 16px;
+        }
+        .grid {
+          grid-template-columns: 1fr;
+        }
+        .controls {
+          position: static;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="eyebrow">VALKYRIE / ART REVIEW 01</div>
+    <h1>캐릭터 크기 · 원안 보존 점검</h1>
+    <p><a href="bow-idle-review.html">새 활 대기 미리보기와 점프 공격 추가 점검 →</a></p>
+    <p>
+      현재 프레임과 최소 보정 후보를 같은 배율로 비교합니다.
+      <span class="badge">칼 대기 적용 · 점프 공격 유지</span>
+    </p>
+    <section class="panel reference">
+      <img src="assets/size-review/reference.png" alt="승인된 캐릭터 원안" />
+      <div>
+        <h2>원안의 형태와 디테일 유지</h2>
+        <p>
+          모든 비교는 기존 런타임 이미지로 그립니다. 얼굴·갑옷·머리·무기를 다시 그리거나 부위별로
+          변형하지 않습니다.<br />왼쪽 원안은 디자인 확인용으로 축소 표시한 것이며, 크기 측정 기준
+          이미지는 현재 대기 0번 프레임입니다.
+        </p>
+      </div>
+    </section>
+    <div class="controls">
+      <button id="play">일시 정지</button><button id="reset">처음부터</button
+      ><label
+        >표시 크기
+        <select id="zoom">
+          <option value="0.5">게임 크기 · 0.5배</option>
+          <option value="1" selected>확대 비교 · 1배</option>
+        </select></label
+      ><label><input type="checkbox" id="flip" />왼쪽 방향</label
+      ><label><input type="checkbox" id="marks" checked />기준선·장식 측정 표시</label
+      ><label
+        >속도
+        <select id="speed">
+          <option value="1">정상</option>
+          <option value="0.25">0.25배속</option>
+        </select></label
+      >
+    </div>
+    <section class="panel">
+      <h2>01 / 칼 대기 · 크기 변경 없이 연결만 보정</h2>
+      <p>
+        현재 마지막 4프레임의 높이는 292px로, 첫 프레임 309px보다 5.5% 낮습니다. 붉은 장식은 23–25 ×
+        20–21px로 거의 유지됩니다.
+        <strong>몸 전체 확대 대신, 낮아지는 구간을 제외하고 기존 자세로 되돌아오는 후보</strong
+        >입니다.
+      </p>
+      <div class="grid">
+        <div>
+          <h3>현재 · 12프레임 순차 재생</h3>
+          <canvas id="idleBefore" width="560" height="460"></canvas>
+          <div id="idleBeforeLabel" class="caption"></div>
+        </div>
+        <div>
+          <h3>후보 · 동일 이미지, 연결 순서 조정</h3>
+          <canvas id="idleAfter" width="560" height="460"></canvas>
+          <div id="idleAfterLabel" class="caption"></div>
+        </div>
+      </div>
+      <label
+        >주기 위치 <input id="idleTime" type="range" min="0" max="2.999" step="0.001" value="0"
+      /></label>
+      <p>
+        두 안 모두 3초 주기·초당 4프레임. 후보: 0→1→2→3→4→5→6→7→6→4→2→1. 원본 8–11번은 삭제하지
+        않습니다. 후보 높이 범위 304–310px이며, 호흡의 깊이가 줄어드는 절충이 있습니다.
+      </p>
+    </section>
+    <section class="panel">
+      <h2>02 / 점프 공격 · 보정 필요성 비교</h2>
+      <p>
+        실행 중 배율은 항상 0.5입니다. 공중 공격의 붉은 장식은 23–25 × 21–25px로 대기·점프보다 큰
+        경향이 있지만, 회전과 그림 차이가 섞여 있습니다.
+        <strong
+          >검 길이를 보존하기 위해 94% 축소안은 폐기했습니다. 양쪽 모두 100%로 유지합니다.</strong
+        >
+      </p>
+      <div class="grid">
+        <div>
+          <h3>현재 · 모든 자세 100%</h3>
+          <canvas id="airBefore" width="560" height="460"></canvas>
+          <div id="airBeforeLabel" class="caption"></div>
+        </div>
+        <div>
+          <h3>검 길이 보존 · 공중 공격 100%</h3>
+          <canvas id="airAfter" width="560" height="460"></canvas>
+          <div id="airAfterLabel" class="caption"></div>
+        </div>
+      </div>
+      <label
+        >동작 위치
+        <input id="airTime" type="range" min="0" max="1.649" step="0.001" value="0" /></label
+      ><label
+        >공중 공격 배율
+        <input id="airScale" type="range" min="1" max="1" step="0.005" value="1" disabled /><output
+          id="scaleLabel"
+          >100%</output
+        ></label
+      >
+      <p>
+        대기 → 점프 → 공중 공격 → 착지 비교용 타임라인입니다. 공중 공격 0.45초의 프레임 배분은 현재
+        공격 데이터와 일치합니다. 나머지 유지 시간은 관찰용이며 실제 점프 물리 재현은 아닙니다. 높이
+        이동을 제거해 크기와 자세 차이를 분리했습니다. 회색 윤곽은 대기 0번 기준입니다.
+      </p>
+      <p>
+        전체 균일 축소는 검 길이도 줄이므로 적용하지 않습니다. 원본 공격 그림과 배율을 보존합니다.
+      </p>
+    </section>
+    <section class="panel">
+      <h2>03 / 머리·몸통 확대 대조</h2>
+      <p>
+        장식 중심을 같은 위치에 맞추고 동일 배율로 표시합니다. 점프·공격의 회전과 팔 가림 때문에
+        자동 측정만으로 체격 차이를 확정할 수 없습니다.
+      </p>
+      <canvas id="details" width="1120" height="320"></canvas>
+      <details>
+        <summary>24프레임 측정값 · 아틀라스 픽셀 기준</summary>
+        <table>
+          <thead>
+            <tr>
+              <th>시트 / 프레임</th>
+              <th>전체 높이</th>
+              <th>붉은 장식 너비 × 높이</th>
+            </tr>
+          </thead>
+          <tbody id="measurements"></tbody>
+        </table>
+      </details>
+      <p>
+        <a href="assets/size-review/audit.json">측정 데이터와 원본 SHA-256</a> · 전체 높이에는
+        무기·깃털이 포함됩니다. 붉은 장식은 색상 마스크의 경계이며 머리 또는 몸통 전체의 실측치가
+        아닙니다.
+      </p>
+    </section>
+    <script type="module" src="actor-size-review.js"></script>
+  </body>
+</html>

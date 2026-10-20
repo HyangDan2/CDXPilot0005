@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>VALKYRIE · 공격 이펙트 검토</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        font: 16px system-ui;
+        background: #101923;
+        color: #e6edf3;
+      }
+      body {
+        max-width: 1220px;
+        margin: auto;
+        padding: 28px;
+      }
+      h1 {
+        font-size: 28px;
+      }
+      .tag {
+        font-size: 12px;
+        letter-spacing: 2px;
+        color: #e7bd73;
+      }
+      p {
+        color: #becbd5;
+        line-height: 1.7;
+      }
+      .panel {
+        background: #172530;
+        border: 1px solid #3b5264;
+        border-radius: 12px;
+        padding: 20px;
+        margin: 20px 0;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+      }
+      canvas {
+        max-width: 100%;
+        height: auto;
+        background: #101b25;
+        image-rendering: pixelated;
+      }
+      button,
+      select {
+        font: inherit;
+        padding: 8px 12px;
+        background: #2a4355;
+        border: 1px solid #637b8e;
+        color: white;
+        border-radius: 6px;
+      }
+      label {
+        display: inline-flex;
+        gap: 8px;
+        margin: 8px;
+        align-items: center;
+      }
+      strong {
+        color: #ecd09b;
+      }
+      a {
+        color: #8dd9e7;
+      }
+      input[type='range'] {
+        width: 180px;
+      }
+      @media (max-width: 700px) {
+        .grid {
+          grid-template-columns: 1fr;
+        }
+        body {
+          padding: 12px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <span class="tag">VALKYRIE / ART REVIEW 03</span>
+    <h1>캐릭터를 가리지 않는 공격 이펙트</h1>
+    <p>
+      <strong>이펙트는 미리보기 전용입니다.</strong> 활 A안과 손 색상 교정은 게임에 적용했습니다.
+      점프 공격 이미지·배율·검 길이는 유지합니다.
+    </p>
+    <div class="panel">
+      <button id="play">일시 정지</button><button id="reset">처음부터</button
+      ><label
+        >공격
+        <select id="mode">
+          <option value="sword">검 · 짧은 궤적</option>
+          <option value="air">점프 공격 · 하향 궤적</option>
+          <option value="bow">활 · 발사 섬광</option>
+        </select></label
+      ><label
+        >이펙트 강도
+        <select id="strength">
+          <option value="0.45">약하게</option>
+          <option value="0.7" selected>보통</option>
+        </select></label
+      ><label><input id="flip" type="checkbox" />왼쪽</label
+      ><label
+        >속도
+        <select id="speed">
+          <option value="1">정상</option>
+          <option value="0.25">0.25배속</option>
+        </select></label
+      >
+      <div class="grid">
+        <div>
+          <h2>원본 동작</h2>
+          <canvas id="before" width="580" height="440"></canvas>
+        </div>
+        <div>
+          <h2>이펙트 후보</h2>
+          <canvas id="after" width="580" height="440"></canvas>
+        </div>
+      </div>
+      <label
+        >동작 위치 <input id="time" type="range" min="0" max="1" step="0.001" value="0" /><output
+          id="phase"
+        ></output
+      ></label>
+      <p id="status"></p>
+      <p>
+        청백색 궤적과 작은 금빛 끝점을 짧게 표시합니다. 캐릭터의 불투명·반투명 픽셀 및 주변 4px를
+        이펙트에서 제외해 얼굴·갑옷·검·활이 가려지지 않습니다. 실제 공격 프레임 배분을 사용하되 높이
+        이동은 생략한 검토용 재생입니다. 궤적은 미술적 후보이며 실제 충돌 범위나 모든 검 끝의 경로를
+        표현하지 않습니다.
+      </p>
+    </div>
+    <div class="panel">
+      <h2>활 손 색상 교정 · 원안 형태 유지</h2>
+      <canvas id="hands" width="1120" height="300"></canvas>
+      <p>
+        왼쪽: 교정 전 / 오른쪽: 교정 후. 붉게 생성된 손·손가락 윤곽만 생성 결과의 피부색·중성
+        음영으로 교체했습니다. 빨간 머리 리본과 투구 장식, 얼굴, 의상, 활은 원본을 보존합니다.
+      </p>
+      <p>
+        <a href="bow-idle-review.html">활 대기 A안 확인</a> ·
+        <a href="actor-size-review.html">캐릭터 크기 점검</a>
+      </p>
+    </div>
+    <script type="module" src="attack-effects-review.js"></script>
+  </body>
+</html>

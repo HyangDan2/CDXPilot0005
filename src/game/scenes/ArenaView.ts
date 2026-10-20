@@ -1,3 +1,5 @@
+import { firstArrowBlocker } from '../physics/obstacles';
+import { EnvironmentView } from './EnvironmentView';
 import Phaser from 'phaser';
 import { ActorView } from '../animation/ActorView';
 import { sdFrame } from '../animation/sd';
@@ -15,6 +17,7 @@ interface Spark {
   value?: number;
 }
 export class ArenaView {
+  private environment: EnvironmentView;
   private actors = new Map<number, ActorView>();
   private shadows: Phaser.GameObjects.Graphics;
   private effects: Phaser.GameObjects.Graphics;
@@ -42,6 +45,7 @@ export class ArenaView {
       .text(3295, 210, 'ᛟ', { fontFamily: 'serif', fontSize: '75px', color: '#b29b67' })
       .setOrigin(0.5)
       .setDepth(-29);
+    this.environment = new EnvironmentView(scene);
     this.shadows = scene.add.graphics().setDepth(299);
     this.effects = scene.add.graphics().setDepth(800);
     this.debugText = scene.add
@@ -82,6 +86,7 @@ export class ArenaView {
   }
   render(s: Simulation, delta: number, debug: boolean, title: boolean, paused: boolean) {
     const dt = paused ? 0 : Math.min(delta / 1000, 0.05);
+    this.environment.render(s.environment, title, [s.player, ...s.enemies]);
     this.effects.clear();
     this.shadows.clear();
     if (title) {
@@ -135,10 +140,18 @@ export class ArenaView {
         }
         if (a.kind !== 'player' && phase === 'startup') {
           const b = hitbox(a);
-          if (a.attack.id === 'enemyShot')
-            this.shadows
-              .lineStyle(2, 0xe78a68, 0.5)
-              .lineBetween(a.x, a.y, a.x + a.facing * 380, a.y);
+          if (a.attack.id === 'enemyShot') {
+            const far = a.x + a.facing * 380;
+            const blocker = firstArrowBlocker(
+              a.x + a.facing * 24,
+              far,
+              a.y,
+              a.z + 50,
+              s.environment.solids,
+            );
+            const end = blocker ? (a.facing === 1 ? blocker.x : blocker.x + blocker.width) : far;
+            this.shadows.lineStyle(2, 0xe78a68, 0.5).lineBetween(a.x, a.y, end, a.y);
+          }
           this.shadows
             .fillStyle(0xcc6e50, 0.18)
             .fillEllipse(b.x + b.width / 2, a.y, b.width, b.height);

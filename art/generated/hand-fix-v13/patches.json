@@ -1,0 +1,338 @@
+[
+  {
+    "sheet": "bow",
+    "frame": 0,
+    "x": 168,
+    "y": 175,
+    "size": 36
+  },
+  {
+    "sheet": "bow",
+    "frame": 0,
+    "x": 239,
+    "y": 184,
+    "size": 36
+  },
+  {
+    "sheet": "bow",
+    "frame": 1,
+    "x": 484,
+    "y": 168,
+    "size": 36
+  },
+  {
+    "sheet": "bow",
+    "frame": 1,
+    "x": 538,
+    "y": 186,
+    "size": 36
+  },
+  {
+    "sheet": "bow",
+    "frame": 2,
+    "x": 799,
+    "y": 170,
+    "size": 36
+  },
+  {
+    "sheet": "bow",
+    "frame": 2,
+    "x": 854,
+    "y": 187,
+    "size": 36
+  },
+  {
+    "sheet": "bow",
+    "frame": 3,
+    "x": 1118,
+    "y": 171,
+    "size": 36
+  },
+  {
+    "sheet": "bow",
+    "frame": 3,
+    "x": 1182,
+    "y": 188,
+    "size": 36
+  },
+  {
+    "sheet": "bow",
+    "frame": 4,
+    "x": 146,
+    "y": 425,
+    "size": 36
+  },
+  {
+    "sheet": "bow",
+    "frame": 4,
+    "x": 258,
+    "y": 429,
+    "size": 36
+  },
+  {
+    "sheet": "bow",
+    "frame": 5,
+    "x": 464,
+    "y": 419,
+    "size": 36
+  },
+  {
+    "sheet": "bow",
+    "frame": 5,
+    "x": 566,
+    "y": 428,
+    "size": 36
+  },
+  {
+    "sheet": "bow",
+    "frame": 6,
+    "x": 766,
+    "y": 420,
+    "size": 36
+  },
+  {
+    "sheet": "bow",
+    "frame": 6,
+    "x": 876,
+    "y": 429,
+    "size": 36
+  },
+  {
+    "sheet": "bow",
+    "frame": 7,
+    "x": 1078,
+    "y": 413,
+    "size": 36
+  },
+  {
+    "sheet": "bow",
+    "frame": 7,
+    "x": 1222,
+    "y": 430,
+    "size": 36
+  },
+  {
+    "sheet": "bow",
+    "frame": 8,
+    "x": 164,
+    "y": 753,
+    "size": 36
+  },
+  {
+    "sheet": "bow",
+    "frame": 8,
+    "x": 217,
+    "y": 767,
+    "size": 36
+  },
+  {
+    "sheet": "bow",
+    "frame": 9,
+    "x": 509,
+    "y": 748,
+    "size": 36
+  },
+  {
+    "sheet": "bow",
+    "frame": 9,
+    "x": 557,
+    "y": 770,
+    "size": 36
+  },
+  {
+    "sheet": "bow",
+    "frame": 10,
+    "x": 834,
+    "y": 806,
+    "size": 36
+  },
+  {
+    "sheet": "bow",
+    "frame": 10,
+    "x": 862,
+    "y": 799,
+    "size": 36
+  },
+  {
+    "sheet": "bow",
+    "frame": 11,
+    "x": 1130,
+    "y": 828,
+    "size": 36
+  },
+  {
+    "sheet": "bow",
+    "frame": 11,
+    "x": 1182,
+    "y": 813,
+    "size": 36
+  },
+  {
+    "sheet": "bow",
+    "frame": 12,
+    "x": 128,
+    "y": 950,
+    "size": 36
+  },
+  {
+    "sheet": "bow",
+    "frame": 12,
+    "x": 221,
+    "y": 1043,
+    "size": 36
+  },
+  {
+    "sheet": "bow",
+    "frame": 13,
+    "x": 507,
+    "y": 951,
+    "size": 36
+  },
+  {
+    "sheet": "bow",
+    "frame": 13,
+    "x": 525,
+    "y": 975,
+    "size": 36
+  },
+  {
+    "sheet": "bow",
+    "frame": 14,
+    "x": 780,
+    "y": 1036,
+    "size": 36
+  },
+  {
+    "sheet": "bow",
+    "frame": 14,
+    "x": 848,
+    "y": 1043,
+    "size": 36
+  },
+  {
+    "sheet": "bow",
+    "frame": 15,
+    "x": 1125,
+    "y": 1038,
+    "size": 36
+  },
+  {
+    "sheet": "bow",
+    "frame": 15,
+    "x": 1182,
+    "y": 1046,
+    "size": 36
+  },
+  {
+    "sheet": "bow-walk",
+    "frame": 0,
+    "x": 196,
+    "y": 228,
+    "size": 36
+  },
+  {
+    "sheet": "bow-walk",
+    "frame": 0,
+    "x": 289,
+    "y": 240,
+    "size": 36
+  },
+  {
+    "sheet": "bow-walk",
+    "frame": 1,
+    "x": 640,
+    "y": 228,
+    "size": 36
+  },
+  {
+    "sheet": "bow-walk",
+    "frame": 1,
+    "x": 733,
+    "y": 240,
+    "size": 36
+  },
+  {
+    "sheet": "bow-walk",
+    "frame": 2,
+    "x": 1084,
+    "y": 228,
+    "size": 36
+  },
+  {
+    "sheet": "bow-walk",
+    "frame": 2,
+    "x": 1177,
+    "y": 240,
+    "size": 36
+  },
+  {
+    "sheet": "bow-walk",
+    "frame": 3,
+    "x": 1528,
+    "y": 228,
+    "size": 36
+  },
+  {
+    "sheet": "bow-walk",
+    "frame": 3,
+    "x": 1621,
+    "y": 240,
+    "size": 36
+  },
+  {
+    "sheet": "bow-walk",
+    "frame": 4,
+    "x": 196,
+    "y": 672,
+    "size": 36
+  },
+  {
+    "sheet": "bow-walk",
+    "frame": 4,
+    "x": 289,
+    "y": 684,
+    "size": 36
+  },
+  {
+    "sheet": "bow-walk",
+    "frame": 5,
+    "x": 640,
+    "y": 672,
+    "size": 36
+  },
+  {
+    "sheet": "bow-walk",
+    "frame": 5,
+    "x": 733,
+    "y": 684,
+    "size": 36
+  },
+  {
+    "sheet": "bow-walk",
+    "frame": 6,
+    "x": 1084,
+    "y": 672,
+    "size": 36
+  },
+  {
+    "sheet": "bow-walk",
+    "frame": 6,
+    "x": 1177,
+    "y": 684,
+    "size": 36
+  },
+  {
+    "sheet": "bow-walk",
+    "frame": 7,
+    "x": 1528,
+    "y": 672,
+    "size": 36
+  },
+  {
+    "sheet": "bow-walk",
+    "frame": 7,
+    "x": 1621,
+    "y": 684,
+    "size": 36
+  }
+]

@@ -66,15 +66,19 @@ export function canHit(attacker: Actor, target: Actor) {
 export function damageAmount(base: number, guarded: boolean) {
   return Math.max(1, Math.round(base * (guarded ? 0.2 : 1)));
 }
+/** A spin pays once when it first connects with an actor or a barricade. */
+export function payAttackCost(a: Actor) {
+  if (a.attack?.id === 'spin' && !a.attack.costPaid) {
+    a.hp = Math.max(0, a.hp - a.maxHp * 0.2);
+    a.attack.costPaid = true;
+    if (a.hp === 0) setState(a, 'Death');
+  }
+}
 export function applyHit(attacker: Actor, target: Actor) {
   if (!canHit(attacker, target) || !attacker.attack) return 0;
   const def = attacks[attacker.attack.id];
   attacker.attack.hit.add(target.id);
-  if (attacker.attack.id === 'spin' && !attacker.attack.costPaid) {
-    attacker.hp = Math.max(0, attacker.hp - attacker.maxHp * 0.2);
-    attacker.attack.costPaid = true;
-    if (attacker.hp === 0) setState(attacker, 'Death');
-  }
+  payAttackCost(attacker);
   const armored = target.attack?.id === 'spin';
   const guarded =
     target.state === 'Guard' &&

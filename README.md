@@ -13,6 +13,8 @@ _Sword combat — face melee fighters and archers in the ruined corridor._
 - A four-hit sword combo with increasing damage, attack windups and interruption on hit.
 - Sword and bow switching, directional guarding, jumping, rising attacks and an armored spin special. Bow shots have a deliberate draw time and recovery; bow guarding absorbs less damage than sword guarding.
 - Dodge rolls with a visible recharge meter, plus limits on repeated aerial juggling.
+- A widened opening courtyard with a breakable barricade and a furnace vent that warns before burning. Detour or break through, and use jumping or timed dodge rolls to avoid fire.
+- A stone cloister with alternating S-shaped passages and permanent arrow-blocking cover. Archers reposition for a clear lane, and stone fades when it would hide actors.
 - Three regular encounters and a boss fight, with distinct melee and archer roles. The boss calls reinforcements as its health falls.
 - SD character animation, synthesized medieval-style music, and separate victory and defeat themes.
 - Keyboard controls and landscape touch controls, with audio and touch layout settings in the top-right menu.

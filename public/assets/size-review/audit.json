@@ -1,0 +1,436 @@
+{
+  "runtimeScale": 0.5,
+  "alphaThreshold": 128,
+  "note": "Medallion bounds are a raster/perspective-sensitive proxy, NOT a body-size measurement. All dimensions are atlas pixels.",
+  "hashes": {
+    "public/assets/sd-v3/smooth-idle.png": "56e3ed8f5eb50a530faac7a2bd190394ae24e30292300a54c600bccbf245b89c",
+    "public/assets/sd-v3/smooth-reaction.png": "9ea7c1f083a00d44638bf96dd08622e70554059aca2e6340e521cae17f7e8781",
+    "public/assets/sd-v3/smooth-attack.png": "bd699a5bf181c1dc541fbd114a99de807392c44b1db7563a753a8f43342fcb17",
+    "art/generated/sd-v10/style-reference.png": "a0b51839fc8a50609130760750b7e2bf9b55c39b3717d40aac79728e62e2d875"
+  },
+  "idleCandidate": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    6,
+    4,
+    2,
+    1
+  ],
+  "airCandidateScale": 0.94,
+  "records": [
+    {
+      "sheet": "smooth-idle",
+      "frame": 0,
+      "bounds": [
+        120,
+        112,
+        390,
+        420
+      ],
+      "height": 309,
+      "medal": [
+        260,
+        166,
+        23,
+        20
+      ]
+    },
+    {
+      "sheet": "smooth-idle",
+      "frame": 1,
+      "bounds": [
+        121,
+        112,
+        390,
+        420
+      ],
+      "height": 309,
+      "medal": [
+        261,
+        166,
+        24,
+        20
+      ]
+    },
+    {
+      "sheet": "smooth-idle",
+      "frame": 2,
+      "bounds": [
+        120,
+        111,
+        390,
+        420
+      ],
+      "height": 310,
+      "medal": [
+        261,
+        166,
+        23,
+        20
+      ]
+    },
+    {
+      "sheet": "smooth-idle",
+      "frame": 3,
+      "bounds": [
+        122,
+        112,
+        390,
+        420
+      ],
+      "height": 309,
+      "medal": [
+        264,
+        166,
+        23,
+        20
+      ]
+    },
+    {
+      "sheet": "smooth-idle",
+      "frame": 4,
+      "bounds": [
+        121,
+        117,
+        392,
+        420
+      ],
+      "height": 304,
+      "medal": [
+        260,
+        169,
+        24,
+        21
+      ]
+    },
+    {
+      "sheet": "smooth-idle",
+      "frame": 5,
+      "bounds": [
+        121,
+        116,
+        390,
+        420
+      ],
+      "height": 305,
+      "medal": [
+        261,
+        169,
+        24,
+        20
+      ]
+    },
+    {
+      "sheet": "smooth-idle",
+      "frame": 6,
+      "bounds": [
+        122,
+        116,
+        392,
+        420
+      ],
+      "height": 305,
+      "medal": [
+        263,
+        169,
+        23,
+        20
+      ]
+    },
+    {
+      "sheet": "smooth-idle",
+      "frame": 7,
+      "bounds": [
+        121,
+        116,
+        390,
+        420
+      ],
+      "height": 305,
+      "medal": [
+        262,
+        169,
+        23,
+        20
+      ]
+    },
+    {
+      "sheet": "smooth-idle",
+      "frame": 8,
+      "bounds": [
+        122,
+        129,
+        390,
+        420
+      ],
+      "height": 292,
+      "medal": [
+        261,
+        181,
+        24,
+        20
+      ]
+    },
+    {
+      "sheet": "smooth-idle",
+      "frame": 9,
+      "bounds": [
+        121,
+        129,
+        392,
+        420
+      ],
+      "height": 292,
+      "medal": [
+        261,
+        180,
+        25,
+        21
+      ]
+    },
+    {
+      "sheet": "smooth-idle",
+      "frame": 10,
+      "bounds": [
+        119,
+        129,
+        391,
+        420
+      ],
+      "height": 292,
+      "medal": [
+        260,
+        182,
+        24,
+        20
+      ]
+    },
+    {
+      "sheet": "smooth-idle",
+      "frame": 11,
+      "bounds": [
+        121,
+        129,
+        390,
+        420
+      ],
+      "height": 292,
+      "medal": [
+        262,
+        182,
+        23,
+        20
+      ]
+    },
+    {
+      "sheet": "smooth-reaction",
+      "frame": 2,
+      "bounds": [
+        155,
+        193,
+        357,
+        420
+      ],
+      "height": 228,
+      "medal": [
+        296,
+        247,
+        21,
+        21
+      ]
+    },
+    {
+      "sheet": "smooth-reaction",
+      "frame": 3,
+      "bounds": [
+        113,
+        140,
+        392,
+        420
+      ],
+      "height": 281,
+      "medal": [
+        225,
+        194,
+        22,
+        21
+      ]
+    },
+    {
+      "sheet": "smooth-reaction",
+      "frame": 4,
+      "bounds": [
+        78,
+        202,
+        373,
+        420
+      ],
+      "height": 219,
+      "medal": [
+        227,
+        259,
+        23,
+        22
+      ]
+    },
+    {
+      "sheet": "smooth-reaction",
+      "frame": 5,
+      "bounds": [
+        126,
+        151,
+        400,
+        420
+      ],
+      "height": 270,
+      "medal": [
+        251,
+        203,
+        22,
+        21
+      ]
+    },
+    {
+      "sheet": "smooth-reaction",
+      "frame": 6,
+      "bounds": [
+        95,
+        193,
+        395,
+        420
+      ],
+      "height": 228,
+      "medal": [
+        251,
+        250,
+        23,
+        21
+      ]
+    },
+    {
+      "sheet": "smooth-reaction",
+      "frame": 7,
+      "bounds": [
+        143,
+        151,
+        381,
+        420
+      ],
+      "height": 270,
+      "medal": [
+        270,
+        205,
+        22,
+        22
+      ]
+    },
+    {
+      "sheet": "smooth-attack",
+      "frame": 6,
+      "bounds": [
+        58,
+        104,
+        333,
+        420
+      ],
+      "height": 317,
+      "medal": [
+        227,
+        163,
+        23,
+        25
+      ]
+    },
+    {
+      "sheet": "smooth-attack",
+      "frame": 7,
+      "bounds": [
+        67,
+        84,
+        364,
+        420
+      ],
+      "height": 337,
+      "medal": [
+        249,
+        174,
+        23,
+        24
+      ]
+    },
+    {
+      "sheet": "smooth-attack",
+      "frame": 8,
+      "bounds": [
+        99,
+        110,
+        412,
+        420
+      ],
+      "height": 311,
+      "medal": [
+        296,
+        177,
+        25,
+        23
+      ]
+    },
+    {
+      "sheet": "smooth-attack",
+      "frame": 9,
+      "bounds": [
+        117,
+        102,
+        458,
+        420
+      ],
+      "height": 319,
+      "medal": [
+        297,
+        170,
+        25,
+        24
+      ]
+    },
+    {
+      "sheet": "smooth-attack",
+      "frame": 10,
+      "bounds": [
+        122,
+        113,
+        442,
+        420
+      ],
+      "height": 308,
+      "medal": [
+        276,
+        177,
+        25,
+        22
+      ]
+    },
+    {
+      "sheet": "smooth-attack",
+      "frame": 11,
+      "bounds": [
+        102,
+        123,
+        433,
+        420
+      ],
+      "height": 298,
+      "medal": [
+        271,
+        184,
+        24,
+        21
+      ]
+    }
+  ]
+}

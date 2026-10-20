@@ -1,6 +1,8 @@
+import { stageDepth } from '../../data/environment';
+import { routeTarget, firstArrowBlocker, meleeOccluded, type Solid } from '../physics/obstacles';
 import { attackPhase } from '../../data/attacks';
 import { startAttack } from '../combat/combat';
-import { clamp, WORLD } from '../config/constants';
+import { clamp } from '../config/constants';
 import { isDisabled, setState } from '../entities/stateMachine';
 import type { Actor, AttackId, AIState } from '../entities/types';
 function enter(a: Actor, state: AIState) {
@@ -13,6 +15,7 @@ export function updateAI(
   dt: number,
   mayAttack = true,
   crowd: readonly Actor[] = [],
+  solids: readonly Solid[] = [],
 ): AttackId | null {
   a.aiTime += dt;
   if (a.hp <= 0) {
@@ -42,6 +45,8 @@ export function updateAI(
     return null;
   }
   if (a.kind === 'archer') {
+    const target = routeTarget(a, player, solids);
+    const detouring = target !== player;
     a.facing = dx >= 0 ? 1 : -1;
     if (a.ai === 'Attack') {
       enter(a, 'Recover');
@@ -57,13 +62,27 @@ export function updateAI(
       setState(a, 'Walk');
       return null;
     }
-    if (Math.abs(dx) <= 380 && Math.abs(dy) < 16 && mayAttack && player.hp > 0) {
+    const clearLane = !firstArrowBlocker(a.x + a.facing * 24, player.x, a.y, a.z + 50, solids);
+    // Walking needs extra clearance; a clear arrow lane can open before the detour ends.
+    if (detouring && a.ai !== 'Flank') enter(a, 'Flank');
+    if (a.ai === 'Flank' && clearLane && Math.abs(dy) <= 8) enter(a, 'Chase');
+    if (
+      Math.abs(dx) <= 380 &&
+      Math.abs(dy) < 16 &&
+      clearLane &&
+      a.ai !== 'Flank' &&
+      mayAttack &&
+      player.hp > 0
+    ) {
       enter(a, 'Attack');
       startAttack(a, 'enemyShot');
       return 'enemyShot';
     }
-    if (Math.abs(dx) > 300) a.x += a.facing * 100 * dt;
-    if (Math.abs(dy) > 8) a.y += Math.sign(dy) * 70 * dt;
+    const alignment = { x: a.x, y: player.y };
+    const alignmentBlocked = routeTarget(a, alignment, solids) !== alignment;
+    if (detouring || alignmentBlocked || Math.abs(dx) > 300)
+      a.x += clamp(target.x - a.x, -100 * dt, 100 * dt);
+    if (detouring || Math.abs(dy) > 8) a.y += clamp(target.y - a.y, -70 * dt, 70 * dt);
     setState(a, 'Walk');
     return null;
   }
@@ -99,7 +118,7 @@ export function updateAI(
   if (a.ai === 'Retreat') {
     if (a.aiTime < 0.28) {
       a.x -= a.facing * (a.kind === 'guard' ? 65 : 125) * dt;
-      a.y = clamp(a.y + (a.id % 2 ? 1 : -1) * 65 * dt, WORLD.minY, WORLD.maxY);
+      a.y = clamp(a.y + (a.id % 2 ? 1 : -1) * 65 * dt, ...stageDepth(a.x));
       setState(a, 'Run');
       return null;
     }
@@ -134,6 +153,7 @@ export function updateAI(
             : 62;
   if (
     a.ai !== 'Flank' &&
+    !meleeOccluded(a, player, solids) &&
     Math.abs(dx) <= range &&
     Math.abs(dy) < 22 &&
     mayAttack &&
@@ -153,10 +173,13 @@ export function updateAI(
   const flanking = a.ai === 'Flank';
   const targetX = flanking ? player.x + (a.id % 2 ? 92 : -92) : player.x;
   const targetY = flanking
-    ? clamp(player.y + (a.id % 2 ? 42 : -42), WORLD.minY + 6, WORLD.maxY - 6)
+    ? clamp(player.y + (a.id % 2 ? 42 : -42), stageDepth(a.x)[0] + 6, stageDepth(a.x)[1] - 6)
     : player.y;
-  const tx = targetX - a.x,
-    ty = targetY - a.y,
+  const destination = { x: targetX, y: targetY };
+  const target = routeTarget(a, destination, solids);
+  const detouring = target !== destination;
+  const tx = target.x - a.x,
+    ty = target.y - a.y,
     distance = Math.hypot(tx, ty) || 1;
   const burst = a.kind === 'grunt' && Math.abs(dx) > 110 && a.aiTime < 0.45;
   const speed =
@@ -169,8 +192,14 @@ export function updateAI(
           : burst
             ? 245
             : 158) * (enraged ? 1.3 : 1);
-  if (Math.abs(tx) > (flanking ? 10 : 42)) a.x += (tx / distance) * speed * dt;
-  if (Math.abs(ty) > 5) a.y += (ty / distance) * speed * 0.85 * dt;
+  if (detouring) {
+    const step = Math.min(speed * dt, distance);
+    a.x += (tx / distance) * step;
+    a.y += (ty / distance) * step;
+  } else {
+    if (Math.abs(tx) > (flanking ? 10 : 42)) a.x += (tx / distance) * speed * dt;
+    if (Math.abs(ty) > 5) a.y += (ty / distance) * speed * 0.85 * dt;
+  }
   // Soft separation only during locomotion, never during committed attacks.
   for (const other of crowd) {
     if (other.id === a.id || other.hp <= 0) continue;
