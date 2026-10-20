@@ -1,8 +1,23 @@
 import { expect, test, type Page } from '@playwright/test';
 
-async function move(page: Page, key: string, axis: 'x' | 'y', target: number, positive: boolean) {
+async function move(
+  page: Page,
+  key: string,
+  axis: 'x' | 'y',
+  target: number,
+  positive: boolean,
+  controlledClock = false,
+) {
   await page.keyboard.down(key);
   const value = () => page.evaluate((axis) => window.__VALKYRIE__!.snapshot().player[axis], axis);
+  if (controlledClock) {
+    // Advance one frame at a time so slow CI cannot overshoot the firing lane.
+    for (let frame = 0; frame < 600; frame++) {
+      const position = await value();
+      if (positive ? position >= target : position <= target) break;
+      await page.clock.runFor(16);
+    }
+  }
   if (positive) await expect.poll(value, { intervals: [16] }).toBeGreaterThanOrEqual(target);
   else await expect.poll(value, { intervals: [16] }).toBeLessThanOrEqual(target);
   await page.keyboard.up(key);
@@ -43,28 +58,36 @@ test('keyboard route follows bottom, top, bottom gaps without crossing stone', a
 test('stone absorbs a real bow shot and an alternate approach opens a firing lane', async ({
   page,
 }, info) => {
+  const epoch = new Date('2026-01-01T00:00:00Z');
+  await page.clock.install({ time: epoch });
   await page.goto('?test=1');
   await page.locator('#start-button').click();
+  await page.clock.pauseAt(new Date(epoch.getTime() + 60000));
   await page.evaluate(() => window.__VALKYRIE__!.fixture('pillarCover'));
   const hp = await page.evaluate(() => window.__VALKYRIE__!.snapshot().enemies[0].hp);
   await page.keyboard.press('i');
+  await page.clock.runFor(600);
   await expect
     .poll(() => page.evaluate(() => window.__VALKYRIE__!.snapshot().player.weapon))
     .toBe('bow');
   await page.keyboard.press('j');
+  await page.clock.runFor(100);
   await expect
     .poll(() => page.evaluate(() => window.__VALKYRIE__!.snapshot().player.attack))
     .toBe('shot');
+  await page.clock.runFor(1600);
   await expect
     .poll(() => page.evaluate(() => window.__VALKYRIE__!.snapshot().player.attack))
     .toBeNull();
   expect(await page.evaluate(() => window.__VALKYRIE__!.snapshot().arrows)).toBe(0);
   expect(await page.evaluate(() => window.__VALKYRIE__!.snapshot().enemies[0].hp)).toBe(hp);
   await page.locator('#stage').screenshot({ path: info.outputPath('pillar-blocked-shot.png') });
-  await move(page, 's', 'y', 450, true);
-  await move(page, 'd', 'x', 1370, true);
-  await move(page, 'w', 'y', 370, false);
+  await move(page, 's', 'y', 450, true, true);
+  await move(page, 'd', 'x', 1370, true, true);
+  await move(page, 'w', 'y', 370, false, true);
+  expect(await page.evaluate(() => window.__VALKYRIE__!.snapshot().player.y)).toBeGreaterThan(365);
   await page.keyboard.press('j');
+  await page.clock.runFor(1600);
   await expect
     .poll(() => page.evaluate(() => window.__VALKYRIE__!.snapshot().enemies[0].hp))
     .toBeLessThan(hp);

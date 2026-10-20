@@ -95,10 +95,14 @@ test('landscape touch screen renders courtyard warning and pauses safely', async
   const page = await context.newPage();
   const errors: string[] = [];
   page.on('pageerror', (error) => errors.push(error.message));
+  const epoch = new Date('2026-01-01T00:00:00Z');
+  await page.clock.install({ time: epoch });
   await page.goto('?test=1');
   await page.locator('#start-button').tap();
+  await page.clock.pauseAt(new Date(epoch.getTime() + 60000));
   await page.evaluate(() => window.__VALKYRIE__!.fixture('courtyard'));
   await expect(page.locator('#touch-controls')).toBeVisible();
+  await page.clock.runFor(3000);
   await expect
     .poll(() => page.evaluate(() => window.__VALKYRIE__!.snapshot().environment.flames[0].phase))
     .toBe('warning');
@@ -107,7 +111,7 @@ test('landscape touch screen renders courtyard warning and pauses safely', async
     .screenshot({ path: info.outputPath('courtyard-mobile-warning.png') });
   await page.locator('#pause-button').tap();
   const time = await page.evaluate(() => window.__VALKYRIE__!.snapshot().environment.time);
-  await page.waitForTimeout(200);
+  await page.clock.runFor(200);
   expect(await page.evaluate(() => window.__VALKYRIE__!.snapshot().environment.time)).toBe(time);
   expect(errors).toEqual([]);
   await context.close();
