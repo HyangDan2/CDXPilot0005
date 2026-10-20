@@ -5,11 +5,11 @@ import { Reinforcements } from './reinforcements';
 import { attacks } from '../../data/attacks';
 import { advanceArrows, type Arrow } from './projectiles';
 import { rollLoot, collectLoot, type Loot } from './loot';
-import { waves } from '../../data/stage';
+import { stages, type StageId } from '../../data/stages';
 import { seededRandom } from '../../utils/random';
 import { updateAI } from '../ai/brain';
 import { advanceAttack, applyHit, AttackBuffer, startAttack } from '../combat/combat';
-import { clamp, WORLD } from '../config/constants';
+import { clamp } from '../config/constants';
 import { integrate } from '../physics/world';
 import { createActor } from './actor';
 import { movePlayer } from './movement';
@@ -31,19 +31,63 @@ export class Simulation {
   loot: Loot[] = [];
   arrows: Arrow[] = [];
   reinforcements = new Reinforcements();
-  environment = new StageEnvironment();
+  environment: StageEnvironment;
+  private entry = { score: 0, bestCombo: 0, kills: 0, weapon: 'sword' as Actor['weapon'] };
   private nextArrow = 1;
   private lootRandom: () => number;
   private nextId = 1;
   private buffer = new AttackBuffer();
   private random: () => number;
-  constructor(seed = 731) {
+  constructor(
+    private readonly seed = 731,
+    readonly stageId: StageId = 'gate',
+  ) {
+    this.environment = new StageEnvironment(stageId);
+    this.player.x = this.stage.spawn.x;
+    this.player.y = this.stage.spawn.y;
     this.random = seededRandom(seed);
     this.lootRandom = seededRandom(seed ^ 0x102030);
   }
+  get stage() {
+    return stages[this.stageId];
+  }
+  get sectionIndex() {
+    return Math.max(
+      0,
+      this.stage.sections.findIndex((s) => this.player.x >= s.start && this.player.x < s.end),
+    );
+  }
+  nextStage(): Simulation | null {
+    if (this.stageId !== 'gate' || this.status !== 'clear') return null;
+    const next = new Simulation(this.seed, 'forge');
+    next.entry = {
+      score: this.score,
+      bestCombo: this.bestCombo,
+      kills: this.kills,
+      weapon: this.player.weapon,
+    };
+    return next.restoreEntry();
+  }
+  restartStage(): Simulation {
+    const next = new Simulation(this.seed, this.stageId);
+    next.entry = { ...this.entry };
+    return next.restoreEntry();
+  }
+  private restoreEntry(): Simulation {
+    this.score = this.entry.score;
+    this.bestCombo = this.entry.bestCombo;
+    this.kills = this.entry.kills;
+    this.player.weapon = this.entry.weapon;
+    return this;
+  }
   get bounds(): [number, number] {
-    const w = waves[this.wave];
-    return [this.active ? Math.max(24, (w?.trigger ?? 0) - 240) : 24, w?.end ?? WORLD.length - 24];
+    const w = this.stage.waves[this.wave];
+    return [
+      this.active
+        ? Math.max(this.stage.start + 24, (w?.trigger ?? 0) - 240)
+        : this.stage.start + 24,
+      w?.end ?? this.stage.end - 24,
+    ];
   }
   get boss() {
     return this.enemies.find((e) => e.kind === 'boss' && e.hp > 0);
@@ -91,9 +135,11 @@ export class Simulation {
         this.emit('swing', e);
       }
       integrate(e, dt, this.bounds);
+      this.environment.bossMotion(e, before, (event) => this.events.push(event));
       collideSolids(e, before, this.environment.solids);
       this.releaseArrow(e, dt);
       advanceAttack(e, dt);
+      this.environment.bossImpact(e, (event) => this.events.push(event));
       this.environment.strike(e, (event) => this.events.push(event));
       const damage = meleeOccluded(this.player, e, this.environment.solids)
         ? 0
@@ -138,6 +184,7 @@ export class Simulation {
         }
       },
       (arrow, before, end) => this.environment.interceptArrow(arrow, before, end),
+      this.stage.end,
     );
     for (const a of [this.player, ...this.enemies]) {
       const damage = this.environment.burn(a);
@@ -180,22 +227,25 @@ export class Simulation {
         this.bounds,
         dt,
         (kind, x, y) => {
-          this.enemies.push(createActor(this.nextId++, kind, x, y));
+          const enemy = createActor(this.nextId++, kind, x, y);
+          collideSolids(enemy, enemy, this.environment.solids);
+          this.enemies.push(enemy);
         },
       );
     if (this.active && this.enemies.every((e) => e.hp <= 0)) {
       this.active = false;
       this.wave++;
 
-      if (this.wave >= waves.length) {
+      if (this.wave >= this.stage.waves.length) {
         this.status = 'clear';
         this.emit('clear', this.player);
         return;
       }
     }
-    const wave = waves[this.wave];
+    const wave = this.stage.waves[this.wave];
     if (!this.active && wave && this.player.x >= wave.trigger) {
       this.active = true;
+      if (wave.recovery) this.loot.push({ ...wave.recovery, age: 1 });
       this.enemies = wave.enemies.map((kind, i) =>
         createActor(
           this.nextId++,
@@ -222,12 +272,14 @@ export class Simulation {
     if (
       this.player.hp <= 0 ||
       !this.active ||
-      this.wave !== waves.length - 1 ||
+      this.wave !== this.stage.waves.length - 1 ||
       !this.enemies.some((e) => e.kind === 'boss' && e.hp <= 0)
     )
       return false;
     this.status = 'clear';
-    this.wave = waves.length;
+    this.score += this.stage.clearBonus;
+    this.environment.extinguish();
+    this.wave = this.stage.waves.length;
     this.active = false;
     this.enemies = [];
     this.arrows = [];

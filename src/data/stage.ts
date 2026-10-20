@@ -5,6 +5,7 @@ export interface Wave {
   end: number;
   enemies: Kind[];
   spawns?: readonly { x: number; y: number }[];
+  recovery?: { id: number; x: number; y: number; fraction: 0.1 | 0.2 | 0.5 };
 }
 export const waves: Wave[] = [
   { name: 'THE OUTER WATCH', trigger: 360, end: 920, enemies: ['grunt', 'archer', 'rusher'] },

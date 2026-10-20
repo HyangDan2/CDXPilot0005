@@ -1,11 +1,12 @@
 import { HUB_URL } from '../config/navigation';
 import { PLAYER } from '../config/constants';
 import { canRoll } from '../entities/movement';
-import { waves } from '../../data/stage';
 import type { Simulation } from '../entities/simulation';
 export type Mode = 'title' | 'playing' | 'paused' | 'over' | 'clear';
 export interface UIActions {
   start: () => void;
+  startForge: () => void;
+  nextStage: () => void;
   pause: () => void;
   resume: () => void;
   volume: (v: number) => void;
@@ -17,21 +18,22 @@ export class Interface {
   private overlay: HTMLElement;
   private hud: HTMLElement;
   private actions: UIActions;
-  private lastWave = -1;
+  private lastWave = '';
+
   constructor(actions: UIActions) {
     this.actions = actions;
     document.querySelector('#app')!.innerHTML = `
   <div class="shell">
    <header class="masthead"><a class="wordmark" href="./" aria-label="Valkyrie home"><span class="rune">ᛉ</span> VALKYRIE<span class="edition">THE ASHEN GATE</span></a><div class="header-right"><div class="header-actions"><a id="hub-button" class="hub-link" href="${HUB_URL}">게임 허브로</a><button id="settings-button" aria-label="Settings">⚙</button></div><span class="status-dot"></span> LOCAL ARCADE <span class="version">VOL. 01 — 2026</span></div></header>
-   <section class="chapter-heading"><div><div class="eyebrow">A FORGOTTEN REALM. AN UNBROKEN OATH.</div><h1>The Ashen Gate<span class="chapter-number"> / I</span></h1></div><div class="chapter-meta"><span class="small-rune">◇</span><div>STORY MODE<small>1 PLAYER · KEYBOARD</small></div></div></section>
+   <section class="chapter-heading"><div><div class="eyebrow">A FORGOTTEN REALM. AN UNBROKEN OATH.</div><h1 id="chapter-title">The Ashen Gate<span class="chapter-number"> / I</span></h1></div><div class="chapter-meta"><span class="small-rune">◇</span><div>STORY MODE<small>1 PLAYER · KEYBOARD</small></div></div></section>
    <section id="stage" aria-label="Valkyrie game"><div id="game"></div><div class="screen-vignette"></div>
-    <div id="hud" hidden><div class="player-hud"><div class="portrait"><span>ᛉ</span><img src="${import.meta.env.BASE_URL}assets/sd-v3/portrait.png" alt="Eira" /></div><div class="vital"><div class="hud-label">EIRA <span id="weapon-label">SWORD</span></div><div class="hp-track"><div id="hp-fill"></div></div><div class="hp-caption"><span id="hp-text"></span><span>VITALITY</span></div><div id="roll-meter" role="progressbar" aria-label="Dodge recharge" aria-valuemin="0" aria-valuemax="100"><div id="roll-fill"></div></div><div class="roll-caption">DODGE <span id="roll-label">READY</span></div></div></div><div class="wave-hud"><span id="wave-label"></span><small id="wave-name"></small></div><button id="pause-button" class="icon-button" aria-label="Pause game">Ⅱ</button><div id="combo" hidden><strong></strong><span>HIT COMBO</span></div><div id="boss-hud" hidden><div class="hud-label">HROTH, THE HOLLOW KING <span id="boss-phase"></span></div><div class="hp-track"><div id="boss-fill"></div></div></div><div id="reinforcement-warning" hidden>⚠ REINFORCEMENTS INCOMING</div><div id="travel-hint">FOLLOW THE FALLEN LIGHT <span>→</span></div></div>
+    <div id="hud" hidden><div class="player-hud"><div class="portrait"><span>ᛉ</span><img src="${import.meta.env.BASE_URL}assets/sd-v3/portrait.png" alt="Eira" /></div><div class="vital"><div class="hud-label">EIRA <span id="weapon-label">SWORD</span></div><div class="hp-track"><div id="hp-fill"></div></div><div class="hp-caption"><span id="hp-text"></span><span>VITALITY</span></div><div id="roll-meter" role="progressbar" aria-label="Dodge recharge" aria-valuemin="0" aria-valuemax="100"><div id="roll-fill"></div></div><div class="roll-caption">DODGE <span id="roll-label">READY</span></div></div></div><div class="wave-hud"><span id="wave-label"></span><small id="wave-name"></small></div><button id="pause-button" class="icon-button" aria-label="Pause game">Ⅱ</button><div id="combo" hidden><strong></strong><span>HIT COMBO</span></div><div id="boss-hud" hidden><div class="hud-label"><span id="boss-name">HROTH, THE HOLLOW KING</span> <span id="boss-phase"></span></div><div class="hp-track"><div id="boss-fill"></div></div></div><div id="reinforcement-warning" hidden>⚠ REINFORCEMENTS INCOMING</div><div id="travel-hint">FOLLOW THE FALLEN LIGHT <span>→</span></div></div>
     <div id="overlay"></div><div class="scene-caption"><span>THE RUINS OF HALVARD</span><span>ᛟ &nbsp; ᛉ &nbsp; ᚱ</span></div>
    </section>
 
    <footer class="below-game"><div><span class="footer-diamond">◆</span> <strong>THE FIRST OATH</strong><span class="footer-description">Beyond the gate, the old gods are silent.</span></div><button id="help-button">FIELD GUIDE <span>↗</span></button></footer>
    <div class="page-foot"><span>AN ORIGINAL PIXEL ARCADE ADVENTURE</span><span>F1 DEBUG &nbsp; · &nbsp; ESC PAUSE &nbsp; · &nbsp; v0.7.1</span></div>
-  </div><dialog id="guide"><button id="close-guide" aria-label="Close field guide">×</button><div class="eyebrow">THE OATHKEEPER'S FIELD GUIDE</div><h2>Settings &amp; controls</h2>   <section class="control-bar" aria-label="Game controls"><div class="controls-group"><span class="keys"><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd></span><span>Move</span></div><div class="controls-group"><kbd>J</kbd><span>Slash</span><kbd>K</kbd><span>Guard</span><kbd>↓ → J</kbd><span>Rising</span><kbd>J+K</kbd><span>Spin</span></div><div class="controls-group secondary"><kbd>SPACE</kbd><span>Jump</span><kbd>→ →</kbd><span>Run</span></div><div class="sound-control"><label for="volume">♪ <span>SFX</span></label><input id="volume" type="range" min="0" max="100" value="35" aria-label="Volume"/><label for="music-volume">BGM</label><input id="music-volume" type="range" min="0" max="100" value="35" aria-label="BGM Volume"/></div></section><p><kbd>I</kbd> Switch sword / bow · <kbd>L</kbd> Dodge roll · <kbd>J</kbd> Attack / shoot · <kbd>K</kbd> Guard</p><p>Bow shots: 0.7s draw, 0.6s recovery. Bow guard takes 40% damage; sword guard takes 20%. Roll is briefly invulnerable during its middle, with a vulnerable landing.</p><p>Move with WASD or arrow keys. Match an enemy's ground depth to strike them. Clear each encounter, then follow the light to the right.</p><dl><dt>J · K · ↓ → J</dt><dd>Tap J to chain four strikes: overhead cut, rising cut, thrust, turning finisher. Each strike has a vulnerable wind-up; taking a hit resets the chain. Hold K to guard the front. Down, forward, J within 400ms launches a rising slash; facing left uses ↓ ← J.</dd><dt>J + K · deliberate simultaneous press</dt><dd>Release both keys first, then press within 40ms while idle or moving on the ground. Never cancels an attack or guard. Spin resists stagger and reduces incoming damage; its first hit costs 20% of maximum HP, once per use. Requires more HP than the cost.</dd><dt>SPACE + J</dt><dd>Jump, then attack in the air. Double-tap and hold a direction to run; K holds sword guard.</dd><dt>Watch the red tell</dt><dd>Enemy attacks have a wind-up. Step up or down to evade. The king grows faster below half health.</dd><dt>Break the loop</dt><dd>Repeated launches weaken. Three additional air hits force a protected knockdown; wait for recovery before re-engaging. The king resists launch.</dd><dt>Between encounters</dt><dd>No automatic healing. Each defeated enemy has a 5% chance to drop a potion: green +10%, blue +20%, gold +50% maximum HP. Walk over it to collect.</dd></dl><section class="touch-options"><label>터치 버튼 크기 <input id="touch-size" type="range" min="80" max="120" value="100" /></label><label>터치 투명도 <input id="touch-opacity" type="range" min="30" max="90" value="65" /></label><label>터치 좌우 여백 <input id="touch-inset" type="range" min="12" max="64" value="20" /></label></section><p class="guide-note">Touch: left stick moves; outer ring runs. Tap attack or swipe upward for rising. Hold guard. Separate buttons roll, jump, switch and spin. Sound begins when you enter the game.</p></dialog><dialog id="hub-exit" aria-labelledby="hub-exit-title" aria-describedby="hub-exit-note"><h2 id="hub-exit-title">게임 허브로 이동할까요?</h2><p id="hub-exit-note">허브로 나가면 현재 진행 상황은 저장되지 않습니다.</p><div class="exit-actions"><button id="cancel-hub-exit" class="text-button" autofocus>계속 머무르기</button><a class="hub-link" href="${HUB_URL}">허브로 이동</a></div></dialog>`;
+  </div><dialog id="guide"><button id="close-guide" aria-label="Close field guide">×</button><div class="eyebrow">THE OATHKEEPER'S FIELD GUIDE</div><h2>Settings &amp; controls</h2>   <section class="control-bar" aria-label="Game controls"><div class="controls-group"><span class="keys"><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd></span><span>Move</span></div><div class="controls-group"><kbd>J</kbd><span>Slash</span><kbd>K</kbd><span>Guard</span><kbd>↓ → J</kbd><span>Rising</span><kbd>J+K</kbd><span>Spin</span></div><div class="controls-group secondary"><kbd>SPACE</kbd><span>Jump</span><kbd>→ →</kbd><span>Run</span></div><div class="sound-control"><label for="volume">♪ <span>SFX</span></label><input id="volume" type="range" min="0" max="100" value="35" aria-label="Volume"/><label for="music-volume">BGM</label><input id="music-volume" type="range" min="0" max="100" value="35" aria-label="BGM Volume"/></div></section><p><kbd>I</kbd> Switch sword / bow · <kbd>L</kbd> Dodge roll · <kbd>J</kbd> Attack / shoot · <kbd>K</kbd> Guard</p><p>Bow shots: 0.7s draw, 0.6s recovery. Bow guard takes 40% damage; sword guard takes 20%. Roll is briefly invulnerable during its middle, with a vulnerable landing.</p><p>Move with WASD or arrow keys. Match an enemy's ground depth to strike them. Clear each encounter, then follow the light to the right.</p><dl><dt>J · K · ↓ → J</dt><dd>Tap J to chain four strikes: overhead cut, rising cut, thrust, turning finisher. Each strike has a vulnerable wind-up; taking a hit resets the chain. Hold K to guard the front. Down, forward, J within 400ms launches a rising slash; facing left uses ↓ ← J.</dd><dt>J + K · deliberate simultaneous press</dt><dd>Release both keys first, then press within 40ms while idle or moving on the ground. Never cancels an attack or guard. Spin resists stagger and reduces incoming damage; its first hit costs 20% of maximum HP, once per use. Requires more HP than the cost.</dd><dt>SPACE + J</dt><dd>Jump, then attack in the air. Double-tap and hold a direction to run; K holds sword guard.</dd><dt>Watch the red tell</dt><dd>Enemy attacks have a wind-up. Step up or down to evade. The king grows faster below half health.</dd><dt>Break the loop</dt><dd>Repeated launches weaken. Three additional air hits force a protected knockdown; wait for recovery before re-engaging. The king resists launch.</dd><dt>Between encounters</dt><dd>No automatic healing. Each defeated enemy has a 5% chance to drop a potion: green +10%, blue +20%, gold +50% maximum HP. Walk over it to collect.</dd></dl><section class="touch-options"><label>터치 버튼 크기 <input id="touch-size" type="range" min="80" max="120" value="100" /></label><label>터치 투명도 <input id="touch-opacity" type="range" min="30" max="90" value="65" /></label><label>터치 좌우 여백 <input id="touch-inset" type="range" min="12" max="64" value="20" /></label></section><p>THE ASHEN FORGE: five areas, breakable stockade, alternating vents and an optional cooling-garden potion. Skarn’s slam warns before igniting one vent bank; the other depth lane stays open. His charge breaks wooden barricades. Stage entry restores HP and carries score/best combo; restart returns to that stage’s entry score.</p><p class="guide-note">Touch: left stick moves; outer ring runs. Tap attack or swipe upward for rising. Hold guard. Separate buttons roll, jump, switch and spin. Sound begins when you enter the game.</p></dialog><dialog id="hub-exit" aria-labelledby="hub-exit-title" aria-describedby="hub-exit-note"><h2 id="hub-exit-title">게임 허브로 이동할까요?</h2><p id="hub-exit-note">허브로 나가면 현재 진행 상황은 저장되지 않습니다.</p><div class="exit-actions"><button id="cancel-hub-exit" class="text-button" autofocus>계속 머무르기</button><a class="hub-link" href="${HUB_URL}">허브로 이동</a></div></dialog>`;
     document.querySelector<HTMLImageElement>('.portrait img')?.addEventListener('error', (e) => {
       (e.target as HTMLImageElement).hidden = true;
     });
@@ -130,18 +132,26 @@ export class Interface {
       return;
     }
     if (mode === 'title')
-      this.overlay.innerHTML = `<div class="title-content"><div class="eyebrow"><span class="gold-line"></span> CHAPTER ONE</div><h2>VALKYRIE</h2><div class="title-subtitle">THE ASHEN GATE</div><p>The light has left these halls.<br>Give the darkness something to fear.</p><button class="primary-button" id="start-button">BEGIN YOUR OATH <span>→</span></button><div class="start-note">PRESS ENTER TO BEGIN</div></div><div class="hero-caption"><span>ᛉ</span><div>EIRA<small>THE LAST OATHKEEPER</small></div></div>`;
+      this.overlay.innerHTML = `<div class="title-content"><div class="eyebrow"><span class="gold-line"></span> CHAPTER ONE</div><h2>VALKYRIE</h2><div class="title-subtitle">THE ASHEN GATE</div><p>The light has left these halls.<br>Give the darkness something to fear.</p><button class="primary-button" id="start-button">BEGIN YOUR OATH <span>→</span></button><button class="text-button forge-entry" id="forge-start-button">PLAY THE ASHEN FORGE</button><div class="start-note">PRESS ENTER TO BEGIN</div></div><div class="hero-caption"><span>ᛉ</span><div>EIRA<small>THE LAST OATHKEEPER</small></div></div>`;
     else {
       const title =
         mode === 'paused'
           ? 'A moment of stillness.'
           : mode === 'clear'
-            ? 'The oath endures.'
+            ? sim?.stageId === 'forge'
+              ? 'The forge falls silent.'
+              : 'The oath endures.'
             : 'Even light can fall.';
       const label = mode === 'paused' ? 'PAUSED' : mode === 'clear' ? 'STAGE CLEAR' : 'GAME OVER';
-      this.overlay.innerHTML = `<div class="menu-card"><span class="menu-rune">ᛉ</span><div class="eyebrow">${label}</div><h2>${title}</h2><p>${mode === 'paused' ? 'Your journey will wait.' : `Score ${String(sim?.score ?? 0).padStart(6, '0')} &nbsp; · &nbsp; Best combo ${sim?.bestCombo ?? 0}`}</p>${mode === 'paused' ? '<button class="primary-button" id="resume-button">RESUME JOURNEY <span>→</span></button>' : ''}<button class="${mode === 'paused' ? 'text-button' : 'primary-button'}" id="restart-button">${mode === 'clear' ? 'PLAY AGAIN' : 'RESTART JOURNEY'} <span>↻</span></button></div>`;
+      this.overlay.innerHTML = `<div class="menu-card"><span class="menu-rune">ᛉ</span><div class="eyebrow">${label}</div><h2>${title}</h2><p>${mode === 'paused' ? 'Your journey will wait.' : `Score ${String(sim?.score ?? 0).padStart(6, '0')} &nbsp; · &nbsp; Best combo ${sim?.bestCombo ?? 0}`}</p>${mode === 'paused' ? '<button class="primary-button" id="resume-button">RESUME JOURNEY <span>→</span></button>' : ''}${mode === 'clear' && sim?.stageId === 'gate' ? '<button class="primary-button" id="next-stage-button">ENTER THE ASHEN FORGE <span>→</span></button><p class="stage-carry">Carry score &amp; best combo · Restore HP</p>' : ''}<button class="${mode === 'paused' ? 'text-button' : 'primary-button'}" id="restart-button">${mode === 'clear' ? 'PLAY AGAIN' : 'RESTART JOURNEY'} <span>↻</span></button></div>`;
     }
     if (mode !== 'title') this.overlay.querySelector<HTMLButtonElement>('button')?.focus();
+    this.overlay
+      .querySelector('#forge-start-button')
+      ?.addEventListener('click', this.actions.startForge);
+    this.overlay
+      .querySelector('#next-stage-button')
+      ?.addEventListener('click', this.actions.nextStage);
     this.overlay.querySelector('#start-button')?.addEventListener('click', this.actions.start);
     this.overlay.querySelector('#restart-button')?.addEventListener('click', this.actions.start);
     this.overlay.querySelector('#resume-button')?.addEventListener('click', this.actions.resume);
@@ -171,14 +181,22 @@ export class Interface {
     document.querySelector<HTMLElement>('#hp-fill')!.style.width =
       `${(s.player.hp / s.player.maxHp) * 100}%`;
     document.querySelector('#hp-text')!.textContent = `${s.player.hp} / ${s.player.maxHp}`;
-    if (this.lastWave !== s.wave) {
-      this.lastWave = s.wave;
+    const waveKey = `${s.stageId}:${s.wave}:${s.sectionIndex}`;
+    if (this.lastWave !== waveKey) {
+      this.lastWave = waveKey;
       document.querySelector('#wave-label')!.textContent =
-        s.wave === 3
-          ? 'FINAL ENCOUNTER'
-          : `ENCOUNTER ${String(Math.min(s.wave + 1, 4)).padStart(2, '0')} / 04`;
-      document.querySelector('#wave-name')!.textContent = waves[s.wave]?.name ?? 'THE GATE IS OPEN';
+        s.stageId === 'forge'
+          ? `AREA ${String(s.sectionIndex + 1).padStart(2, '0')} / 05`
+          : s.wave === 3
+            ? 'FINAL ENCOUNTER'
+            : `ENCOUNTER ${String(Math.min(s.wave + 1, 4)).padStart(2, '0')} / 04`;
+      document.querySelector('#wave-name')!.textContent =
+        s.stage.sections[s.sectionIndex]?.name ?? s.stage.waves[s.wave]?.name ?? 'THE GATE IS OPEN';
     }
+    document.querySelector('#chapter-title')!.textContent = `${s.stage.title} / ${s.stage.chapter}`;
+    document.querySelector('.scene-caption span')!.textContent =
+      s.stageId === 'forge' ? 'THE ASHEN FORGE' : 'THE RUINS OF HALVARD';
+    document.querySelector('#boss-name')!.textContent = s.stage.bossName;
     const combo = document.querySelector<HTMLElement>('#combo')!;
     combo.hidden = s.combo < 2;
     combo.querySelector('strong')!.textContent = `${s.combo}`;
@@ -188,8 +206,16 @@ export class Interface {
       document.querySelector<HTMLElement>('#boss-fill')!.style.width =
         `${(boss.hp / boss.maxHp) * 100}%`;
       document.querySelector('#boss-phase')!.textContent =
-        boss.hp <= boss.maxHp / 2 ? 'ENRAGED' : 'THE GATEKEEPER';
+        boss.hp <= boss.maxHp / 2
+          ? 'ENRAGED'
+          : s.stageId === 'forge'
+            ? 'THE FORGE WARDEN'
+            : 'THE GATEKEEPER';
     }
     document.querySelector<HTMLElement>('#travel-hint')!.hidden = s.active;
+    document.querySelector('#travel-hint')!.textContent =
+      s.stageId === 'forge' && s.sectionIndex === 3
+        ? 'COOLING GARDEN · OPTIONAL HEAL ABOVE →'
+        : 'FOLLOW THE FALLEN LIGHT →';
   }
 }

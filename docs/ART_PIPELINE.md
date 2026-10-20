@@ -116,3 +116,11 @@ These are prototype visuals. The flames use geometric shapes and the barricade h
 The three masonry piers, capstones, seams, runes, ground footprints and passage chevrons are original code-authored Phaser graphics in `src/game/scenes/EnvironmentView.ts`. Their geometry/height comes from `pillarDefinitions` in `src/data/environment.ts`; ground vertices come from the same `depthProfile` used by simulation. Each pier sorts by ground/depth center and fades only for visual occlusion; collision and arrow interception remain unchanged when translucent.
 
 No external or AI-generated raster assets are introduced by phase 2, and no sprite sheets or asset-generation commands are changed for this feature. Stone geometry is deliberately simple prototype art; alpha fading and marked footprints keep the combat area readable.
+
+## Ashen Forge five-area scenery — 2026-10-21
+
+`src/game/scenes/ForgeView.ts` contains original procedural brickwork, cinder arch, stockhouse crates, furnaces/chimneys/grilles, cooling basin/plants, warden seal, conduits and pressure indicators. `forgeSections` supplies the five palettes and region boundaries; `depthProfile` supplies the same ground silhouette used by simulation. Static props sit behind the walkable floor, while devices and fire read simulation state. `EnvironmentView` renders each stage's barriers, stone and vents through stable ID registries and ground-depth sorting.
+
+The forge warden reuses the approved existing boss frames, with a warm presentation tint in ArenaView and stage-specific name. No new character pose, weapon rig, generated PNG, manifest or attack-contact registration is introduced. Existing attack timings/collision metadata remain synchronized with their authored frames. The scenery is geometric prototype art; the warden does not yet have a distinct authored character design or bespoke soundtrack. Audio reuses existing synthesized combat, warning and result sounds. No external assets or paid service are required.
+
+Desktop/mobile render checks include all five areas, blocked machinery states, the slam warning/active bank, charge destruction, gate-to-forge menu and final completion. Current verification details and screenshot locations are in QA.md.

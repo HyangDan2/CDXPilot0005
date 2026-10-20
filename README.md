@@ -1,6 +1,6 @@
 # VALKYRIE — The Ashen Gate
 
-A single-player 2.5D arcade action game. Play as Eira, a silver-haired Valkyrie, and fight through a ruined corridor to defeat the Hollow King. Built with Phaser 3, TypeScript and Vite; runs in the browser without an account or backend.
+A single-player 2.5D arcade action game. Play as Eira, a silver-haired Valkyrie, and fight through the ruined Ashen Gate and the five areas of the Ashen Forge to defeat their wardens. Built with Phaser 3, TypeScript and Vite; runs in the browser without an account or backend.
 
 **[Play now](https://hyangdan2.github.io/CDXPilot0005/)** · [Animation preview](https://hyangdan2.github.io/CDXPilot0005/sd-review.html) · [Changelog](docs/CHANGELOG.md)
 
@@ -15,7 +15,8 @@ _Sword combat — face melee fighters and archers in the ruined corridor._
 - Dodge rolls with a visible recharge meter, plus limits on repeated aerial juggling.
 - A widened opening courtyard with a breakable barricade and a furnace vent that warns before burning. Detour or break through, and use jumping or timed dodge rolls to avoid fire.
 - A stone cloister with alternating S-shaped passages and permanent arrow-blocking cover. Archers reposition for a clear lane, and stone fades when it would hide actors.
-- Three regular encounters and a boss fight, with distinct melee and archer roles. The boss calls reinforcements as its health falls.
+- A second stage, **The Ashen Forge**: cinder approach, stockhouse, furnace hall, cooling garden and warden arena. Slams activate warned vent banks; charges smash barricades.
+- Three regular encounters and a boss fight in the opening stage, with distinct melee and archer roles. The boss calls reinforcements as its health falls.
 - SD character animation, synthesized medieval-style music, and separate victory and defeat themes.
 - Keyboard controls and landscape touch controls, with audio and touch layout settings in the top-right menu.
 
@@ -49,7 +50,7 @@ The dodge meter beneath HP recharges after each roll. **READY** means rolling is
 
 For the spin special, release both J and K first, then press them together while grounded and idle, walking or running. Current HP must exceed 20% of maximum HP. The first hit costs 20% of maximum HP once per use; a miss does not charge that cost.
 
-There is no automatic healing between encounters. Defeated enemies have a small chance to drop a healing potion. Defeating the boss ends the stage, including any remaining reinforcements.
+There is no automatic healing between encounters. Defeated enemies have a small chance to drop a healing potion. Defeating the boss ends the stage, including any remaining reinforcements. The gate clear screen offers entry to the Ashen Forge with full HP and carried score/best combo. The title also offers a fresh direct forge run. Restart returns to the current stage’s entry checkpoint and score. The cooling garden has one optional +50% HP potion; defeating the forge warden awards a 1,000-point completion bonus.
 
 ### Touch
 
@@ -130,6 +131,6 @@ For a fork, select **GitHub Actions** as the Pages deployment source and allow t
 - [QA record](docs/QA.md)
 - [Changelog](docs/CHANGELOG.md)
 
-The current scope is one single-player stage, with no save system, gamepad support or multiplayer. Character artwork uses AI-generated key poses; small ornament and limb differences remain between frames. Music and sound effects are synthesized.
+The current scope is two single-player stages, with no save system, gamepad support or multiplayer. Character artwork uses AI-generated key poses; small ornament and limb differences remain between frames. Music and sound effects are synthesized. Forge scenery and machinery use original procedural prototype graphics; its warden reuses the existing authored boss poses with a warm tint.
 
 Automated browser checks cover Chromium, including mobile touch emulation. Physical iOS/Android devices and other browser engines have not been verified. Some in-game labels and supporting documents remain in Korean.

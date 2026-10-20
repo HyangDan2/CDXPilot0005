@@ -1,9 +1,11 @@
+import { stages } from '../../data/stages';
 import Phaser from 'phaser';
 import {
-  barricadeDefinitions,
+  allBarricades,
   prototypeArena,
   depthProfile,
-  pillarDefinitions,
+  allPillars,
+  allFlames,
   stageDepth,
 } from '../../data/environment';
 import type { Actor } from '../entities/types';
@@ -15,17 +17,17 @@ export class EnvironmentView {
   private pillars: Phaser.GameObjects.Graphics[];
   private walls: Phaser.GameObjects.Graphics[];
   private labels: Phaser.GameObjects.Text[];
-  private warning: Phaser.GameObjects.Text;
+  private warnings = new Map<string, Phaser.GameObjects.Text>();
   constructor(scene: Phaser.Scene) {
     const floor = scene.add.graphics().setDepth(-20);
     floor.fillStyle(0x344447).beginPath();
     floor.moveTo(24, stageDepth(24)[0]);
     for (const p of depthProfile.slice(1)) floor.lineTo(p.x, p.minY);
-    floor.lineTo(3600, 494).lineTo(24, 494).closePath().fillPath();
+    floor.lineTo(7200, 494).lineTo(24, 494).closePath().fillPath();
     floor.lineStyle(2, 0x8c9582, 0.65).beginPath().moveTo(24, stageDepth(24)[0]);
     for (const p of depthProfile.slice(1)) floor.lineTo(p.x, p.minY);
-    floor.strokePath().lineBetween(24, 489, 3600, 489);
-    for (let x = 48; x < 3600; x += 64) {
+    floor.strokePath().lineBetween(24, 489, 7200, 489);
+    for (let x = 48; x < 7200; x += 64) {
       floor.lineStyle(1, 0x75827a, 0.16).lineBetween(x, stageDepth(x)[0] + 4, x - 20, 488);
       for (let y = 356; y < 490; y += 32)
         if (y > stageDepth(x)[0]) floor.lineBetween(x - 24, y, x + 40, y);
@@ -36,7 +38,7 @@ export class EnvironmentView {
     scene.add
       .text(1140, 300, 'BROKEN CLOISTER', { fontSize: '12px', color: '#b3c1ad', letterSpacing: 2 })
       .setDepth(298);
-    this.pillars = pillarDefinitions.map((p) => {
+    this.pillars = allPillars.map((p) => {
       const g = scene.add.graphics().setDepth(p.y + p.depth / 2);
       g.fillStyle(0x101d23, 0.45).fillEllipse(
         p.x + p.width / 2,
@@ -63,8 +65,8 @@ export class EnvironmentView {
       return g;
     });
     this.ground = scene.add.graphics().setDepth(298);
-    this.walls = barricadeDefinitions.map((w) => scene.add.graphics().setDepth(w.y + w.depth / 2));
-    this.labels = barricadeDefinitions.map((w) =>
+    this.walls = allBarricades.map((w) => scene.add.graphics().setDepth(w.y + w.depth / 2));
+    this.labels = allBarricades.map((w) =>
       scene.add
         .text(w.x + w.width / 2, prototypeArena.minY - 160, '', {
           fontSize: '11px',
@@ -75,19 +77,28 @@ export class EnvironmentView {
         .setOrigin(0.5)
         .setDepth(800),
     );
-    this.warning = scene.add
-      .text(820, prototypeArena.minY - 160, '', {
-        fontSize: '12px',
-        color: '#ffe0a0',
-        backgroundColor: '#192329ee',
-        padding: { x: 5, y: 3 },
-      })
-      .setOrigin(0.5, 1)
-      .setDepth(800);
+    for (const f of allFlames)
+      this.warnings.set(
+        f.id,
+        scene.add
+          .text(f.x + f.width / 2, f.x >= stages.forge.start ? 120 : 170, '', {
+            fontSize: '12px',
+            color: '#ffe0a0',
+            backgroundColor: '#192329ee',
+            padding: { x: 5, y: 3 },
+          })
+          .setOrigin(0.5, 1)
+          .setDepth(800),
+      );
   }
   render(environment: StageEnvironment, title: boolean, actors: readonly Actor[] = []) {
     this.ground.clear().setVisible(!title);
-    environment.pillars.forEach((p, i) => {
+    this.pillars.forEach((p) => p.setVisible(false));
+    this.walls.forEach((w) => w.clear().setVisible(false));
+    this.labels.forEach((l) => l.setVisible(false));
+    this.warnings.forEach((w) => w.setVisible(false));
+    environment.pillars.forEach((p) => {
+      const i = allPillars.findIndex((d) => d.id === p.id);
       const obscuresActor = actors.some(
         (a) =>
           a.hp > 0 &&
@@ -123,23 +134,27 @@ export class EnvironmentView {
             this.ground.fillStyle(0xffee9a, 0.9).fillTriangle(x - 3, y, x + 3, y, x, y - h * 0.55);
           }
       }
-      this.warning
+      this.warnings
+        .get(f.id)!
         .setText(
           f.phase === 'warning'
             ? '! HEAT INCOMING !'
             : f.phase === 'active'
               ? 'FIRE — MOVE / JUMP'
-              : 'FURNACE VENT',
+              : f.controlled
+                ? 'SLAM → PRESSURE VENT'
+                : 'FURNACE VENT',
         )
-        .setVisible(!title);
+        .setVisible(!title && (!f.controlled || f.phase !== 'rest'));
     }
-    environment.barricades.forEach((w, index) => {
+    environment.barricades.forEach((w) => {
+      const index = allBarricades.findIndex((d) => d.id === w.id);
       const g = this.walls[index];
       g.clear().setVisible(!title);
       const label = this.labels[index];
       label
         .setVisible(!title && w.hp > 0)
-        .setText(`BARRICADE ${w.hp} / ${barricadeDefinitions[index].hp}`);
+        .setText(`BARRICADE ${w.hp} / ${allBarricades[index].hp}`);
       if (w.hp <= 0) {
         g.setDepth(298);
         for (let i = 0; i < 6; i++)

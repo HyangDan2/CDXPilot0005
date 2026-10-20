@@ -17,12 +17,13 @@ export function advanceArrows(
   dt: number,
   hit: (target: Actor, damage: number) => void,
   intercept?: (arrow: Arrow, before: number, end: number) => boolean,
+  worldEnd = 3600,
 ) {
   return arrows.filter((arrow) => {
     const before = arrow.x;
     arrow.x += arrow.facing * (arrow.player ? 520 : 350) * dt;
     arrow.age += dt;
-    if (arrow.age > 1.5 || arrow.x < 0 || arrow.x > 3600) return false;
+    if (arrow.age > 1.5 || arrow.x < 0 || arrow.x > worldEnd) return false;
     const targets = actors
       .filter((a) => a.id !== arrow.owner && (a.kind === 'player') !== arrow.player && a.hp > 0)
       .sort((a, b) => Math.abs(a.x - before) - Math.abs(b.x - before));

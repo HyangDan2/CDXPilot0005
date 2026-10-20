@@ -1,3 +1,11 @@
+## Unreleased — The Ashen Forge
+
+- Add a separate second stage with five areas: cinder approach, stockhouse, furnace hall, cooling garden and forge warden arena. Introduce destructible stockades, stockhouse cover, alternating furnace vents and an optional +50% HP garden potion before the boss combines the mechanics.
+- Add title entry and gate-clear continuation into the forge. Carry score, best combo, kills and weapon while restoring HP. Restart the current stage from its entry totals; final forge completion extinguishes machinery, removes support and awards a one-time 1,000-point bonus.
+- Forge warden slams activate alternating vent banks after a 1.4s warning, with a safe middle/opposite depth lane; committed charges shatter swept wooden barriers. Both sides take the same environment damage.
+- Add original procedural scenery, pipes, pressure indicators, area HUD, stage-specific boss name and warm boss tint using existing authored poses.
+- Add stage-flow/device tests, a full five-area input-driven playthrough and browser coverage for entry, continuation, garden recovery, machinery, completion, restart and landscape touch.
+
 ## Unreleased — stone cover and S passage
 
 - Add three permanent, 120-unit-high stone piers to the widened second encounter. Alternating bottom/top/bottom gaps form an S passage; stone blocks arrows from both sides and melee through its footprint.

@@ -1,3 +1,5 @@
+import { Simulation } from '../entities/simulation';
+import { startAttack } from '../combat/combat';
 import { StageEnvironment } from '../entities/environment';
 import type { ArenaScene } from './ArenaScene';
 import { waves } from '../../data/stage';
@@ -7,6 +9,10 @@ export function installHarness(scene: ArenaScene) {
   window.__VALKYRIE__ = {
     snapshot: () => ({
       mode: scene.ui.mode,
+      stageId: scene.sim.stageId,
+      section: scene.sim.sectionIndex,
+      score: scene.sim.score,
+      bestCombo: scene.sim.bestCombo,
       audio: scene.audioStatus(),
       cameraX: scene.cameras.main.scrollX,
       player: {
@@ -22,10 +28,11 @@ export function installHarness(scene: ArenaScene) {
       },
       environment: {
         time: scene.sim.environment.time,
-        barricades: scene.sim.environment.barricades.map((w) => ({ hp: w.hp })),
+        barricades: scene.sim.environment.barricades.map((w) => ({ id: w.id, hp: w.hp })),
         pillars: scene.sim.environment.pillars.map((p) => ({ x: p.x, y: p.y })),
-        flames: scene.sim.environment.flames.map((f) => ({ phase: f.phase })),
+        flames: scene.sim.environment.flames.map((f) => ({ id: f.id, phase: f.phase })),
       },
+      loot: scene.sim.loot.map((l) => ({ id: l.id, x: l.x, y: l.y })),
       arrows: scene.sim.arrows.length,
       wave: scene.sim.wave,
       combo: scene.sim.combo,
@@ -41,7 +48,57 @@ export function installHarness(scene: ArenaScene) {
       status: scene.sim.status,
     }),
     fixture: (name) => {
+      if (name.startsWith('forge') && scene.sim.stageId !== 'forge')
+        scene.sim = new Simulation(731, 'forge');
       const s = scene.sim;
+      if (name === 'gateReward') {
+        s.wave = 3;
+        s.active = true;
+        s.score = 1234;
+        s.bestCombo = 9;
+        s.player.hp = 22;
+        const boss = createActor(100, 'boss', 3300, 420);
+        boss.hp = 0;
+        s.enemies = [boss];
+      }
+      const forgeArea = {
+        forgeEntry: 0,
+        forgeStockhouse: 1,
+        forgeFurnace: 2,
+        forgeGarden: 3,
+        forgeBoss: 4,
+        forgeSlam: 4,
+        forgeCharge: 4,
+        forgeClear: 4,
+      };
+      if (name in forgeArea) {
+        s.wave = forgeArea[name as keyof typeof forgeArea];
+        s.active = false;
+        s.player = createActor(0, 'player', s.stage.waves[s.wave].trigger, 410);
+        s.environment = new StageEnvironment('forge');
+        s.enemies = [];
+        s.arrows = [];
+        s.hitStop = 0;
+        s.loot = [];
+        if (name === 'forgeGarden') s.player.hp = 90;
+        if (name === 'forgeSlam' || name === 'forgeCharge' || name === 'forgeClear') {
+          s.active = true;
+          const boss = createActor(
+            100,
+            'boss',
+            name === 'forgeCharge' ? 6830 : 6880,
+            name === 'forgeCharge' ? 420 : 440,
+          );
+          s.enemies = [boss];
+          if (name === 'forgeClear') boss.hp = 0;
+          else startAttack(boss, name === 'forgeSlam' ? 'slam' : 'charge');
+          if (name === 'forgeCharge') {
+            boss.facing = -1;
+            s.player.x = 6650;
+            s.player.y = 420;
+          }
+        }
+      }
       if (name === 'cloister' || name === 'pillarCover' || name === 'cloisterBattle') {
         s.wave = 1;
         s.active = name !== 'cloisterBattle';
@@ -123,6 +180,11 @@ declare global {
     __VALKYRIE__?: {
       snapshot: () => {
         mode: string;
+        stageId: string;
+        section: number;
+        score: number;
+        bestCombo: number;
+        loot: { id: number; x: number; y: number }[];
         audio: ReturnType<ArenaScene['audioStatus']>;
         cameraX: number;
         player: {
@@ -138,9 +200,9 @@ declare global {
         };
         environment: {
           time: number;
-          barricades: { hp: number }[];
+          barricades: { id: number; hp: number }[];
           pillars: { x: number; y: number }[];
-          flames: { phase: string }[];
+          flames: { id: string; phase: string }[];
         };
         arrows: number;
         wave: number;
@@ -158,6 +220,15 @@ declare global {
       };
       fixture: (
         name:
+          | 'gateReward'
+          | 'forgeEntry'
+          | 'forgeStockhouse'
+          | 'forgeFurnace'
+          | 'forgeGarden'
+          | 'forgeBoss'
+          | 'forgeSlam'
+          | 'forgeCharge'
+          | 'forgeClear'
           | 'combat'
           | 'archer'
           | 'boss'

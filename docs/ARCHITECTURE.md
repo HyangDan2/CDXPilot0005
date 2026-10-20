@@ -6,7 +6,7 @@
 
 Simulation never imports Phaser, document or window. Input is read once per fixed step; queued key edges survive render frames that contain no step. A fixed 1/60 s clock clamps long frame gaps to 100 ms, preventing a background-tab spiral. Thus ordinary 30–144 Hz refresh changes do not change game speed. Large stalls intentionally drop elapsed time instead of catching up many seconds.
 
-Actor owns X, ground Y, height Z, velocity, HP, facing, FSM, attack ledger and AI state/timers. Projection is `(x, y-z)` and render depth is ground Y, including when airborne. Movement is normalized diagonally and restricted to the terrace (Y 376–480). ActorView renders image/weapon/shadow separately. Camera follows X with exponential smoothing and world bounds.
+Actor owns X, ground Y, height Z, velocity, HP, facing, FSM, attack ledger and AI state/timers. Projection is `(x, y-z)` and render depth is ground Y, including when airborne. Movement is normalized diagonally and restricted by the piecewise-linear floor profile (Y 330–480 in widened rooms, returning to 376–480 in the original corridors). ActorView renders image/weapon/shadow separately. Camera follows X with exponential smoothing and world bounds.
 
 ## Combat update order
 
@@ -25,7 +25,11 @@ FSM guards prohibit locomotion during attacks and restrict knockdown→recovery�
 
 AI: Idle/Chase/Attack/Recover/Hit/Down/Death. Kind selects chase speed, range, guarding and pattern. At most two enemies initiate attacks concurrently. Spawn depth is seeded (default 731); no frame-random AI decisions. Boss performs triple melee, charge and slam; below half HP, speed increases and charge/slam recur more often. Startup tells are rendered from authoritative attack phase/hitbox data.
 
-Stage data contains travel triggers, arena end bounds and enemy composition. Entering a trigger spawns a wave. While active, movement is contained to its arena. All enemies dead unlocks travel and restores 30 HP. Wave four completion emits clear; HP zero takes precedence over wave clear.
+Stage definitions in `src/data/stages.ts` contain active world bounds, entry, waves, section names and completion reward. The gate retains four encounters; the forge has five areas including an empty garden wave with one optional recovery pickup. Entering a trigger spawns its authored/seeded wave; all enemies dead unlocks travel without automatic between-encounter healing. A final boss defeat clears surviving reinforcements/arrows, extinguishes machinery, applies the stage reward once and emits clear. Player HP zero takes precedence.
+
+`Simulation.nextStage()` derives a fresh forge model only from gate clear, carrying score/best combo/kills/weapon into an entry checkpoint with full HP. `restartStage()` restores the current stage and those entry totals. ArenaScene activates the returned model, clears input and fixed-clock state, and resets views/camera/audio. Native title, stage-clear and replay buttons call these transitions; presentation does not decide completion.
+
+`StageEnvironment(stageId)` owns the selected solids, periodic/manual vents and hit ledgers. Forge charge sweeps break wood before collision; a landed active slam triggers an alternating, non-stacking warned bank after attack advancement. Both sides use the same environmental damage rules. `EnvironmentView` and `ForgeView` read those states to draw original procedural scenery, machinery and effects. Stage bounds are explicit for camera/projectiles, while original helper defaults remain compatible with the first map.
 
 ## Presentation and lifecycle
 

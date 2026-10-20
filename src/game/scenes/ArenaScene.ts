@@ -22,6 +22,11 @@ export class ArenaScene extends Phaser.Scene {
     ensureFallbacks(this);
     this.ui = new Interface({
       start: () => this.start(),
+      startForge: () => this.activate(new Simulation(731, 'forge')),
+      nextStage: () => {
+        const next = this.sim.nextStage();
+        if (next) this.activate(next);
+      },
       pause: () => this.pause(),
       resume: () => this.resume(),
       volume: (v) => this.soundEngine.setVolume(v),
@@ -99,10 +104,15 @@ export class ArenaScene extends Phaser.Scene {
   }
   start() {
     if (this.controller.touchBlocked) return;
-    this.sim = new Simulation();
+    this.activate(this.ui.mode === 'title' ? new Simulation() : this.sim.restartStage());
+  }
+  private activate(sim: Simulation) {
+    if (this.controller.touchBlocked) return;
+    this.sim = sim;
     this.controller.clear();
     this.clock.reset();
     this.view.reset();
+    this.cameras.main.scrollX = this.sim.stage.start;
     this.ui.setMode('playing');
     this.game.canvas.focus({ preventScroll: true });
     this.ui.update(this.sim);

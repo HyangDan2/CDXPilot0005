@@ -1,13 +1,21 @@
+import type { StageId } from '../../data/stages';
 import {
   barricadeDefinitions,
   pillarDefinitions,
   flameDefinitions,
   flameRules,
   flameTiming,
+  forgeBarricadeDefinitions,
+  forgePillarDefinitions,
+  forgeFlameDefinitions,
+  forgeDeviceRules,
+  type BarricadeDefinition,
+  type PillarDefinition,
+  type FlameDefinition,
 } from '../../data/environment';
 import { attacks, attackPhase } from '../../data/attacks';
 import { hitbox, payAttackCost } from '../combat/combat';
-import { firstArrowBlocker, inside } from '../physics/obstacles';
+import { firstArrowBlocker, inside, crosses, expanded, type Point } from '../physics/obstacles';
 import { setState } from './stateMachine';
 import type { Actor, GameEvent } from './types';
 import type { Arrow } from './projectiles';
@@ -23,14 +31,38 @@ export function flamePhase(time: number, offset = 0): FlamePhase {
 }
 export class StageEnvironment {
   time = 0;
-  barricades = barricadeDefinitions.map((d) => ({ ...d, hp: Number(d.hp) }));
-  readonly pillars = pillarDefinitions;
+  barricades: BarricadeDefinition[];
+  readonly pillars: readonly PillarDefinition[];
+  private readonly vents: readonly FlameDefinition[];
+  private readonly firedAt = new Map<string, number>();
+  private bank = 0;
+  private stopped = false;
+  constructor(readonly stageId: StageId = 'gate') {
+    this.barricades = (stageId === 'gate' ? barricadeDefinitions : forgeBarricadeDefinitions).map(
+      (d) => ({ ...d }),
+    );
+    this.pillars = stageId === 'gate' ? pillarDefinitions : forgePillarDefinitions;
+    this.vents = stageId === 'gate' ? flameDefinitions : forgeFlameDefinitions;
+  }
   get solids() {
     return [...this.barricades, ...this.pillars];
   }
   private lastDamage = new Map<number, number>();
   get flames() {
-    return flameDefinitions.map((d) => ({ ...d, phase: flamePhase(this.time, d.offset) }));
+    return this.vents.map((d) => {
+      const started = this.firedAt.get(d.id);
+      const elapsed = started === undefined ? Infinity : this.time - started;
+      const phase: FlamePhase = this.stopped
+        ? 'rest'
+        : d.controlled
+          ? elapsed < forgeDeviceRules.warning
+            ? 'warning'
+            : elapsed < forgeDeviceRules.warning + forgeDeviceRules.active
+              ? 'active'
+              : 'rest'
+          : flamePhase(this.time, d.offset);
+      return { ...d, phase };
+    });
   }
   advance(dt: number, emit: (event: GameEvent) => void) {
     const before = this.flames;
@@ -38,6 +70,47 @@ export class StageEnvironment {
     for (const f of this.flames)
       if (f.phase === 'warning' && before.find((p) => p.id === f.id)?.phase !== 'warning')
         emit({ type: 'hazardWarning', x: f.x + f.width / 2, y: f.y + f.depth / 2 });
+  }
+  extinguish() {
+    this.stopped = true;
+    this.firedAt.clear();
+  }
+  bossMotion(a: Actor, before: Point, emit: (event: GameEvent) => void) {
+    if (
+      this.stopped ||
+      this.stageId !== 'forge' ||
+      a.kind !== 'boss' ||
+      a.hp <= 0 ||
+      a.attack?.id !== 'charge' ||
+      attackPhase('charge', a.attack.elapsed) !== 'active'
+    )
+      return;
+    for (const wall of this.barricades)
+      if (wall.hp > 0 && crosses(before, a, expanded(wall, 16, 10))) {
+        const value = wall.hp;
+        wall.hp = 0;
+        emit({ type: 'hit', x: wall.x + wall.width / 2, y: wall.y - wall.height / 2, value });
+      }
+  }
+  bossImpact(a: Actor, emit: (event: GameEvent) => void) {
+    if (
+      this.stopped ||
+      this.stageId !== 'forge' ||
+      a.kind !== 'boss' ||
+      a.hp <= 0 ||
+      a.z !== 0 ||
+      a.attack?.id !== 'slam' ||
+      attackPhase('slam', a.attack.elapsed) !== 'active' ||
+      a.attack.hit.has(forgeDeviceRules.slamMarker)
+    )
+      return;
+    a.attack.hit.add(forgeDeviceRules.slamMarker);
+    if (this.flames.some((f) => f.controlled && f.phase !== 'rest')) return;
+    const devices = this.vents.filter((f) => f.controlled);
+    const device = devices[this.bank++ % devices.length];
+    if (!device) return;
+    this.firedAt.set(device.id, this.time);
+    emit({ type: 'hazardWarning', x: device.x + device.width / 2, y: device.y + device.depth / 2 });
   }
   strike(a: Actor, emit: (event: GameEvent) => void) {
     const attack = a.attack;

@@ -66,7 +66,12 @@ export function meleeOccluded(a: Actor, b: Actor, solids: readonly Solid[]): boo
 }
 export function onGround(p: Point): boolean {
   const [minY, maxY] = stageDepth(p.x);
-  return p.x >= 24 && p.x <= 3576 && p.y >= minY - 1e-7 && p.y <= maxY + 1e-7;
+  return (
+    p.x >= 24 &&
+    p.x <= depthProfile[depthProfile.length - 1].x - 24 &&
+    p.y >= minY - 1e-7 &&
+    p.y <= maxY + 1e-7
+  );
 }
 function groundSegment(a: Point, b: Point): boolean {
   if (!onGround(a) || !onGround(b)) return false;

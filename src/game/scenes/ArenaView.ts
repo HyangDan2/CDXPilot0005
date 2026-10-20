@@ -1,3 +1,4 @@
+import { ForgeView } from './ForgeView';
 import { firstArrowBlocker } from '../physics/obstacles';
 import { EnvironmentView } from './EnvironmentView';
 import Phaser from 'phaser';
@@ -17,6 +18,7 @@ interface Spark {
   value?: number;
 }
 export class ArenaView {
+  private forge: ForgeView;
   private environment: EnvironmentView;
   private actors = new Map<number, ActorView>();
   private shadows: Phaser.GameObjects.Graphics;
@@ -46,6 +48,7 @@ export class ArenaView {
       .setOrigin(0.5)
       .setDepth(-29);
     this.environment = new EnvironmentView(scene);
+    this.forge = new ForgeView(scene);
     this.shadows = scene.add.graphics().setDepth(299);
     this.effects = scene.add.graphics().setDepth(800);
     this.debugText = scene.add
@@ -87,6 +90,7 @@ export class ArenaView {
   render(s: Simulation, delta: number, debug: boolean, title: boolean, paused: boolean) {
     const dt = paused ? 0 : Math.min(delta / 1000, 0.05);
     this.environment.render(s.environment, title, [s.player, ...s.enemies]);
+    this.forge.render(s, title);
     this.effects.clear();
     this.shadows.clear();
     if (title) {
@@ -110,6 +114,7 @@ export class ArenaView {
         this.actors.set(a.id, view);
       }
       view.update(a);
+      view.body.setTint(a.kind === 'boss' && s.stageId === 'forge' ? 0xffbd88 : 0xffffff);
       view.body.setVisible(!title);
       view.sword.setVisible(!title && view.sword.visible);
       if (title) continue;
@@ -209,7 +214,7 @@ export class ArenaView {
         .lineBetween(item.x, item.y - 11, item.x, item.y - 5);
     }
     if (!title) {
-      const target = cameraTarget(s.player.x);
+      const target = cameraTarget(s.player.x, s.stage.end, s.stage.start);
       this.scene.cameras.main.scrollX +=
         (target - this.scene.cameras.main.scrollX) * (1 - Math.exp(-dt * 8));
     }
@@ -227,7 +232,7 @@ export class ArenaView {
     this.sparks = this.sparks.filter((p) => p.life > 0);
     const time = title ? this.titleActor.stateTime : s.time;
     for (let i = 0; i < 32; i++) {
-      const x = (i * 127 + time * (6 + (i % 3))) % 3600,
+      const x = s.stage.start + ((i * 127 + time * (6 + (i % 3))) % 3600),
         y = 90 + ((i * 67) % 340) + Math.sin(time + i) * 8;
       this.effects
         .fillStyle(i % 3 ? 0xc1cbac : 0xeec77d, 0.2 + (Math.sin(time * 2 + i) + 1) * 0.15)
