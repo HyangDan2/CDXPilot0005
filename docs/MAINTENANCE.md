@@ -91,3 +91,7 @@ E2E port override: `PORT=4183 npm run test:e2e` uses the same port for preview s
 ### v12 readiness and boss reinforcements
 
 `PLAYER.rollCooldown` and `canRoll` are shared by simulation and HUD. Support thresholds/caps live in `src/data/bossReinforcements.ts`; the deterministic queue lives in `entities/reinforcements.ts`. Presentation only draws its warnings. See `art/READINESS_V12.md` for the costume/bow regeneration pipeline.
+
+### Bow idle playback
+
+`public/assets/sd-v3/bow-idle.json` is the shared bow idle clip definition (durations in seconds). The runtime imports it and the review page fetches it, converting durations to milliseconds. Keep shooting/running frames out of this clip. Unit coverage verifies the loop boundary, facing directions, action overrides and an actual switch followed by idle simulation.

@@ -83,3 +83,14 @@ See docs/art/UPGRADE_QA.md for sequential generation and visual review. Final ve
 - Initial E2E run: 12/13 passed; production page returned 404 while another concurrent verification rebuilt `dist`. Re-running E2E after build completion avoids this artifact-directory race. Do not run two production build writers against the same `dist` during browser tests.
 - Physical mobile hardware and remote deployment are not verified.
 - Final sequential `PORT=4183 npm run test:e2e`: **13/13 passed** (56.0 seconds), including production URL, mobile multitouch/rotation, recharge and boss support. `git diff --check`: pass.
+
+### 2026-10-20 bow idle playback
+
+- Fixed the runtime's constant bow idle frame. The game and review page now use the same two-pose, three-second clip definition.
+- Visually checked actual game screenshots after switching to bow and again after 1.6 seconds: relaxed low bow, empty hands/no nocked arrow, feet on the ground, and visibly different idle poses. Screenshots: `screenshots/bow-idle-loop-start.png`, `screenshots/bow-idle-loop-breath.png`.
+- Artwork was not regenerated. This restores the existing restrained two-key-pose animation; it is not a new interpolated six/eight-frame breathing cycle.
+- Validation: `npm run verify` passed (92 unit/integration tests, assets, lint, types and build); sequential `PORT=4183 npm run test:e2e` passed 13/13. `git diff --check` passed. No remote deployment performed for this fix.
+
+### README gallery refresh
+
+Four unretouched game-area captures from the current local build replace the old roll screenshot in the README: `readme-sword.png`, `readme-bow.png`, `readme-boss.png`, `readme-mobile.png`. Desktop images are 1200×675; the mobile emulation image is 960×540. Sword and mobile captures use the first encounter with movement input; bow and boss captures start from the existing `archer` and `bossSupport` test fixtures and then advance the actual game. These are illustrative runtime screenshots, not evidence of a full manual boss playthrough or physical mobile validation. All four were visually inspected for visible actors, HUD, weapons and control placement. Historical QA screenshots are retained.

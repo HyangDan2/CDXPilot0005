@@ -76,3 +76,9 @@ Two-handed sword art; K guard replaces kick; down-forward-J rising replaces L; s
 - Revised all 146 Eira poses for ivory skirt/gold hem and fitted boot continuity; low bow idle and matching eight-frame walk, arrow-free equip/unequip.
 - Lengthened player flight arrows from 32 to 48 pixels without changing damage or collision.
 - Added telegraphed, capped boss support at 70% and 35% HP; boss defeat clears remaining support immediately.
+
+## 2026-10-20 — Bow idle playback fix
+
+- Fix bow idle being pinned to frame zero after switching weapons. Play the two existing relaxed poses in a three-second loop.
+- Share bow-idle frame order and timing between the game and animation review through `public/assets/sd-v3/bow-idle.json`.
+- Preserve authored artwork, weapon geometry and all combat timing.

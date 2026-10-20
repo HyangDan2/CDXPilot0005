@@ -4,7 +4,9 @@ A single-player 2.5D arcade action game. Play as Eira, a silver-haired Valkyrie,
 
 **[Play now](https://hyangdan2.github.io/CDXPilot0005/)** · [Animation preview](https://hyangdan2.github.io/CDXPilot0005/sd-review.html) · [Changelog](docs/CHANGELOG.md)
 
-![Eira performing a dodge, with the recharge meter beneath her health bar](docs/screenshots/v12-roll-charging.png)
+![Eira preparing a sword strike against the Outer Watch](docs/screenshots/readme-sword.png)
+
+_Sword combat — face melee fighters and archers in the ruined corridor._
 
 ## Features
 
@@ -14,6 +16,11 @@ A single-player 2.5D arcade action game. Play as Eira, a silver-haired Valkyrie,
 - Three regular encounters and a boss fight, with distinct melee and archer roles. The boss calls reinforcements as its health falls.
 - SD character animation, synthesized medieval-style music, and separate victory and defeat themes.
 - Keyboard controls and landscape touch controls, with audio and touch layout settings in the top-right menu.
+
+| Bow Combat                                                                       | Boss Encounter                                                                          |
+| -------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------- |
+| ![Eira drawing her bow against an enemy archer](docs/screenshots/readme-bow.png) | ![Eira facing the Hollow King and his reinforcements](docs/screenshots/readme-boss.png) |
+| Commit to a deliberate draw before releasing an arrow.                           | Manage approaching reinforcements while facing the Hollow King.                         |
 
 ## Controls
 
@@ -47,6 +54,10 @@ There is no automatic healing between encounters. Defeated enemies have a small 
 Rotate the device to landscape to show controls over the game. Use the left stick to move; push toward its outer edge to run. Tap the attack button to strike or shoot, or swipe upward from it for a rising attack. Separate buttons handle guard, jump, dodge, weapon switching and the spin special.
 
 Portrait orientation pauses play and displays a rotation prompt. Return to landscape and resume manually. The settings menu adjusts control size, opacity and inset. Browser pan and zoom gestures are suppressed over the game area.
+
+![Landscape gameplay with the touch joystick and action buttons](docs/screenshots/readme-mobile.png)
+
+_Landscape touch controls — movement on the left, combat actions on the right._
 
 ## Getting Started
 

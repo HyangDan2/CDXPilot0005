@@ -1,3 +1,4 @@
+import bowIdle from '../../../public/assets/sd-v3/bow-idle.json';
 import { walkFrame } from './walk';
 import { attacks, attackPhase } from '../../data/attacks';
 import { activeProgress } from '../../data/motions';
@@ -16,7 +17,16 @@ export function twohandFrame(a: Actor) {
         12 + (a.weapon === 'sword' ? step(a.stateTime / 0.4, 4) : 3 - step(a.stateTime / 0.4, 4)),
     };
   if (a.weapon === 'bow') {
-    let frame = 0;
+    const idleDuration = bowIdle.durations.reduce((sum, duration) => sum + duration, 0);
+    let idleTime = Math.max(0, a.stateTime) % idleDuration;
+    let frame = bowIdle.frames[0];
+    for (let index = 0; index < bowIdle.frames.length; index++) {
+      if (idleTime < bowIdle.durations[index]) {
+        frame = bowIdle.frames[index];
+        break;
+      }
+      idleTime -= bowIdle.durations[index];
+    }
     if (a.attack?.id === 'shot')
       frame = a.attack.elapsed < 0.7 ? 4 + step(a.attack.elapsed / 0.7, 3) : 7;
     else if (a.state === 'Guard') frame = 8;

@@ -90,11 +90,12 @@
       frames.map(() => duration / frames.length),
     ];
     const range = (start, count) => Array.from({ length: count }, (_, i) => start + i);
+    const bowIdle = await fetch('assets/sd-v3/bow-idle.json').then((r) => r.json());
     const player = {
       idle: seq('smooth-idle', range(0, 12), 3000),
       roll: seq('smooth-roll', range(0, 6), 500),
       bowRoll: seq('smooth-roll', range(6, 6), 500),
-      bowIdle: seq('smooth-bow', [0, 1], 3000),
+      bowIdle: [bowIdle.sheet, bowIdle.frames, bowIdle.durations.map((seconds) => seconds * 1000)],
       bowWalk: ['smooth-bow-walk', [0, 1, 2, 3, 4, 5, 6, 7], [120, 100, 65, 75, 120, 100, 65, 75]],
       bowShot: ['smooth-bow', [4, 5, 6, 7], [230, 230, 240, 600]],
       bowGuard: seq('smooth-bow', [8], 1000),
