@@ -15,6 +15,9 @@ describe('Drowned Monastery', () => {
     expect(monasterySections[0].start).toBe(stages.monastery.start);
     expect(monasterySections.at(-1)?.end).toBe(stages.monastery.end);
     expect(monasteryWaves[2].enemies).toContain('mage');
+    expect(
+      monasteryWaves.filter((wave) => wave.enemies.includes('mage')).map((wave) => wave.name),
+    ).toEqual(['THE DROWNED ENTRY', 'THE FLOODGATE']);
     const flyerWaves = [...forgeWaves.slice(0, 3), ...monasteryWaves.slice(0, 3)].filter((wave) =>
       wave.enemies.includes('flyer'),
     );
@@ -25,6 +28,13 @@ describe('Drowned Monastery', () => {
     ).toHaveLength(1);
     expect(monasteryWaves[1].enemies).toContain('flyer');
     expect(monasteryWaves[3].enemies).toEqual([]);
+  });
+
+  it('spawns the added mage in the first Drowned Monastery encounter', () => {
+    const simulation = new Simulation(731, 'monastery');
+    simulation.player.x = monasteryWaves[0].trigger;
+    simulation.step(1 / 60, emptyInput());
+    expect(simulation.enemies.map((enemy) => enemy.kind)).toEqual(['grunt', 'mage']);
   });
 
   it('lets one flyer dive at a time and tracks a locked ground target', () => {

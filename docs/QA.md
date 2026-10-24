@@ -159,10 +159,18 @@ See docs/art/UPGRADE_QA.md for sequential generation and visual review. Final ve
 
 Four unretouched game-area captures from the current local build replace the old roll screenshot in the README: `readme-sword.png`, `readme-bow.png`, `readme-boss.png`, `readme-mobile.png`. Desktop images are 1200×675; the mobile emulation image is 960×540. Sword and mobile captures use the first encounter with movement input; bow and boss captures start from the existing `archer` and `bossSupport` test fixtures and then advance the actual game. These are illustrative runtime screenshots, not evidence of a full manual boss playthrough or physical mobile validation. All four were visually inspected for visible actors, HUD, weapons and control placement. Historical QA screenshots are retained.
 
+## Double mage encounters in Stage III — 2026-10-25
+
+- Added a mage to the Drowned Entry in place of its guard. The mage now appears in two Monastery combat waves instead of one, while keeping the opening wave at two enemies.
+- `npm run verify`: passed asset checks, ESLint, strict TypeScript, all 178 unit/integration tests and production build.
+- Full Chromium E2E passed 39/39, including stage progression and the Monastery mage/flyer behavior. One earlier focused attempt hit the existing screenshot-heavy progression test's 30-second timeout; it passed on retry with a 60-second timeout and in the full run.
+- The simulation regression confirms the opening wave actually spawns `grunt` and `mage`; static coverage confirms the two mage encounters are Drowned Entry and Floodgate. Existing mage artwork and assets were reused. No remote deployment was performed.
+
 ## Stage-clear return to title — 2026-10-24
 
 - Added a `BACK TO THE MAIN` action to clear screens, preserving Play Again and next-stage continuation. Browser regression checks return to title and reopen the stage picker.
 - Full Chromium E2E passed 38/38 with the stage-picker-aware test entry helper, including returning to title after clear. `npm run verify` passed after these updates.
+- Focused Chromium E2E also passed 1/1 for clear → main title → stage picker. Visually inspected `/tmp/valkyrie-main-return-results/game-stage-clear-offers-a-route-back-to-the-main-title/clear-main-menu.png`; the action fits below Play Again without overlapping next-stage continuation. No art or asset pipeline changes; physical devices and remote deployment were not tested.
 
 ## Reduced flyer frequency — 2026-10-24
 

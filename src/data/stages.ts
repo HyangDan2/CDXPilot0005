@@ -76,7 +76,7 @@ export const monasteryWaves: Wave[] = [
     name: 'THE DROWNED ENTRY',
     trigger: 7460,
     end: 7780,
-    enemies: ['grunt', 'guard'],
+    enemies: ['grunt', 'mage'],
     spawns: [
       { x: 7580, y: 440 },
       { x: 7700, y: 390 },
