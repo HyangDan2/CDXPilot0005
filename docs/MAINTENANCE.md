@@ -25,6 +25,8 @@ To add an FSM state, update `State`, allowed transitions, completion conditions 
 | New stage            | Stage/wave data, WORLD length/ground bounds, backgrounds/camera                    | wave unlock/clear, camera and Pages assets               |
 | New boss pattern     | AttackId if needed, timed boss cycle in brain.ts, telegraph event/view             | pre/post-enrage sequence, hit windows, playthrough       |
 
+Stage progression is defined in `data/stages.ts`; add stage ids there before selecting stage-specific environment rules, and update `StageEnvironment`, stage views, title/clear UI, world bounds and checkpoint-flow tests together. Flyer, mage, guided-bolt, water and boss phase tuning lives in `data/enemies.ts` and `data/bossPhase.ts`. Keep AI, projectile collision, water slowdown, and phase transitions deterministic; views must not decide outcomes. Existing rusher/archer frames are temporary visual reuse for flyer/mage kinds until original dedicated sheets are authored and recorded in the art provenance log.
+
 New characters currently require code registration; there is no editor or external mod API. When changing balance, keep tests about invariants rather than making every test depend on a single tuning value. The playthrough should remain achievable with ordinary inputs.
 
 ## Asset maintenance

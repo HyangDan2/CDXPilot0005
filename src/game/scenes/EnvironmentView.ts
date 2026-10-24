@@ -23,11 +23,11 @@ export class EnvironmentView {
     floor.fillStyle(0x344447).beginPath();
     floor.moveTo(24, stageDepth(24)[0]);
     for (const p of depthProfile.slice(1)) floor.lineTo(p.x, p.minY);
-    floor.lineTo(7200, 494).lineTo(24, 494).closePath().fillPath();
+    floor.lineTo(10800, 494).lineTo(24, 494).closePath().fillPath();
     floor.lineStyle(2, 0x8c9582, 0.65).beginPath().moveTo(24, stageDepth(24)[0]);
     for (const p of depthProfile.slice(1)) floor.lineTo(p.x, p.minY);
-    floor.strokePath().lineBetween(24, 489, 7200, 489);
-    for (let x = 48; x < 7200; x += 64) {
+    floor.strokePath().lineBetween(24, 489, 10800, 489);
+    for (let x = 48; x < 10800; x += 64) {
       floor.lineStyle(1, 0x75827a, 0.16).lineBetween(x, stageDepth(x)[0] + 4, x - 20, 488);
       for (let y = 356; y < 490; y += 32)
         if (y > stageDepth(x)[0]) floor.lineBetween(x - 24, y, x + 40, y);

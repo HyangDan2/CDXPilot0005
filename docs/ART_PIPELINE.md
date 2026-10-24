@@ -86,7 +86,6 @@ See [ranged/roll artwork and music provenance](art/RANGED_V9.md). `npm run asset
 
 [Style v10](art/STYLE_V10.md) documents the single original idle reference, nine regenerated Eira sheets, prompts, source IDs and registration. Enemy sheets remain unchanged.
 
-
 See [Touch / v11 artwork](art/TOUCH_V11.md) for current source provenance, registration rebuild, touch input lifecycle and platform verification limits.
 
 ## v12 costume and bow continuity
@@ -101,6 +100,10 @@ See [2026-10-20 size audit](art/SIZE_REVIEW_2026-10-20.md). `node scripts/audit-
 
 [Idle application / bow review](art/BOW_IDLE_REVIEW_2026-10-20.md) records the applied existing-frame sword sequence, two preview-only bow cadence candidates, and why integrated air-attack scaling was retired to preserve sword length. All original PNGs remain unchanged. Open `/bow-idle-review.html` for visual comparison.
 
+## v0.21 stage and enemy visuals
+
+The Ashwing uses the existing original SD v3 rusher sheet and the monastery mage uses the existing original SD v3 archer sheet, with kind-specific scale/tint and procedural shadows, warning rings and spell effects. This is placeholder reuse for gameplay readability, not dedicated flyer or mage artwork. No source art or generated PNG bytes were changed. The monastery background, water and sluice are original procedural Phaser graphics in `src/game/scenes/MonasteryView.ts`.
+
 ## Courtyard environment prototype — 2026-10-20
 
 The widened courtyard tiles, wooden barricade, debris, vent grille, warning markings and flame triangles are original procedural Phaser graphics authored in `src/game/scenes/EnvironmentView.ts`. They use no external artwork or generated bitmap files. Barricade geometry, height and maximum HP come from `src/data/environment.ts`; the view displays simulation-owned HP and flame phase. Barricade depth sorting uses its ground/depth center, independently of its visible height. The warning sound is an original synthesized tone in `src/game/ui/AudioEngine.ts` and follows the existing SFX volume control.
@@ -110,6 +113,16 @@ These are prototype visuals. The flames use geometric shapes and the barricade h
 ## Localized bow hand colors and effects preview
 
 [Hand fix and effects](art/HAND_FIX_AND_EFFECTS_2026-10-20.md) records the selected built-in imagegen output, final prompt, restricted RGB compositing and alpha/geometry invariants. Run `node scripts/pack-hand-fixes.mjs` before `npm run assets:pack-sd` to rebuild the two corrected bow sheets. Original v12 sources remain unchanged. `/attack-effects-review.html` shows silhouette-protected effects outside gameplay.
+
+## Bow arrow launch alignment — 2026-10-24
+
+The player bow release anchor is calibrated against frame 7 of the existing `smooth-bow` sheet. The fixed 512px frame uses origin `(256,420)` and display scale `0.5`; the reviewed string/hand line is at approximately `(348,246)`, mapping to world offsets `x + 46`, `z + 87`. `src/data/projectiles.ts` records that anchor and the player arrow silhouette dimensions. The arrow tip meets the anchor in either facing. Simulation launch height no longer changes based on nearby flyers; hit checks continue to use the existing arrow height volume and depth tolerance. `/arrow-alignment-review.html` overlays the previous launch line and the calibrated, longer arrow at runtime scale. Character source frames, source art and scale are unchanged. The anchor is a manually measured visual alignment, not metadata authored into the source sheet.
+
+## Dedicated Ashwing and Eira bow run — 2026-10-24
+
+`art/generated/sd-v13/` adds an original 16-pose Ashwing sheet and an eight-pose Eira bow-run sheet. The former is a new ash-gray, amber-eyed feathered raptor design, independent of the rusher source; the latter was regenerated from the approved corrected bow-walk sheet after an earlier draft visibly drifted from Eira and was rejected. The applied bow-run refinement uses `bow-run-v2.png` to make shoulder, elbow and bow movement more readable while preserving the original Eira identity, leg cycle, low carry and bow grip. The first bow-run source remains for comparison. Existing source sheets remain untouched. Both RGBA sources use the alpha-component atlas packer, fixed 512px cells, reviewed per-frame roots, and registration in `registration.json`. Run `npm run assets:pack-sd` to rebuild the runtime atlas.
+
+Ashwing frames 0–7 cover flight, 8–9 cover dive, 10–11 hit recoil, 12–13 tumble, 14 down, and 15 recovery. A hit while airborne applies a downward velocity and uses gravity until landing; height-aware solid collision pushes the actor to the nearest open side when a tall obstacle lies below. Obstacles remain non-walkable. Eira's bow run cycles eight authored frames at 24 fps, the same cadence as sword run (0.333s per loop). No bow, sword, character size, attack timing, damage or hitbox geometry is changed. Image generation and limitations are recorded in [FLYER_BOWRUN_V13.md](art/FLYER_BOWRUN_V13.md).
 
 ## Stone cloister cover — phase 2
 
@@ -124,3 +137,7 @@ No external or AI-generated raster assets are introduced by phase 2, and no spri
 The forge warden reuses the approved existing boss frames, with a warm presentation tint in ArenaView and stage-specific name. No new character pose, weapon rig, generated PNG, manifest or attack-contact registration is introduced. Existing attack timings/collision metadata remain synchronized with their authored frames. The scenery is geometric prototype art; the warden does not yet have a distinct authored character design or bespoke soundtrack. Audio reuses existing synthesized combat, warning and result sounds. No external assets or paid service are required.
 
 Desktop/mobile render checks include all five areas, blocked machinery states, the slam warning/active bank, charge destruction, gate-to-forge menu and final completion. Current verification details and screenshot locations are in QA.md.
+
+## SD v3 Eira attack effects — 2026-10-24
+
+`art/generated/effects/eira-attack-effects-concept-2026-10-24.png` is an imagegen concept board derived from live screenshots of current SD v3 Eira in sword, air-attack and bow poses. It establishes the cyan/ivory/gold layered trails, bright impact accents and five-beat visual progression. The concept image is reference-only because it redraws the actor and does not provide production-ready fixed frame canvases. Runtime effects are original deterministic Phaser Graphics in `src/game/animation/AttackEffectsView.ts`: all four sword combo hits, rising uppercut, spin, air attack and bow charge/release. They are depth-sorted behind the current integrated-weapon actor; source character frames, attack timing, hitboxes and projectile behavior are unchanged. No generated PNG is loaded by the game.

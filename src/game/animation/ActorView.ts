@@ -11,7 +11,8 @@ export class ActorView {
     private scene: Phaser.Scene,
     kind: string,
   ) {
-    this.body = scene.add.image(0, 0, kind).setOrigin(0.5, 0.9375);
+    const texture = kind === 'flyer' ? 'rusher' : kind === 'mage' ? 'archer' : kind;
+    this.body = scene.add.image(0, 0, texture).setOrigin(0.5, 0.9375);
     this.sword = scene.add.image(0, 0, 'sword').setOrigin(8 / 52, 0.5);
   }
   update(a: Actor, extraScale = 1) {
@@ -36,7 +37,15 @@ export class ActorView {
             manifest.animations.Idle
           ).start + frameFor(a);
     this.body.setTexture(
-      integrated ? 'sd-' + authored.sheet : detailed ? 'eira-' + pose.clip : a.kind,
+      integrated
+        ? 'sd-' + authored.sheet
+        : detailed
+          ? 'eira-' + pose.clip
+          : a.kind === 'flyer'
+            ? 'rusher'
+            : a.kind === 'mage'
+              ? 'archer'
+              : a.kind,
     );
     this.body
       .setOrigin(
@@ -70,7 +79,8 @@ export class ActorView {
       .setVisible(
         !integrated && a.hp > 0 && !['Knockdown', 'Recovery', 'Hit', 'Kick'].includes(a.state),
       );
-    if (a.kind !== 'player') this.sword.setTint(a.kind === 'boss' ? 0xdd99aa : 0xb5b7a5);
+    if (a.kind !== 'player')
+      this.sword.setTint(a.kind === 'boss' ? 0xdd99aa : a.kind === 'mage' ? 0xa3b7ff : 0xb5b7a5);
   }
   destroy() {
     this.body.destroy();

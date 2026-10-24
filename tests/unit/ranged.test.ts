@@ -6,6 +6,7 @@ import { applyHit, startAttack } from '../../src/game/combat/combat';
 import { attacks } from '../../src/data/attacks';
 import { advanceArrows, type Arrow } from '../../src/game/entities/projectiles';
 import { updateAI } from '../../src/game/ai/brain';
+import { bowReleaseOffset, bowReleaseAnchor } from '../../src/data/projectiles';
 const tick = (s: Simulation, n: number) => {
   for (let i = 0; i < n; i++) s.step(1 / 60, emptyInput());
 };
@@ -28,6 +29,28 @@ it('switch takes time, bow cannot use sword skills, shot has windup and cooldown
   tick(s, 36);
   expect(s.player.attack).toBeNull();
 });
+it.each([1, -1] as const)(
+  'releases player arrows from the authored bow muzzle facing %i without flyer height snapping',
+  (facing) => {
+    const s = new Simulation();
+    s.player.weapon = 'bow';
+    s.player.facing = facing;
+    const flyer = createActor(1, 'flyer', s.player.x + facing * 120, s.player.y + 80);
+    flyer.z = 160;
+    s.enemies = [flyer];
+    command(s, 'sword');
+    tick(s, attacks.shot.startupFrames + 1);
+
+    const arrow = s.arrows[0];
+    expect(arrow).toBeDefined();
+    expect(
+      arrow.x + facing * bowReleaseAnchor.arrowTipLength - facing * (520 * arrow.age),
+    ).toBeCloseTo(s.player.x + facing * bowReleaseOffset.x);
+    expect(arrow.y).toBe(s.player.y);
+    expect(arrow.z).toBe(s.player.z + bowReleaseOffset.z);
+    expect(arrow.z).not.toBe(flyer.z + 50);
+  },
+);
 it.each(['guard', 'roll'] as const)('bow preparation cancelled by %s emits no arrow', (action) => {
   const s = new Simulation();
   s.player.weapon = 'bow';

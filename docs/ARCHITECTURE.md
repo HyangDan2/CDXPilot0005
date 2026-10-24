@@ -8,6 +8,8 @@ Simulation never imports Phaser, document or window. Input is read once per fixe
 
 Actor owns X, ground Y, height Z, velocity, HP, facing, FSM, attack ledger and AI state/timers. Projection is `(x, y-z)` and render depth is ground Y, including when airborne. Movement is normalized diagonally and restricted by the piecewise-linear floor profile (Y 330–480 in widened rooms, returning to 376–480 in the original corridors). ActorView renders image/weapon/shadow separately. Camera follows X with exponential smoothing and world bounds.
 
+Stage definitions in `data/stages.ts` own wave thresholds, spawns, area labels and stage entry/checkpoint positions. `StageEnvironment` receives the active stage id and owns stage-specific solids, hazards and the monastery water bank; views only render that state. Flyer height and orbit use actor Z and ground-depth Y independently. Magic bolts and boss phase timing run in deterministic simulation systems, with their display handled by scene views. Player rising combo and run momentum enter through attack data and buffered commands, so their cancel windows and strike timing stay tied to the shared combat clock.
+
 ## Combat update order
 
 1. Queue commands and expire old input; account for hitstop.
@@ -38,7 +40,6 @@ ArenaScene owns adapters and resets Simulation on restart. Interface renders acc
 AudioEngine lazily creates AudioContext after a start gesture. Volume and pause affect a master gain. Synth voices disconnect when done; music scheduling happens only during active play. Scene shutdown removes input listeners and closes audio.
 
 `?test=1` exposes snapshot and named fixtures, exclusively for E2E. It is not a production cheat UI; no test API is installed on normal URLs. Since all state is local, it contains no secrets or privileged operations.
-
 
 ## v0.2 extension
 

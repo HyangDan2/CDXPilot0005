@@ -18,6 +18,7 @@ export const depthProfile = [
   { x: 3600, minY: 376 },
   { x: 3700, minY: 330 },
   { x: 7200, minY: 330 },
+  { x: 10800, minY: 330 },
 ] as const;
 export function stageDepth(x: number): [number, number] {
   for (let i = 1; i < depthProfile.length; i++) {
@@ -74,9 +75,23 @@ export const forgeFlameDefinitions: readonly FlameDefinition[] = [
   { id: 'warden-south', x: 6580, y: 425, width: 480, depth: 50, offset: 0, controlled: true },
 ];
 export const allBarricades = [...barricadeDefinitions, ...forgeBarricadeDefinitions];
-export const allPillars = [...pillarDefinitions, ...forgePillarDefinitions];
 export const allFlames: readonly FlameDefinition[] = [
   ...flameDefinitions,
   ...forgeFlameDefinitions,
 ];
 export const forgeDeviceRules = { slamMarker: -1000, warning: 1.4, active: 1.2 } as const;
+export const monasteryWaterZones = [
+  { x: 9600, y: 402, width: 1000, depth: 64 },
+  { x: 7380, y: 405, width: 500, depth: 60 },
+  { x: 8050, y: 345, width: 470, depth: 56 },
+  { x: 8670, y: 402, width: 500, depth: 60 },
+] as const;
+export const monasteryGate = { x: 8530, y: 330, width: 44, depth: 85, height: 120, hp: 1 } as const;
+export const monasteryPillarDefinitions: readonly PillarDefinition[] = [
+  { id: -40, ...monasteryGate, blocksMelee: true },
+];
+export const allPillars = [
+  ...pillarDefinitions,
+  ...forgePillarDefinitions,
+  ...monasteryPillarDefinitions,
+];

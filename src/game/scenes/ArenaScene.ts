@@ -7,6 +7,7 @@ import { AudioEngine } from '../ui/AudioEngine';
 import { preloadAssets, ensureFallbacks } from '../animation/assets';
 import { ArenaView } from './ArenaView';
 import { installHarness } from './testHarness';
+import type { StageId } from '../../data/stages';
 export class ArenaScene extends Phaser.Scene {
   sim = new Simulation();
   ui!: Interface;
@@ -22,7 +23,8 @@ export class ArenaScene extends Phaser.Scene {
     ensureFallbacks(this);
     this.ui = new Interface({
       start: () => this.start(),
-      startForge: () => this.activate(new Simulation(731, 'forge')),
+      startStage: (stage) => this.startStage(stage),
+      backToTitle: () => this.ui.setMode('title'),
       nextStage: () => {
         const next = this.sim.nextStage();
         if (next) this.activate(next);
@@ -53,7 +55,13 @@ export class ArenaScene extends Phaser.Scene {
       if (document.querySelector('dialog[open]')) return;
       if (e.target instanceof Element && e.target.closest('a, button, input, select, textarea'))
         return;
+      if (e.code === 'Escape' && !e.repeat && this.ui.mode === 'stage-select') {
+        this.ui.setMode('title');
+        return;
+      }
       if (e.code === 'Enter' && !e.repeat && this.ui.mode === 'title') this.start();
+      else if (e.code === 'Enter' && !e.repeat && this.ui.mode === 'stage-select')
+        document.querySelector<HTMLButtonElement>('#start-selected-stage')?.click();
     };
     window.addEventListener('keydown', enter);
     const blur = () => this.pause();
@@ -86,8 +94,8 @@ export class ArenaScene extends Phaser.Scene {
         this.sim,
         delta,
         this.debug,
-        this.ui.mode === 'title',
-        this.ui.mode !== 'playing' && this.ui.mode !== 'title',
+        this.ui.mode === 'title' || this.ui.mode === 'stage-select',
+        this.ui.mode !== 'playing' && this.ui.mode !== 'title' && this.ui.mode !== 'stage-select',
       );
     });
     installHarness(this);
@@ -104,7 +112,15 @@ export class ArenaScene extends Phaser.Scene {
   }
   start() {
     if (this.controller.touchBlocked) return;
-    this.activate(this.ui.mode === 'title' ? new Simulation() : this.sim.restartStage());
+    if (this.ui.mode === 'title') {
+      this.ui.setMode('stage-select');
+      return;
+    }
+    this.activate(this.sim.restartStage());
+  }
+  private startStage(stage: StageId) {
+    if (this.controller.touchBlocked) return;
+    this.activate(new Simulation(731, stage));
   }
   private activate(sim: Simulation) {
     if (this.controller.touchBlocked) return;

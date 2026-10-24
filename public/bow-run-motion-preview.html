@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Eira 활 달리기 동작 시안</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        font: 16px/1.5 system-ui, sans-serif;
+        color: #f4eee0;
+        background: #111820;
+      }
+      body {
+        max-width: 1050px;
+        margin: 0 auto;
+        padding: 28px 20px 44px;
+      }
+      h1 { margin: 0 0 4px; font-size: 1.6rem; }
+      .note { margin: 0 0 18px; color: #b7c2c7; }
+      .viewer {
+        display: grid;
+        grid-template-columns: minmax(280px, 1fr) minmax(260px, 0.8fr);
+        gap: 18px;
+        align-items: start;
+      }
+      .stage, .panel {
+        border: 1px solid #35434a;
+        border-radius: 12px;
+        background: #1a252c;
+        padding: 14px;
+      }
+      .stage {
+        display: grid;
+        place-items: center;
+        background-color: #26323a;
+        background-image: linear-gradient(45deg, #33414a 25%, transparent 25%), linear-gradient(-45deg, #33414a 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #33414a 75%), linear-gradient(-45deg, transparent 75%, #33414a 75%);
+        background-size: 20px 20px;
+        background-position: 0 0, 0 10px, 10px -10px, -10px 0;
+      }
+      #playback {
+        display: block;
+        width: min(100%, 540px);
+        height: auto;
+        image-rendering: pixelated;
+      }
+      .controls { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+      button {
+        border: 1px solid #53656d;
+        border-radius: 7px;
+        padding: 8px 12px;
+        color: #f4eee0;
+        background: #263943;
+        font: inherit;
+        cursor: pointer;
+      }
+      button:hover, button[aria-pressed="true"] { background: #34515b; }
+      .readout { min-width: 105px; color: #f0cf78; font-variant-numeric: tabular-nums; }
+      label { display: flex; gap: 8px; align-items: center; margin: 14px 0; color: #c4d0d1; }
+      input[type="range"] { flex: 1; min-width: 100px; }
+      .thumbs { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 12px; }
+      .thumb { padding: 4px; background: #202d34; }
+      .thumb canvas { display: block; width: 100%; aspect-ratio: 1; image-rendering: pixelated; }
+      .thumb span { display: block; font-size: 0.78rem; color: #b7c2c7; }
+      .thumb[aria-pressed="true"] { outline: 2px solid #f0cf78; }
+      .status { min-height: 1.5em; margin-top: 12px; color: #99d9b4; }
+      @media (max-width: 720px) { .viewer { grid-template-columns: 1fr; } }
+    </style>
+  </head>
+  <body>
+    <h1>Eira · 활 달리기 동작 시안</h1>
+    <p class="note">강한 동작안 · 8프레임 / 기본 24 fps · 검토용 미리보기 (게임 원화에 미적용)</p>
+    <main class="viewer">
+      <section class="stage" aria-label="현재 프레임">
+        <canvas id="playback" width="512" height="512"></canvas>
+      </section>
+      <section class="panel" aria-label="재생 조작">
+        <div class="controls">
+          <button id="previous" type="button" aria-label="이전 프레임">◀ 프레임</button>
+          <button id="toggle" type="button" aria-pressed="true">일시정지</button>
+          <button id="next" type="button" aria-label="다음 프레임">프레임 ▶</button>
+          <span class="readout" id="readout">1 / 8</span>
+        </div>
+        <label for="fps">재생 속도 <output id="fps-value">24</output> fps
+          <input id="fps" type="range" min="4" max="24" step="1" value="24" />
+        </label>
+        <div class="thumbs" id="thumbs" aria-label="프레임 선택"></div>
+        <p class="status" id="status" role="status">시안 이미지 로딩 중…</p>
+      </section>
+    </main>
+    <script type="module" src="./bow-run-motion-preview.js"></script>
+  </body>
+</html>

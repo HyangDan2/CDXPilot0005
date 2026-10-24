@@ -1,8 +1,11 @@
 import { ForgeView } from './ForgeView';
+import { MonasteryView } from './MonasteryView';
 import { firstArrowBlocker } from '../physics/obstacles';
+import { playerArrowVisual } from '../../data/projectiles';
 import { EnvironmentView } from './EnvironmentView';
 import Phaser from 'phaser';
 import { ActorView } from '../animation/ActorView';
+import { renderPlayerAttackEffect } from '../animation/AttackEffectsView';
 import { sdFrame } from '../animation/sd';
 import { cameraTarget } from '../camera/follow';
 import { hitbox } from '../combat/combat';
@@ -19,10 +22,12 @@ interface Spark {
 }
 export class ArenaView {
   private forge: ForgeView;
+  private monastery: MonasteryView;
   private environment: EnvironmentView;
   private actors = new Map<number, ActorView>();
   private shadows: Phaser.GameObjects.Graphics;
   private effects: Phaser.GameObjects.Graphics;
+  private playerAttackEffects: Phaser.GameObjects.Graphics;
   private debugText: Phaser.GameObjects.Text;
   private sparks: Spark[] = [];
   private titleActor = createActor(-1, 'player', 714, 414);
@@ -49,8 +54,10 @@ export class ArenaView {
       .setDepth(-29);
     this.environment = new EnvironmentView(scene);
     this.forge = new ForgeView(scene);
+    this.monastery = new MonasteryView(scene);
     this.shadows = scene.add.graphics().setDepth(299);
     this.effects = scene.add.graphics().setDepth(800);
+    this.playerAttackEffects = scene.add.graphics();
     this.debugText = scene.add
       .text(16, 90, '', {
         fontFamily: 'monospace',
@@ -91,6 +98,7 @@ export class ArenaView {
     const dt = paused ? 0 : Math.min(delta / 1000, 0.05);
     this.environment.render(s.environment, title, [s.player, ...s.enemies]);
     this.forge.render(s, title);
+    this.monastery.render(s, title, s.environment);
     this.effects.clear();
     this.shadows.clear();
     if (title) {
@@ -114,7 +122,15 @@ export class ArenaView {
         this.actors.set(a.id, view);
       }
       view.update(a);
-      view.body.setTint(a.kind === 'boss' && s.stageId === 'forge' ? 0xffbd88 : 0xffffff);
+      view.body.setTint(
+        a.kind === 'boss' && a.bossPhase === 2
+          ? 0xff766b
+          : a.kind === 'boss' && s.stageId === 'forge'
+            ? 0xffbd88
+            : a.kind === 'mage'
+              ? 0x91b9ff
+              : 0xffffff,
+      );
       view.body.setVisible(!title);
       view.sword.setVisible(!title && view.sword.visible);
       if (title) continue;
@@ -155,14 +171,42 @@ export class ArenaView {
               s.environment.solids,
             );
             const end = blocker ? (a.facing === 1 ? blocker.x : blocker.x + blocker.width) : far;
-            this.shadows.lineStyle(2, 0xe78a68, 0.5).lineBetween(a.x, a.y, end, a.y);
+            this.shadows
+              .lineStyle(8, 0x361d29, 0.9)
+              .lineBetween(a.x, a.y - 24, end, a.y - 24)
+              .lineStyle(4, 0xff8a68, 1)
+              .lineBetween(a.x, a.y - 24, end, a.y - 24)
+              .fillStyle(0xffdb8d)
+              .fillCircle(a.x + a.facing * 20, a.y - 24, 8);
           }
-          this.shadows
-            .fillStyle(0xcc6e50, 0.18)
-            .fillEllipse(b.x + b.width / 2, a.y, b.width, b.height);
+          if (a.kind === 'flyer' && a.attack.id === 'dive' && a.attackTarget) {
+            this.shadows
+              .lineStyle(6, 0x271e31, 0.95)
+              .strokeEllipse(a.attackTarget.x, a.attackTarget.y, 84, 30)
+              .lineStyle(3, 0xffdb7c, 1)
+              .strokeEllipse(a.attackTarget.x, a.attackTarget.y, 84, 30)
+              .lineBetween(a.x, a.y - a.z, a.attackTarget.x, a.attackTarget.y - 6);
+          } else if (a.kind === 'mage' && a.attack.id === 'spell') {
+            this.shadows
+              .lineStyle(7, 0x181d35, 0.95)
+              .strokeEllipse(s.player.x, s.player.y, 70, 30)
+              .lineStyle(3, 0x9abfff, 1)
+              .strokeEllipse(s.player.x, s.player.y, 70, 30)
+              .lineBetween(a.x, a.y - a.z - 28, s.player.x, s.player.y - 18);
+          } else {
+            this.shadows
+              .fillStyle(0xff7b55, 0.26)
+              .fillEllipse(b.x + b.width / 2, a.y, b.width, b.height)
+              .lineStyle(5, 0x281d27, 0.95)
+              .strokeEllipse(b.x + b.width / 2, a.y, b.width, b.height)
+              .lineStyle(3, 0xffae70, 1)
+              .strokeEllipse(b.x + b.width / 2, a.y, b.width, b.height);
+          }
           this.effects
-            .lineStyle(1, 0xf0b68a, 0.7)
-            .strokeCircle(a.x, a.y - a.z - 80, 5 + Math.sin(s.time * 12) * 2);
+            .lineStyle(5, 0x2d202a, 0.95)
+            .strokeCircle(a.x, a.y - a.z - 80, 12 + Math.sin(s.time * 12) * 3)
+            .lineStyle(3, a.kind === 'mage' ? 0x9ebfff : 0xffe0a0, 1)
+            .strokeCircle(a.x, a.y - a.z - 80, 12 + Math.sin(s.time * 12) * 3);
         }
       }
 
@@ -178,6 +222,8 @@ export class ArenaView {
         }
       }
     }
+    renderPlayerAttackEffect(this.playerAttackEffects, s.player);
+    this.playerAttackEffects.setDepth(s.player.y - 0.2).setVisible(!title);
     for (const warning of s.reinforcements.warnings) {
       this.effects.lineStyle(3, 0xffb35c, 0.8).strokeEllipse(warning.x, warning.y, 56, 20);
       this.effects
@@ -185,20 +231,68 @@ export class ArenaView {
         .lineBetween(warning.x, warning.y - 48, warning.x, warning.y - 22);
     }
     for (const arrow of s.arrows) {
-      const y = arrow.y - arrow.z,
-        tail = arrow.x - arrow.facing * (arrow.player ? 48 : 24);
-      this.effects.lineStyle(2, 0xe7d4a5).lineBetween(tail, y, arrow.x, y);
+      const y = arrow.y - arrow.z;
+      const shape = arrow.player ? playerArrowVisual : null;
+      const shaftLength = shape?.shaftLength ?? 24;
+      const tipLength = shape?.tipLength ?? 6;
+      const tail = arrow.x - arrow.facing * shaftLength;
+      if (shape)
+        this.effects.lineStyle(shape.outlineWidth, 0x26303b, 0.95).lineBetween(tail, y, arrow.x, y);
+      this.effects.lineStyle(shape?.shaftWidth ?? 2, 0xe7d4a5).lineBetween(tail, y, arrow.x, y);
       this.effects
         .fillStyle(arrow.player ? 0xdaf5ff : 0xff9870)
         .fillTriangle(
-          arrow.x + arrow.facing * 6,
+          arrow.x + arrow.facing * tipLength,
           y,
-          arrow.x - arrow.facing * 3,
-          y - 3,
-          arrow.x - arrow.facing * 3,
-          y + 3,
+          arrow.x - arrow.facing * tipLength * 0.42,
+          y - (shape?.tipHalfHeight ?? 3),
+          arrow.x - arrow.facing * tipLength * 0.42,
+          y + (shape?.tipHalfHeight ?? 3),
         );
-      this.effects.lineStyle(2, 0xc7d0b6).lineBetween(tail, y, tail - arrow.facing * 4, y - 4);
+      if (shape) {
+        this.effects
+          .lineStyle(shape.outlineWidth, 0x26303b, 0.95)
+          .lineBetween(
+            tail,
+            y,
+            tail - arrow.facing * shape.featherLength,
+            y - shape.featherHalfHeight,
+          )
+          .lineBetween(
+            tail,
+            y,
+            tail - arrow.facing * shape.featherLength,
+            y + shape.featherHalfHeight,
+          );
+        this.effects
+          .lineStyle(2, 0xc7d0b6)
+          .lineBetween(
+            tail,
+            y,
+            tail - arrow.facing * shape.featherLength,
+            y - shape.featherHalfHeight,
+          )
+          .lineBetween(
+            tail,
+            y,
+            tail - arrow.facing * shape.featherLength,
+            y + shape.featherHalfHeight,
+          );
+      } else {
+        this.effects.lineStyle(2, 0xc7d0b6).lineBetween(tail, y, tail - arrow.facing * 4, y - 4);
+      }
+    }
+    for (const bolt of s.magic) {
+      const y = bolt.y - bolt.z;
+      this.effects
+        .lineStyle(7, 0x17233b, 0.95)
+        .lineBetween(bolt.x - bolt.vx * 0.075, y - bolt.vy * 0.075, bolt.x, y)
+        .fillStyle(0x26375c, 0.95)
+        .fillCircle(bolt.x, y, 13)
+        .lineStyle(3, 0xa8caff, 1)
+        .strokeCircle(bolt.x, y, 10)
+        .fillStyle(0xe3f2ff, 1)
+        .fillCircle(bolt.x, y, 4);
     }
     for (const item of s.loot) {
       const color = item.fraction === 0.5 ? 0xffd16c : item.fraction === 0.2 ? 0x7cc8f0 : 0x86e6a2;
@@ -247,6 +341,7 @@ export class ArenaView {
   reset() {
     for (const v of this.actors.values()) v.destroy();
     this.actors.clear();
+    this.playerAttackEffects.clear();
     this.sparks = [];
     this.scene.cameras.main.scrollX = 0;
   }

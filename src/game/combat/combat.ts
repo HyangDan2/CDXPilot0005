@@ -41,7 +41,8 @@ export function hitbox(a: Actor) {
 }
 export function canHit(attacker: Actor, target: Actor) {
   if (
-    (['shot', 'enemyShot'].includes(attacker.attack?.id ?? '') && !attacker.attack?.projectile) ||
+    (['shot', 'enemyShot', 'spell'].includes(attacker.attack?.id ?? '') &&
+      !attacker.attack?.projectile) ||
     (target.state === 'Roll' && target.stateTime >= 0.1 && target.stateTime < 0.3) ||
     attacker.hp <= 0 ||
     !attacker.attack ||
@@ -107,7 +108,8 @@ export function applyHit(attacker: Actor, target: Actor) {
   }
   if (!guarded) {
     target.attack = null;
-    let launch = def.launchVelocityZ;
+    const fallingFlyer = target.kind === 'flyer' && target.z > 0;
+    let launch = fallingFlyer ? -180 : def.launchVelocityZ;
     const wasJuggled = target.juggle.active;
     if (target.kind === 'boss') {
       // Heavy enemies stagger but never become airborne from player attacks.
@@ -126,16 +128,31 @@ export function applyHit(attacker: Actor, target: Actor) {
       }
     }
     if (launch !== 0) target.vz = launch;
-    setState(target, target.hp === 0 ? 'Death' : target.juggle.active ? 'Knockdown' : 'Hit');
+    setState(
+      target,
+      target.hp === 0 ? 'Death' : fallingFlyer || target.juggle.active ? 'Knockdown' : 'Hit',
+    );
   } else if (target.hp === 0) setState(target, 'Death');
   return damage;
 }
-export function startAttack(a: Actor, id: AttackId, cancel = false) {
+export function startAttack(
+  a: Actor,
+  id: AttackId,
+  cancel = false,
+  speedMultiplier = 1,
+  runLunge = false,
+) {
   if (isDisabled(a) || a.state === 'Roll' || a.state === 'Switch') return false;
   if (a.kind === 'player' && a.weapon === 'bow' && id !== 'shot') return false;
   const airborne = a.z > 0 || a.vz > 0;
   if (id === 'shot' && airborne) return false;
-  if (a.kind === 'player' && airborne && (id !== 'air' || a.airAttackUsed)) return false;
+  if (
+    a.kind === 'player' &&
+    airborne &&
+    ((id === 'air' && a.airAttackUsed) ||
+      (id !== 'air' && !(id === 'slash4' && cancel && a.attack?.id === 'rising')))
+  )
+    return false;
   if (
     id === 'spin' &&
     (a.z !== 0 || !['Idle', 'Walk', 'Run'].includes(a.state) || a.attack || a.hp <= a.maxHp * 0.2)
@@ -147,22 +164,30 @@ export function startAttack(a: Actor, id: AttackId, cancel = false) {
   if (!setState(a, state, cancel)) return false;
   a.stateTime = 0;
   if (a.kind === 'player' && airborne) a.airAttackUsed = true;
-  a.attack = { id, elapsed: 0, hit: new Set() };
+  a.attack = {
+    id,
+    elapsed: 0,
+    hit: new Set(),
+    speedMultiplier,
+    ...(runLunge ? { lungeDirection: { ...a.runMomentum }, lungeDistance: 0 } : {}),
+  };
   return true;
 }
 export function advanceAttack(a: Actor, dt: number) {
   if (!a.attack) return;
-  a.attack.elapsed += dt;
+  a.attack.elapsed += dt * (a.attack.speedMultiplier ?? 1);
   if (attackPhase(a.attack.id, a.attack.elapsed) === 'done') {
     a.attack = null;
     setState(a, a.z > 0 ? 'Fall' : 'Idle');
   }
 }
-export function chooseAttack(a: Actor, command: Command): AttackId | null {
+export function chooseAttack(a: Actor, command: Command, runLunge = false): AttackId | null {
   if (['jump', 'roll', 'switch'].includes(command)) return null;
+  if (command === 'sword' && a.attack?.id === 'rising') return 'slash4';
   if (a.z > 0 || a.vz > 0)
-    return a.weapon === 'sword' && command === 'sword' && !a.airAttackUsed ? 'air' : null;
+    return a.weapon === 'sword' && command === 'sword' ? (!a.airAttackUsed ? 'air' : null) : null;
   if (a.weapon === 'bow') return command === 'sword' ? 'shot' : null;
+  if (runLunge && command === 'sword') return 'slash4';
   if (command === 'spin') return 'spin';
   if (command === 'rising') return 'rising';
   const next: Partial<Record<AttackId, AttackId>> = {
@@ -181,7 +206,7 @@ export class AttackBuffer {
           this.pending = [{ command, expires: now + PLAYER.bufferSeconds }];
     this.pending = this.pending.slice(-4);
   }
-  consume(a: Actor, now: number): AttackId | null {
+  consume(a: Actor, now: number, runLunge = false): AttackId | null {
     this.pending = this.pending.filter((p) => p.expires >= now);
     if (
       ['Guard', 'Roll', 'Switch'].includes(a.state) ||
@@ -193,7 +218,7 @@ export class AttackBuffer {
     }
     const command = this.pending[0]?.command;
     if (!command) return null;
-    const id = chooseAttack(a, command);
+    const id = chooseAttack(a, command, runLunge);
     if (!id) return null;
     let cancel = false;
     if (a.attack) {
@@ -203,7 +228,7 @@ export class AttackBuffer {
         def.cancelInto.includes(id);
       if (!cancel) return null;
     }
-    if (!startAttack(a, id, cancel)) return null;
+    if (!startAttack(a, id, cancel, 1, runLunge && id === 'slash4')) return null;
     this.pending.shift();
     return id;
   }

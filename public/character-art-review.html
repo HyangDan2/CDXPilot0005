@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Valkyrie Character Art Review</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        font:
+          16px/1.45 system-ui,
+          sans-serif;
+        background: #111820;
+        color: #f2ecdc;
+      }
+      body {
+        max-width: 1040px;
+        margin: 0 auto;
+        padding: 28px 20px 48px;
+      }
+      h1 {
+        margin: 0 0 6px;
+        font-size: 1.7rem;
+      }
+      .note {
+        color: #b8c3c5;
+        margin: 0 0 20px;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 16px;
+      }
+      article {
+        border: 1px solid #35434a;
+        background: #1a252c;
+        padding: 14px;
+        border-radius: 10px;
+      }
+      h2 {
+        font-size: 1rem;
+        margin: 0 0 8px;
+      }
+      p {
+        color: #c0c9c8;
+        font-size: 0.9rem;
+        margin: 8px 0 0;
+      }
+      .stage {
+        display: flex;
+        justify-content: center;
+        border-radius: 6px;
+        background-color: #26323a;
+        background-image:
+          linear-gradient(45deg, #33414a 25%, transparent 25%),
+          linear-gradient(-45deg, #33414a 25%, transparent 25%),
+          linear-gradient(45deg, transparent 75%, #33414a 75%),
+          linear-gradient(-45deg, transparent 75%, #33414a 75%);
+        background-size: 20px 20px;
+        background-position:
+          0 0,
+          0 10px,
+          10px -10px,
+          -10px 0;
+      }
+      canvas {
+        width: 320px;
+        height: 280px;
+        image-rendering: pixelated;
+      }
+      .poses {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 4px;
+      }
+      .poses canvas {
+        display: block;
+        width: 100%;
+        height: auto;
+        aspect-ratio: 1;
+        background: #26323a;
+      }
+      #asset-status {
+        min-height: 1.5em;
+        margin: 16px 0 0;
+        color: #99d9b4;
+      }
+      @media (max-width: 680px) {
+        .grid {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Character art review</h1>
+    <p class="note">
+      Runtime scale preview (0.5×). Eira's existing bow-walk is shown beside the new 24 fps bow-run.
+      Ashwing is compared with the former rusher appearance.
+    </p>
+    <main class="grid">
+      <article>
+        <h2>Eira · existing bow walk</h2>
+        <div class="stage"><canvas id="bow-walk" width="320" height="280"></canvas></div>
+        <p>Existing approved frames; reference for identity and equipment.</p>
+      </article>
+      <article>
+        <h2>Eira · new bow run (24 fps)</h2>
+        <div class="stage"><canvas id="bow-run" width="320" height="280"></canvas></div>
+        <p>Eight new poses, one 0.333 s loop. Existing source frames remain unchanged.</p>
+      </article>
+      <article>
+        <h2>Former flyer look · rusher</h2>
+        <div class="stage"><canvas id="rusher" width="320" height="280"></canvas></div>
+        <p>Old shared silhouette, shown for comparison only.</p>
+      </article>
+      <article>
+        <h2>Ashwing · dedicated flight</h2>
+        <div class="stage"><canvas id="flyer" width="320" height="280"></canvas></div>
+        <p>Distinct winged silhouette; animation loops at 16 fps.</p>
+      </article>
+      <article style="grid-column: 1 / -1">
+        <h2>Ashwing · dive, hit, fall, down and recovery keyframes</h2>
+        <div class="poses" id="flyer-phases"></div>
+        <p>Frames 8–15 in runtime order.</p>
+      </article>
+    </main>
+    <div id="asset-status" role="status">Loading original and new sheets…</div>
+    <script type="module" src="./character-art-review.js"></script>
+  </body>
+</html>

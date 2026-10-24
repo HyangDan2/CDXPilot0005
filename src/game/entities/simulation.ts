@@ -2,11 +2,14 @@ import { StageEnvironment } from './environment';
 import { collideSolids, meleeOccluded } from '../physics/obstacles';
 import { stageDepth } from '../../data/environment';
 import { Reinforcements } from './reinforcements';
-import { attacks } from '../../data/attacks';
+import { attacks, attackPhase } from '../../data/attacks';
 import { advanceArrows, type Arrow } from './projectiles';
+import { advanceMagic, type MagicBolt } from './magic';
 import { rollLoot, collectLoot, type Loot } from './loot';
 import { stages, type StageId } from '../../data/stages';
 import { seededRandom } from '../../utils/random';
+import { magicBoltRules, monasteryRules } from '../../data/enemies';
+import { bowReleaseAnchor, bowReleaseOffset } from '../../data/projectiles';
 import { updateAI } from '../ai/brain';
 import { advanceAttack, applyHit, AttackBuffer, startAttack } from '../combat/combat';
 import { clamp } from '../config/constants';
@@ -30,6 +33,7 @@ export class Simulation {
   kills = 0;
   loot: Loot[] = [];
   arrows: Arrow[] = [];
+  magic: MagicBolt[] = [];
   reinforcements = new Reinforcements();
   environment: StageEnvironment;
   private entry = { score: 0, bestCombo: 0, kills: 0, weapon: 'sword' as Actor['weapon'] };
@@ -58,8 +62,8 @@ export class Simulation {
     );
   }
   nextStage(): Simulation | null {
-    if (this.stageId !== 'gate' || this.status !== 'clear') return null;
-    const next = new Simulation(this.seed, 'forge');
+    if (this.status !== 'clear' || this.stageId === 'monastery') return null;
+    const next = new Simulation(this.seed, this.stageId === 'gate' ? 'forge' : 'monastery');
     next.entry = {
       score: this.score,
       bestCombo: this.bestCombo,
@@ -106,6 +110,10 @@ export class Simulation {
     }
     this.environment.advance(dt, (e) => this.events.push(e));
     const beforePlayer = { x: this.player.x, y: this.player.y };
+    const runLunge =
+      this.player.state === 'Run' &&
+      this.player.weapon === 'sword' &&
+      input.commands.includes('sword');
     if (this.time > this.comboUntil) this.combo = 0;
     const oldVz = this.player.vz;
     const spin =
@@ -114,10 +122,32 @@ export class Simulation {
       this.buffer.clear();
       this.emit('swing', this.player);
     }
-    movePlayer(this.player, input, dt, this.bounds);
+    movePlayer(
+      this.player,
+      input,
+      dt,
+      this.bounds,
+      this.environment.isWet(this.player.x, this.player.y) ? monasteryRules.waterMoveScale : 1,
+    );
     if (this.player.vz > 0 && oldVz <= 0) this.emit('jump', this.player);
-    const started = this.buffer.consume(this.player, this.time);
+    const started = this.buffer.consume(this.player, this.time, runLunge);
     if (started) this.emit('swing', this.player);
+    const lunge = this.player.attack;
+    const lungeDefinition = attacks.slash4;
+    if (
+      lunge?.id === 'slash4' &&
+      lunge.lungeDirection &&
+      (attackPhase('slash4', lunge.elapsed) === 'startup' ||
+        attackPhase('slash4', lunge.elapsed) === 'active')
+    ) {
+      const distance = Math.min(
+        lungeDefinition.lungeDistance! - (lunge.lungeDistance ?? 0),
+        lungeDefinition.lungeSpeed! * dt,
+      );
+      this.player.x += lunge.lungeDirection.x * distance;
+      this.player.y += lunge.lungeDirection.y * distance;
+      lunge.lungeDistance = (lunge.lungeDistance ?? 0) + distance;
+    }
     if (integrate(this.player, dt, this.bounds)) this.emit('land', this.player);
     collideSolids(this.player, beforePlayer, this.environment.solids);
     this.releaseArrow(this.player, dt);
@@ -129,6 +159,10 @@ export class Simulation {
     for (const e of this.enemies) {
       const before = { x: e.x, y: e.y };
       const id = updateAI(e, this.player, dt, attacking < 2, this.enemies, this.environment.solids);
+      if (e.kind !== 'flyer' && this.environment.isWet(before.x, before.y)) {
+        e.x = before.x + (e.x - before.x) * monasteryRules.waterMoveScale;
+        e.y = before.y + (e.y - before.y) * monasteryRules.waterMoveScale;
+      }
       if (!id && e.state === 'Guard' && e.aiTime === 0) attacking++;
       if (id) {
         attacking++;
@@ -138,6 +172,7 @@ export class Simulation {
       this.environment.bossMotion(e, before, (event) => this.events.push(event));
       collideSolids(e, before, this.environment.solids);
       this.releaseArrow(e, dt);
+      this.releaseMagic(e, dt);
       advanceAttack(e, dt);
       this.environment.bossImpact(e, (event) => this.events.push(event));
       this.environment.strike(e, (event) => this.events.push(event));
@@ -185,6 +220,20 @@ export class Simulation {
       },
       (arrow, before, end) => this.environment.interceptArrow(arrow, before, end),
       this.stage.end,
+    );
+    this.magic = advanceMagic(
+      this.magic.filter((bolt) =>
+        this.enemies.some((enemy) => enemy.id === bolt.owner && enemy.hp > 0),
+      ),
+      this.player,
+      this.environment.solids,
+      dt,
+      (damage) => {
+        this.emit('hit', this.player, damage);
+        this.buffer.clear();
+        this.combo = 0;
+        this.hitStop = 0.07;
+      },
     );
     for (const a of [this.player, ...this.enemies]) {
       const damage = this.environment.burn(a);
@@ -283,6 +332,7 @@ export class Simulation {
     this.active = false;
     this.enemies = [];
     this.arrows = [];
+    this.magic = [];
     this.reinforcements.clear();
     this.emit('clear', this.player);
     return true;
@@ -293,15 +343,42 @@ export class Simulation {
       return;
     if (attack.elapsed + dt < attacks[attack.id].startupFrames / 60) return;
     attack.released = true;
+    const isPlayerBow = a.kind === 'player' && a.weapon === 'bow';
+    const headOffset = isPlayerBow ? bowReleaseAnchor.arrowTipLength : 6;
+    const muzzleOffset = isPlayerBow ? bowReleaseOffset.x : 24 + headOffset;
     this.arrows.push({
       id: this.nextArrow++,
       owner: a.id,
       player: a.kind === 'player',
-      x: a.x + a.facing * 24,
+      // `x` is the arrowhead base; the renderer's tip lands on the authored bow muzzle.
+      x: a.x + a.facing * (muzzleOffset - headOffset),
       y: a.y,
-      z: a.z + 50,
+      z: a.z + (isPlayerBow ? bowReleaseOffset.z : 50),
       facing: a.facing,
       age: 0,
+    });
+    this.emit('swing', a);
+  }
+  private releaseMagic(a: Actor, dt: number) {
+    const attack = a.attack;
+    if (!attack || attack.id !== 'spell' || attack.released || a.hp <= 0) return;
+    if (attack.elapsed + dt < attacks.spell.startupFrames / 60) return;
+    attack.released = true;
+    const target = a.attackTarget ?? this.player;
+    const dx = target.x - a.x;
+    const dy = target.y - a.y;
+    const angle = Math.atan2(dy, dx);
+    const speed = magicBoltRules.speed;
+    this.magic.push({
+      id: this.nextArrow++,
+      owner: a.id,
+      x: a.x + Math.cos(angle) * 22,
+      y: a.y + Math.sin(angle) * 22,
+      z: 56,
+      vx: Math.cos(angle) * speed,
+      vy: Math.sin(angle) * speed,
+      age: 0,
+      homing: true,
     });
     this.emit('swing', a);
   }

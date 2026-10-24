@@ -1,0 +1,18 @@
+{
+  "smooth-flyer": {
+    "count": 16,
+    "columns": 4,
+    "scale": 0.82,
+    "roots": [191, 596, 999, 1356, 244, 596, 973, 1358, 194, 562, 997, 1351, 203, 582, 986, 1361],
+    "gridRows": true,
+    "source": "art/generated/sd-v13/flyer.png"
+  },
+  "smooth-bow-run": {
+    "count": 8,
+    "columns": 4,
+    "scale": 0.7375,
+    "roots": [215, 655, 1095, 1540, 215, 655, 1095, 1540],
+    "gridRows": true,
+    "source": "art/generated/sd-v13/bow-run-v2.png"
+  }
+}

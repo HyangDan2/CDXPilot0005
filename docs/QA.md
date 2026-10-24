@@ -46,6 +46,22 @@
 - No art was generated or replaced. Existing authored-frame limitations remain. Physical iOS/Android devices and non-Chromium engines were not tested.
 - Hosted round-trip acceptance is recorded in the integration completion report after the Pages workflow completes.
 
+## TODO Ver0.21 — three-stage combat expansion (2026-10-24, Asia/Seoul)
+
+- Added the Ashwing flyer from stage two, stronger attack tells, the five-area Drowned Monastery and fleeing guided-magic enemy. Bosses gain a deferred half-health phase transition and 1.25× speed; rising chains into the existing descending strike, and running feeds forward momentum into that strike.
+- The stage-three route now supports entry, continuation, completion, score/reward carry, HP restore and checkpoint restart. Sluice impacts change the active water bank, including the boss arena. Flyers route around high pillars and stay inside the world bounds.
+- `npm run verify`: Node 24.19.0; asset checks, ESLint, strict typecheck, **172 unit/integration tests** and production build passed.
+- `PORT=4185 npm run test:e2e`: **34 Chromium tests passed** after aligning legacy progression expectations with stage three and restoring game-canvas focus in the keyboard-input case.
+- Visually inspected desktop entry, flyer dive/ring/aim, mage bolt, boss phase-two tint/health bar and the mobile-emulated sluice flood in `test-results/`. No new raster assets; flyer/mage reuse the SD v3 rusher/archer sheets. Provenance is recorded in [ART_PIPELINE.md](ART_PIPELINE.md).
+- Physical mobile devices, Firefox/Safari, remote GitHub Actions/Pages deployment and hosted URL were not tested. Detailed checklist: [QA_Ver0.21.md](../QA_Ver0.21.md).
+
+### 2026-10-24 boss phase two
+
+- Applied the half-health phase change after the current boss attack completes, followed by a 0.45-second tell. Phase two accelerates boss movement, AI timing, charge travel and attack animation/hit timing by 1.25×. Environmental warning durations remain at their authored durations.
+- Added integration regressions for deferred transition, phase persistence, faster movement and attack speed.
+- `npm run verify`: passed asset checks, ESLint, strict TypeScript, **164 unit/integration tests** and production build. `npm run test:e2e`: **32 Chromium tests passed** (2.5 minutes). `git diff --check`: passed.
+- No new art or generated assets. Browser coverage is Chromium; physical mobile and non-Chromium engines remain unverified.
+
 ## v0.7.1 Eira style restoration
 
 - Regenerated9 Eira sheets/130 poses from the first approved idle reference. Enemy PNGs and simulation rules are unchanged.
@@ -142,3 +158,26 @@ See docs/art/UPGRADE_QA.md for sequential generation and visual review. Final ve
 ### README gallery refresh
 
 Four unretouched game-area captures from the current local build replace the old roll screenshot in the README: `readme-sword.png`, `readme-bow.png`, `readme-boss.png`, `readme-mobile.png`. Desktop images are 1200×675; the mobile emulation image is 960×540. Sword and mobile captures use the first encounter with movement input; bow and boss captures start from the existing `archer` and `bossSupport` test fixtures and then advance the actual game. These are illustrative runtime screenshots, not evidence of a full manual boss playthrough or physical mobile validation. All four were visually inspected for visible actors, HUD, weapons and control placement. Historical QA screenshots are retained.
+
+## Dedicated Ashwing and Eira bow run — 2026-10-24
+
+- `npm run verify`: passed environment, asset, lint, strict TypeScript, 177 unit/integration tests and production build. SD asset checks report 396 transparent, unclipped frames across 31 sheets.
+- Visually inspected `/character-art-review.html` at the actual 0.5 runtime scale: existing Eira bow-walk beside new bow-run, rusher beside dedicated Ashwing, and Ashwing dive/hit/fall/down/recovery frames. The final Eira sheet was regenerated from the approved bow-walk reference after rejecting a draft with visible identity drift.
+- Isolated Playwright checks passed for the new art review and production entry (2/2). The existing monastery flyer/mage scenario passed on a clean retry. One full E2E run against a fixed isolated production bundle completed 33/37: three existing environment/forge/title cases hit their 30-second limits, and the sword double-tap input case observed `Walk` instead of `Run`. The new art review and flyer/mage checks passed. A first shared-output run also exhibited missing Playwright trace files, so those failures are recorded separately from code assertions.
+- New unit coverage verifies flyer sheet selection, dive/fall poses, gravity after an airborne hit, side ejection from an obstacle, and all eight Eira run frames at 24 fps.
+- No remote deployment was performed. The visual asset generator can produce minor frame-to-frame costume detail variation; the final sheet preserves Eira's face, helmet, braid, main armor palette, ivory panels and golden bow closely at runtime scale, but is not pixel-identical to the source frames.
+
+### Eira bow-run motion refinement — 2026-10-24
+
+- Applied the approved stronger ImageGen sheet as `art/generated/sd-v13/bow-run-v2.png`; the first generated bow-run source remains preserved for comparison. Registration still packs eight 512px transparent frames and the runtime plays them at 24 fps.
+- `npm run assets:pack-sd`, `npm run assets:check` and `npm run build` passed. SD validation reports 396 transparent, unclipped, anchored frames across 31 sheets.
+- Browser-checked the 8-frame preview controls (play/pause, manual selection and speed) and visually inspected `/character-art-review.html` at the 0.5 runtime scale after atlas packing. Preview screenshot: `artifacts/effects-review/bow-run-runtime-review.png`.
+- The generated poses keep Eira recognizable and the bow inside packed frame bounds. Minor per-frame detail variation remains; no unrelated gameplay code, attack timing, hitboxes, bow length metadata or movement cadence changed. No remote deployment was performed.
+
+## Live SD v3 Eira attack effects — 2026-10-24
+
+Following the user's approval, connected the reviewed effects to the live game renderer in `src/game/animation/AttackEffectsView.ts`. The renderer follows the current attack clock, SD v3 sheet origin and runtime scale. It adds no simulation state, random choices, hitboxes, damage, or timing. A dedicated Phaser Graphics object is depth-sorted immediately behind the player's SD v3 sprite, keeping the integrated weapon and actor art on top. The imagegen concept is retained at `art/generated/effects/eira-attack-effects-concept-2026-10-24.png`; the shipped effects are Phaser vector graphics to keep the actual authored character pixels untouched.
+
+Added `tests/e2e/attackEffectsLive.spec.ts`. Its test-only harness places the live player in the active pose for all four combo hits, rising uppercut, spin, air attack, and bow shot at the authored attack clock, freezes rendering for clean captures, and checks both facings. Captures are in `artifacts/effects-review/eira-sd-v3-live-2026-10-24/`. The screenshots are visually inspected after this update. Source character PNGs and attack rules are unchanged.
+
+Validation: `npm run verify` passed asset validation (396 SD v3 frames), ESLint, strict typecheck, all 177 Vitest cases and the production build. `npm run test:e2e` passed all 37 Chromium tests, including 16 live captures across the four-hit combo, rising uppercut, spin, air attack and bow shot in both facings. `git diff --check` passed. No remote deployment had been performed when this local QA was recorded.

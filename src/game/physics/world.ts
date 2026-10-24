@@ -31,7 +31,8 @@ export function integrate(
   a.vx *= Math.exp(-10 * dt);
   a.vy *= Math.exp(-10 * dt);
   let landed = false;
-  if (a.z > 0 || a.vz > 0) {
+  const flyerFalling = a.kind === 'flyer' && ['Hit', 'Knockdown', 'Death'].includes(a.state);
+  if ((a.kind !== 'flyer' || flyerFalling) && (a.z > 0 || a.vz > 0)) {
     a.vz -= WORLD.gravity * dt;
     a.z += a.vz * dt;
     if (a.vz < 0 && a.state === 'Jump') setState(a, 'Fall');

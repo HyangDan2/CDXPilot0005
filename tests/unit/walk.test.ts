@@ -12,7 +12,7 @@ describe('grounded walking cadence', () => {
     }
     expect(walkFrame(time + 0.001)).toBe(0);
   });
-  it('bow walking has eight distinct authored frames, leaving running on its existing sheet', () => {
+  it('bow walking and running each use eight authored poses at the sword run cadence', () => {
     const actor = createActor(0, 'player', 0, 400);
     actor.weapon = 'bow';
     actor.state = 'Walk';
@@ -27,6 +27,15 @@ describe('grounded walking cadence', () => {
     actor.stateTime = 0.23;
     expect(sdFrame(actor).frame).toBe(2); // Feet passing under hips, after the held contact.
     actor.state = 'Run';
-    expect(sdFrame(actor).sheet).toBe('smooth-bow');
+    const runFrames = new Set<number>();
+    for (let i = 0; i < 8; i++) {
+      actor.stateTime = i / 24 + 0.001;
+      const pose = sdFrame(actor);
+      expect(pose.sheet).toBe('smooth-bow-run');
+      runFrames.add(pose.frame);
+    }
+    expect(runFrames.size).toBe(8);
+    actor.stateTime = 1 / 3;
+    expect(sdFrame(actor).frame).toBe(0);
   });
 });

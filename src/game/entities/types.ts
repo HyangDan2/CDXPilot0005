@@ -17,7 +17,7 @@ export type State =
   | 'Death';
 export type AIState =
   'Idle' | 'Chase' | 'Flank' | 'Retreat' | 'Attack' | 'Recover' | 'Hit' | 'Down' | 'Death';
-export type Kind = 'player' | 'grunt' | 'rusher' | 'guard' | 'archer' | 'boss';
+export type Kind = 'player' | 'grunt' | 'rusher' | 'guard' | 'archer' | 'boss' | 'flyer' | 'mage';
 export type AttackId =
   | 'shot'
   | 'enemyShot'
@@ -33,7 +33,9 @@ export type AttackId =
   | 'enemy'
   | 'charge'
   | 'slam'
-  | 'spin';
+  | 'spin'
+  | 'dive'
+  | 'spell';
 export type Command = 'sword' | 'rising' | 'jump' | 'spin' | 'roll' | 'switch';
 export interface Position {
   x: number;
@@ -63,13 +65,24 @@ export interface Actor extends Position {
     id: AttackId;
     elapsed: number;
     hit: Set<number>;
+    speedMultiplier?: number;
     costPaid?: boolean;
     released?: boolean;
     projectile?: boolean;
+    lungeDirection?: { x: number; y: number };
+    lungeDistance?: number;
   } | null;
   ai: AIState;
   aiTime: number;
   pattern: number;
+  bossPhase: 1 | 2;
+  phaseTransition: number;
+  flightAngle: number;
+  flightRadius: number;
+  spellCooldown: number;
+  fleeTime: number;
+  attackTarget: { x: number; y: number } | null;
+  runMomentum: { x: number; y: number };
   spawnX: number;
   juggle: {
     active: boolean;

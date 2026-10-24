@@ -13,6 +13,7 @@ export function preloadAssets(scene: Phaser.Scene) {
   for (const name of [
     'smooth-bow',
     'smooth-bow-walk',
+    'smooth-bow-run',
     'smooth-sword-walk',
     'smooth-roll',
     'smooth-archer',
@@ -25,6 +26,7 @@ export function preloadAssets(scene: Phaser.Scene) {
     'smooth-stop',
     'smooth-grunt',
     'smooth-rusher',
+    'smooth-flyer',
     'smooth-guard',
     'smooth-boss',
   ])

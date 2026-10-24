@@ -1,4 +1,5 @@
 import { expect, it } from 'vitest';
+import { attackPhase } from '../../src/data/attacks';
 import { inside, meleeOccluded, routeTarget } from '../../src/game/physics/obstacles';
 import { Simulation } from '../../src/game/entities/simulation';
 import { emptyInput, type Command } from '../../src/game/entities/types';
@@ -18,6 +19,10 @@ it('clears the five forge areas with ordinary movement and attacks, collecting t
       .filter((e) => e.hp > 0)
       .sort((a, b) => Math.hypot(a.x - p.x, a.y - p.y) - Math.hypot(b.x - p.x, b.y - p.y))[0];
     if (target) {
+      // Flyers are engaged during their dive; player arrows keep one authored launch height.
+      if (p.weapon === 'bow') {
+        if (p.state !== 'Switch' && !p.attack) input.commands = ['switch'];
+      }
       const waypoint = routeTarget(p, target, s.environment.solids);
       const detour = waypoint !== target;
       const dx = target.x - p.x,
@@ -37,6 +42,32 @@ it('clears the five forge areas with ordinary movement and attacks, collecting t
         tick % 14 === 0
       )
         input.commands = [(['sword', 'sword', 'sword', 'rising'] as Command[])[action++ % 4]];
+      const diving = s.enemies.find(
+        (enemy) =>
+          enemy.kind === 'flyer' &&
+          enemy.attack?.id === 'dive' &&
+          attackPhase('dive', enemy.attack.elapsed) === 'active',
+      );
+      const activeThreat = s.enemies.find(
+        (enemy) =>
+          enemy.attack &&
+          attackPhase(enemy.attack.id, enemy.attack.elapsed) === 'active' &&
+          Math.hypot(enemy.x - p.x, enemy.y - p.y) < 190,
+      );
+      if ((diving || activeThreat) && p.rollCooldown <= 0) {
+        const threat = diving ?? activeThreat!;
+        input.x = diving ? 0 : p.x <= threat.x ? -1 : 1;
+        input.y = p.y <= threat.y ? -1 : 1;
+        input.commands = ['roll'];
+      } else if (
+        s.enemies.some(
+          (enemy) =>
+            enemy.attack && attackPhase(enemy.attack.id, enemy.attack.elapsed) === 'active',
+        )
+      ) {
+        input.commands = [];
+        input.guard = true;
+      }
     } else {
       const potion = s.loot.find((l) => l.id === -20001);
       const destination = potion ?? { x: (s.stage.waves[s.wave]?.trigger ?? 7150) + 5, y: 410 };

@@ -178,6 +178,7 @@ Object.assign(
   specs,
   JSON.parse(fs.readFileSync('art/generated/hand-fix-v13/registration.json', 'utf8')),
 );
+Object.assign(specs, JSON.parse(fs.readFileSync('art/generated/sd-v13/registration.json', 'utf8')));
 const size = 512,
   origin = [192 / size, 420 / size];
 const manifest = { version: 3, size, origin, scale: 0.5, sheets: {} };
@@ -187,7 +188,11 @@ for (const [name, spec] of Object.entries(specs)) {
   const { parts, labels } = components(source);
   const large = parts
     .filter((p) => p.count > 2000 && p.bottom >= (spec.minSourceBottom ?? 0))
-    .sort((a, b) => a.bottom - b.bottom);
+    .sort((a, b) =>
+      spec.gridRows
+        ? a.top + a.bottom - (b.top + b.bottom) || a.left - b.left
+        : a.bottom - b.bottom,
+    );
   if (large.length !== spec.count)
     throw Error(`${name}: ${large.length} silhouettes, expected ${spec.count}`);
   const sorted = [];

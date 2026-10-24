@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>VALKYRIE · 활 발사 위치 검토</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        font: 16px system-ui;
+        background: #101923;
+        color: #e6edf3;
+      }
+      body {
+        max-width: 1060px;
+        margin: auto;
+        padding: 24px;
+      }
+      .panel {
+        padding: 18px;
+        margin: 16px 0;
+        background: #172530;
+        border: 1px solid #3b5264;
+        border-radius: 12px;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 16px;
+      }
+      canvas {
+        width: 100%;
+        height: auto;
+        image-rendering: pixelated;
+        background: #101b25;
+      }
+      p {
+        color: #becbd5;
+        line-height: 1.65;
+      }
+      strong {
+        color: #ecd09b;
+      }
+      @media (max-width: 700px) {
+        body {
+          padding: 12px;
+        }
+        .grid {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="panel">
+      <small>VALKYRIE / ART REVIEW 04</small>
+      <h1>활 발사점과 화살 실루엣</h1>
+      <p>
+        발사 프레임 7 원화를 수정하지 않고, 기존 높이(주황 점선)와 보정 높이(청백색 화살)를 실제
+        게임 배율로 겹쳐 비교합니다. 화살은 활 접점에 고정되고 비행 적의 좌표에 따라 높이가 바뀌지
+        않습니다.
+      </p>
+      <div class="grid">
+        <section>
+          <h2>오른쪽 발사</h2>
+          <canvas id="right" width="256" height="256"></canvas>
+        </section>
+        <section>
+          <h2>왼쪽 발사</h2>
+          <canvas id="left" width="256" height="256"></canvas>
+        </section>
+      </div>
+      <p>
+        <strong>기준:</strong> frame 7의 원점 (256, 420), 런타임 배율 0.5, 추정 접점 (348, 246).
+        기준점은 별도 발사 테스트로 확인하며, 캐릭터 시트·포즈·스케일은 바꾸지 않았습니다.
+      </p>
+      <p>
+        게임으로 돌아가기: <a href="/">VALKYRIE</a> ·
+        <a href="attack-effects-review.html">공격 효과 미리보기</a>
+      </p>
+    </div>
+    <script type="module" src="arrow-alignment-review.js"></script>
+  </body>
+</html>

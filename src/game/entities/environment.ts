@@ -9,6 +9,8 @@ import {
   forgePillarDefinitions,
   forgeFlameDefinitions,
   forgeDeviceRules,
+  monasteryPillarDefinitions,
+  monasteryWaterZones,
   type BarricadeDefinition,
   type PillarDefinition,
   type FlameDefinition,
@@ -32,20 +34,33 @@ export function flamePhase(time: number, offset = 0): FlamePhase {
 export class StageEnvironment {
   time = 0;
   barricades: BarricadeDefinition[];
-  readonly pillars: readonly PillarDefinition[];
+  private readonly pillarDefinitions: readonly PillarDefinition[];
   private readonly vents: readonly FlameDefinition[];
   private readonly firedAt = new Map<string, number>();
   private bank = 0;
+  waterBank = 0;
   private stopped = false;
   constructor(readonly stageId: StageId = 'gate') {
-    this.barricades = (stageId === 'gate' ? barricadeDefinitions : forgeBarricadeDefinitions).map(
-      (d) => ({ ...d }),
-    );
-    this.pillars = stageId === 'gate' ? pillarDefinitions : forgePillarDefinitions;
-    this.vents = stageId === 'gate' ? flameDefinitions : forgeFlameDefinitions;
+    this.barricades =
+      stageId === 'gate'
+        ? barricadeDefinitions.map((d) => ({ ...d }))
+        : stageId === 'forge'
+          ? forgeBarricadeDefinitions.map((d) => ({ ...d }))
+          : [];
+    this.pillarDefinitions =
+      stageId === 'gate'
+        ? pillarDefinitions
+        : stageId === 'forge'
+          ? forgePillarDefinitions
+          : monasteryPillarDefinitions;
+    this.vents =
+      stageId === 'gate' ? flameDefinitions : stageId === 'forge' ? forgeFlameDefinitions : [];
   }
   get solids() {
     return [...this.barricades, ...this.pillars];
+  }
+  get pillars() {
+    return this.pillarDefinitions.filter((pillar) => pillar.id !== -40 || this.waterBank === 0);
   }
   private lastDamage = new Map<number, number>();
   get flames() {
@@ -75,10 +90,21 @@ export class StageEnvironment {
     this.stopped = true;
     this.firedAt.clear();
   }
+  isWet(x: number, y: number) {
+    if (this.stageId !== 'monastery') return false;
+    return monasteryWaterZones.some(
+      (zone, index) =>
+        index !== this.waterBank &&
+        x > zone.x &&
+        x < zone.x + zone.width &&
+        y > zone.y &&
+        y < zone.y + zone.depth,
+    );
+  }
   bossMotion(a: Actor, before: Point, emit: (event: GameEvent) => void) {
     if (
       this.stopped ||
-      this.stageId !== 'forge' ||
+      this.stageId === 'gate' ||
       a.kind !== 'boss' ||
       a.hp <= 0 ||
       a.attack?.id !== 'charge' ||
@@ -95,7 +121,7 @@ export class StageEnvironment {
   bossImpact(a: Actor, emit: (event: GameEvent) => void) {
     if (
       this.stopped ||
-      this.stageId !== 'forge' ||
+      !['forge', 'monastery'].includes(this.stageId) ||
       a.kind !== 'boss' ||
       a.hp <= 0 ||
       a.z !== 0 ||
@@ -105,6 +131,12 @@ export class StageEnvironment {
     )
       return;
     a.attack.hit.add(forgeDeviceRules.slamMarker);
+    if (this.stageId === 'monastery') {
+      this.waterBank = (this.waterBank + 1) % monasteryWaterZones.length;
+      const zone = monasteryWaterZones[this.waterBank];
+      emit({ type: 'hazardWarning', x: zone.x + zone.width / 2, y: zone.y + zone.depth / 2 });
+      return;
+    }
     if (this.flames.some((f) => f.controlled && f.phase !== 'rest')) return;
     const devices = this.vents.filter((f) => f.controlled);
     const device = devices[this.bank++ % devices.length];
@@ -117,7 +149,7 @@ export class StageEnvironment {
     if (
       !attack ||
       a.hp <= 0 ||
-      ['shot', 'enemyShot'].includes(attack.id) ||
+      ['shot', 'enemyShot', 'spell'].includes(attack.id) ||
       attackPhase(attack.id, attack.elapsed) !== 'active'
     )
       return;

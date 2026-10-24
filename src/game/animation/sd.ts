@@ -9,7 +9,24 @@ export interface SDPose {
 }
 export function sdFrame(a: Actor): SDPose {
   if (a.kind === 'player') return twohandFrame(a);
-  if (a.kind === 'archer') {
+  if (a.kind === 'flyer') {
+    const sheet = 'smooth-flyer';
+    if (a.attack?.id === 'dive') {
+      const phase = attackPhase(a.attack.id, a.attack.elapsed);
+      return { sheet, frame: phase === 'startup' ? 8 : phase === 'active' ? 9 : 6 };
+    }
+    if (a.state === 'Death') return { sheet, frame: a.z > 0 ? 12 : 14 };
+    if (a.state === 'Hit')
+      return {
+        sheet,
+        frame: a.z > 0 ? 10 + Math.min(1, Math.floor(a.stateTime * 12)) : 14,
+      };
+    if (a.state === 'Knockdown')
+      return { sheet, frame: a.z > 0 ? 12 + Math.min(1, Math.floor(a.stateTime * 8)) : 14 };
+    if (a.state === 'Recovery') return { sheet, frame: 15 };
+    return { sheet, frame: Math.floor(Math.max(0, a.stateTime) * 16) % 8 };
+  }
+  if (a.kind === 'archer' || a.kind === 'mage') {
     let frame = Math.floor(a.stateTime * 2) % 2;
     if (a.attack) {
       const phase = attackPhase(a.attack.id, a.attack.elapsed);
@@ -25,9 +42,10 @@ export function sdFrame(a: Actor): SDPose {
     else if (['Death', 'Knockdown', 'Recovery'].includes(a.state)) frame = 15;
     return { sheet: 'smooth-archer', frame };
   }
-  const sheet = 'smooth-' + a.kind;
-  const grunt = a.kind === 'grunt',
-    boss = a.kind === 'boss';
+  const visualKind = a.kind;
+  const sheet = 'smooth-' + visualKind;
+  const grunt = visualKind === 'grunt',
+    boss = visualKind === 'boss';
   if (a.attack) {
     const d = attacks[a.attack.id],
       phase = attackPhase(a.attack.id, a.attack.elapsed);

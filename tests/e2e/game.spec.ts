@@ -326,6 +326,7 @@ test('four-strike keyboard chain and social assets', async ({ page }, info) => {
 test('bow draw, guard cancel, roll, settings and result music', async ({ page }, info) => {
   await page.goto('?test=1');
   await page.getByRole('button', { name: 'BEGIN YOUR OATH' }).click();
+  await page.locator('#stage canvas').focus();
   await page.keyboard.press('i');
   await expect
     .poll(() => page.evaluate(() => window.__VALKYRIE__!.snapshot().player.weapon))

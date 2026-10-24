@@ -2,10 +2,12 @@ import { HUB_URL } from '../config/navigation';
 import { PLAYER } from '../config/constants';
 import { canRoll } from '../entities/movement';
 import type { Simulation } from '../entities/simulation';
-export type Mode = 'title' | 'playing' | 'paused' | 'over' | 'clear';
+import type { StageId } from '../../data/stages';
+export type Mode = 'title' | 'stage-select' | 'playing' | 'paused' | 'over' | 'clear';
 export interface UIActions {
   start: () => void;
-  startForge: () => void;
+  startStage: (stage: StageId) => void;
+  backToTitle: () => void;
   nextStage: () => void;
   pause: () => void;
   resume: () => void;
@@ -19,6 +21,7 @@ export class Interface {
   private hud: HTMLElement;
   private actions: UIActions;
   private lastWave = '';
+  private selectedStage: StageId = 'gate';
 
   constructor(actions: UIActions) {
     this.actions = actions;
@@ -124,15 +127,17 @@ export class Interface {
   setMode(mode: Mode, sim?: Simulation) {
     this.mode = mode;
     document.querySelector('#stage')?.setAttribute('data-mode', mode);
-    this.hud.hidden = mode === 'title';
+    this.hud.hidden = mode === 'title' || mode === 'stage-select';
     this.overlay.hidden = mode === 'playing';
-    this.overlay.className = mode === 'title' ? 'title-overlay' : 'menu-overlay';
+    this.overlay.className = mode === 'title' || mode === 'stage-select' ? 'title-overlay' : 'menu-overlay';
     if (mode === 'playing') {
       this.overlay.innerHTML = '';
       return;
     }
     if (mode === 'title')
-      this.overlay.innerHTML = `<div class="title-content"><div class="eyebrow"><span class="gold-line"></span> CHAPTER ONE</div><h2>VALKYRIE</h2><div class="title-subtitle">THE ASHEN GATE</div><p>The light has left these halls.<br>Give the darkness something to fear.</p><button class="primary-button" id="start-button">BEGIN YOUR OATH <span>→</span></button><button class="text-button forge-entry" id="forge-start-button">PLAY THE ASHEN FORGE</button><div class="start-note">PRESS ENTER TO BEGIN</div></div><div class="hero-caption"><span>ᛉ</span><div>EIRA<small>THE LAST OATHKEEPER</small></div></div>`;
+      this.overlay.innerHTML = `<div class="title-content"><div class="eyebrow"><span class="gold-line"></span> CHAPTER ONE</div><h2>VALKYRIE</h2><div class="title-subtitle">THE ASHEN GATE</div><p>The light has left these halls.<br>Give the darkness something to fear.</p><button class="primary-button" id="start-button">BEGIN YOUR OATH <span>→</span></button><div class="start-note">PRESS ENTER TO CHOOSE A STAGE</div></div><div class="hero-caption"><span>ᛉ</span><div>EIRA<small>THE LAST OATHKEEPER</small></div></div>`;
+    else if (mode === 'stage-select')
+      this.overlay.innerHTML = `<div class="stage-select-content"><div class="eyebrow"><span class="gold-line"></span> DEVELOPMENT BUILD</div><h2>CHOOSE YOUR STAGE</h2><p class="stage-select-intro">Select a stage to begin a fresh run.</p><div class="stage-choices" role="group" aria-label="Choose a stage"><button class="stage-choice" id="stage-gate" data-stage="gate" aria-pressed="true"><span class="stage-index">I</span><strong>THE ASHEN GATE</strong><small>First oath · Ruins of Halvard</small></button><button class="stage-choice" id="stage-forge" data-stage="forge" aria-pressed="false"><span class="stage-index">II</span><strong>THE ASHEN FORGE</strong><small>Five areas · Forge warden</small></button><button class="stage-choice" id="stage-monastery" data-stage="monastery" aria-pressed="false"><span class="stage-index">III</span><strong>THE DROWNED MONASTERY</strong><small>Five areas · Tide warden</small></button></div><div class="stage-select-actions"><button class="primary-button" id="start-selected-stage">START SELECTED STAGE <span>→</span></button><button class="text-button" id="stage-select-back">BACK</button></div></div>`;
     else {
       const title =
         mode === 'paused'
@@ -140,15 +145,28 @@ export class Interface {
           : mode === 'clear'
             ? sim?.stageId === 'forge'
               ? 'The forge falls silent.'
-              : 'The oath endures.'
+              : sim?.stageId === 'monastery'
+                ? 'The drowned monastery is free.'
+                : 'The oath endures.'
             : 'Even light can fall.';
       const label = mode === 'paused' ? 'PAUSED' : mode === 'clear' ? 'STAGE CLEAR' : 'GAME OVER';
-      this.overlay.innerHTML = `<div class="menu-card"><span class="menu-rune">ᛉ</span><div class="eyebrow">${label}</div><h2>${title}</h2><p>${mode === 'paused' ? 'Your journey will wait.' : `Score ${String(sim?.score ?? 0).padStart(6, '0')} &nbsp; · &nbsp; Best combo ${sim?.bestCombo ?? 0}`}</p>${mode === 'paused' ? '<button class="primary-button" id="resume-button">RESUME JOURNEY <span>→</span></button>' : ''}${mode === 'clear' && sim?.stageId === 'gate' ? '<button class="primary-button" id="next-stage-button">ENTER THE ASHEN FORGE <span>→</span></button><p class="stage-carry">Carry score &amp; best combo · Restore HP</p>' : ''}<button class="${mode === 'paused' ? 'text-button' : 'primary-button'}" id="restart-button">${mode === 'clear' ? 'PLAY AGAIN' : 'RESTART JOURNEY'} <span>↻</span></button></div>`;
+      const nextStageButton =
+        mode === 'clear' && (sim?.stageId === 'gate' || sim?.stageId === 'forge')
+          ? `<button class="primary-button" id="next-stage-button">ENTER ${sim.stageId === 'gate' ? 'THE ASHEN FORGE' : 'THE DROWNED MONASTERY'} <span>→</span></button><p class="stage-carry">Carry score &amp; best combo · Restore HP</p>`
+          : '';
+      this.overlay.innerHTML = `<div class="menu-card"><span class="menu-rune">ᛉ</span><div class="eyebrow">${label}</div><h2>${title}</h2><p>${mode === 'paused' ? 'Your journey will wait.' : `Score ${String(sim?.score ?? 0).padStart(6, '0')} &nbsp; · &nbsp; Best combo ${sim?.bestCombo ?? 0}`}</p>${mode === 'paused' ? '<button class="primary-button" id="resume-button">RESUME JOURNEY <span>→</span></button>' : ''}${nextStageButton}<button class="${mode === 'paused' ? 'text-button' : 'primary-button'}" id="restart-button">${mode === 'clear' ? 'PLAY AGAIN' : 'RESTART JOURNEY'} <span>↻</span></button></div>`;
     }
     if (mode !== 'title') this.overlay.querySelector<HTMLButtonElement>('button')?.focus();
-    this.overlay
-      .querySelector('#forge-start-button')
-      ?.addEventListener('click', this.actions.startForge);
+    this.overlay.querySelector('#stage-select-back')?.addEventListener('click', this.actions.backToTitle);
+    this.overlay.querySelectorAll<HTMLButtonElement>('[data-stage]').forEach((button) => {
+      button.addEventListener('click', () => {
+        this.selectedStage = button.dataset.stage as StageId;
+        this.overlay.querySelectorAll('[data-stage]').forEach((choice) => {
+          choice.setAttribute('aria-pressed', String(choice === button));
+        });
+      });
+    });
+    this.overlay.querySelector('#start-selected-stage')?.addEventListener('click', () => this.actions.startStage(this.selectedStage));
     this.overlay
       .querySelector('#next-stage-button')
       ?.addEventListener('click', this.actions.nextStage);
@@ -185,7 +203,7 @@ export class Interface {
     if (this.lastWave !== waveKey) {
       this.lastWave = waveKey;
       document.querySelector('#wave-label')!.textContent =
-        s.stageId === 'forge'
+        s.stageId !== 'gate'
           ? `AREA ${String(s.sectionIndex + 1).padStart(2, '0')} / 05`
           : s.wave === 3
             ? 'FINAL ENCOUNTER'
@@ -195,7 +213,11 @@ export class Interface {
     }
     document.querySelector('#chapter-title')!.textContent = `${s.stage.title} / ${s.stage.chapter}`;
     document.querySelector('.scene-caption span')!.textContent =
-      s.stageId === 'forge' ? 'THE ASHEN FORGE' : 'THE RUINS OF HALVARD';
+      s.stageId === 'forge'
+        ? 'THE ASHEN FORGE'
+        : s.stageId === 'monastery'
+          ? 'THE DROWNED MONASTERY'
+          : 'THE RUINS OF HALVARD';
     document.querySelector('#boss-name')!.textContent = s.stage.bossName;
     const combo = document.querySelector<HTMLElement>('#combo')!;
     combo.hidden = s.combo < 2;
@@ -206,16 +228,20 @@ export class Interface {
       document.querySelector<HTMLElement>('#boss-fill')!.style.width =
         `${(boss.hp / boss.maxHp) * 100}%`;
       document.querySelector('#boss-phase')!.textContent =
-        boss.hp <= boss.maxHp / 2
+        boss.bossPhase === 2
           ? 'ENRAGED'
           : s.stageId === 'forge'
             ? 'THE FORGE WARDEN'
-            : 'THE GATEKEEPER';
+            : s.stageId === 'monastery'
+              ? 'THE TIDE WARDEN'
+              : 'THE GATEKEEPER';
     }
     document.querySelector<HTMLElement>('#travel-hint')!.hidden = s.active;
     document.querySelector('#travel-hint')!.textContent =
       s.stageId === 'forge' && s.sectionIndex === 3
         ? 'COOLING GARDEN · OPTIONAL HEAL ABOVE →'
-        : 'FOLLOW THE FALLEN LIGHT →';
+        : s.stageId === 'monastery' && s.sectionIndex === 3
+          ? 'QUIET CHAPEL · OPTIONAL HEAL →'
+          : 'FOLLOW THE FALLEN LIGHT →';
   }
 }

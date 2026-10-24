@@ -36,7 +36,8 @@ export function twohandFrame(a: Actor) {
     else if (['Death', 'Knockdown'].includes(a.state)) frame = 11;
     else if (['Jump', 'Fall', 'Land', 'Recovery'].includes(a.state)) frame = 10;
     else if (a.state === 'Walk') return { sheet: 'smooth-bow-walk', frame: walkFrame(a.stateTime) };
-    else if (a.state === 'Run') frame = 2 + (Math.floor(a.stateTime * 8) % 2);
+    else if (a.state === 'Run')
+      return { sheet: 'smooth-bow-run', frame: Math.floor(a.stateTime * 24) % 8 };
     return { sheet: 'smooth-bow', frame };
   }
   if (a.attack) {

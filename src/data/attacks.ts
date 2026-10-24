@@ -17,6 +17,8 @@ export interface AttackDefinition {
   launchVelocityZ: number;
   hitbox: HitboxDefinition;
   cancelInto: AttackId[];
+  lungeDistance?: number;
+  lungeSpeed?: number;
 }
 const box = (width: number, depth = 30, maxZ = 90): HitboxDefinition => ({
   offsetX: 5,
@@ -35,7 +37,7 @@ export const attacks: Record<AttackId, AttackDefinition> = {
     knockbackX: 45,
     knockbackY: 0,
     launchVelocityZ: 0,
-    hitbox: box(8, 12, 70),
+    hitbox: box(8, 12, 190),
     cancelInto: [],
   },
   enemyShot: {
@@ -132,6 +134,8 @@ export const attacks: Record<AttackId, AttackDefinition> = {
     knockbackY: 0,
     launchVelocityZ: 0,
     hitbox: { offsetX: -85, width: 195, depth: 34, minZ: 10, maxZ: 100 },
+    lungeDistance: 100,
+    lungeSpeed: 340,
     cancelInto: [],
   },
   kick: {
@@ -156,7 +160,7 @@ export const attacks: Record<AttackId, AttackDefinition> = {
     knockbackY: 0,
     launchVelocityZ: 420,
     hitbox: box(90, 34, 140),
-    cancelInto: [],
+    cancelInto: ['slash4'],
   },
   air: {
     id: 'air',
@@ -204,6 +208,30 @@ export const attacks: Record<AttackId, AttackDefinition> = {
     knockbackY: 0,
     launchVelocityZ: 280,
     hitbox: { offsetX: -110, width: 220, depth: 60, minZ: -180, maxZ: 100 },
+    cancelInto: [],
+  },
+  dive: {
+    id: 'dive',
+    damage: 20,
+    startupFrames: 36,
+    activeFrames: 10,
+    recoveryFrames: 30,
+    knockbackX: 190,
+    knockbackY: 0,
+    launchVelocityZ: 110,
+    hitbox: { offsetX: -20, width: 72, depth: 54, minZ: -160, maxZ: 90 },
+    cancelInto: [],
+  },
+  spell: {
+    id: 'spell',
+    damage: 14,
+    startupFrames: 48,
+    activeFrames: 1,
+    recoveryFrames: 24,
+    knockbackX: 115,
+    knockbackY: 0,
+    launchVelocityZ: 0,
+    hitbox: box(8, 12, 90),
     cancelInto: [],
   },
 };

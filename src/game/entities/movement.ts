@@ -8,6 +8,7 @@ export function movePlayer(
   input: Input,
   dt: number,
   bounds: [number, number] = [24, WORLD.length - 24],
+  terrainScale = 1,
 ) {
   if (input.x || input.y || input.guard || input.commands.length || a.attack || isDisabled(a))
     a.stopTime = undefined;
@@ -54,8 +55,15 @@ export function movePlayer(
   if (input.guard && a.z === 0) {
     setState(a, 'Guard');
     const length = Math.hypot(input.x, input.y) || 1;
-    a.x = clamp(a.x + (input.x / length) * PLAYER.speed * 0.25 * dt, bounds[0], bounds[1]);
-    a.y = clamp(a.y + (input.y / length) * PLAYER.speed * 0.2 * dt, ...stageDepth(a.x));
+    a.x = clamp(
+      a.x + (input.x / length) * PLAYER.speed * 0.25 * terrainScale * dt,
+      bounds[0],
+      bounds[1],
+    );
+    a.y = clamp(
+      a.y + (input.y / length) * PLAYER.speed * 0.2 * terrainScale * dt,
+      ...stageDepth(a.x),
+    );
     return;
   }
   if (a.state === 'Guard' && a.stateTime < 0.1) return;
@@ -64,7 +72,10 @@ export function movePlayer(
     setState(a, 'Jump');
   }
   const magnitude = Math.hypot(input.x, input.y) || 1;
-  const speed = input.dash && a.z === 0 ? PLAYER.dashSpeed : PLAYER.speed;
+  const speed = (input.dash && a.z === 0 ? PLAYER.dashSpeed : PLAYER.speed) * terrainScale;
+  if (input.dash && a.z === 0 && (input.x || input.y)) {
+    a.runMomentum = { x: input.x / magnitude, y: input.y / magnitude };
+  }
   a.x = clamp(a.x + (input.x / magnitude) * speed * dt, bounds[0], bounds[1]);
   a.y = clamp(a.y + (input.y / magnitude) * speed * 0.65 * dt, ...stageDepth(a.x));
   if (input.x) a.facing = input.x > 0 ? 1 : -1;

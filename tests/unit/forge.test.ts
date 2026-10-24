@@ -63,7 +63,7 @@ describe('forge stage definition and flow', () => {
     expect(next.environment.time).toBe(0);
     expect(next.environment.barricades.every((b) => b.x > 3600)).toBe(true);
     next.status = 'clear';
-    expect(next.nextStage()).toBeNull();
+    expect(next.nextStage()?.stageId).toBe('monastery');
   });
   it('restarts the current stage at its entry checkpoint without farming score or retaining damage', () => {
     const gate = new Simulation();

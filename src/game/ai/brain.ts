@@ -1,4 +1,6 @@
-import { stageDepth } from '../../data/environment';
+import { depthProfile, stageDepth } from '../../data/environment';
+import { bossPhaseRules } from '../../data/bossPhase';
+import { flyerRules, mageRules } from '../../data/enemies';
 import { routeTarget, firstArrowBlocker, meleeOccluded, type Solid } from '../physics/obstacles';
 import { attackPhase } from '../../data/attacks';
 import { startAttack } from '../combat/combat';
@@ -17,7 +19,7 @@ export function updateAI(
   crowd: readonly Actor[] = [],
   solids: readonly Solid[] = [],
 ): AttackId | null {
-  a.aiTime += dt;
+  a.aiTime += dt * (a.kind === 'boss' && a.bossPhase === 2 ? bossPhaseRules.speedMultiplier : 1);
   if (a.hp <= 0) {
     a.ai = 'Death';
     return null;
@@ -27,21 +29,158 @@ export function updateAI(
     a.aiTime = 0;
     return null;
   }
-  const enraged = a.kind === 'boss' && a.hp <= a.maxHp / 2;
+  if (
+    a.kind === 'boss' &&
+    a.bossPhase === 1 &&
+    a.hp <= a.maxHp * bossPhaseRules.transitionHealthFraction &&
+    !a.attack
+  ) {
+    a.bossPhase = 2;
+    a.phaseTransition = bossPhaseRules.transitionDuration;
+    enter(a, 'Idle');
+  }
+  if (a.kind === 'boss' && a.phaseTransition > 0) {
+    a.phaseTransition = Math.max(0, a.phaseTransition - dt);
+    setState(a, 'Idle');
+    return null;
+  }
+  const enraged = a.kind === 'boss' && a.bossPhase === 2;
   const dx = player.x - a.x,
     dy = player.y - a.y;
   // Once the tell starts, facing and depth are committed. No input-reading homing.
   if (a.attack) {
     a.ai = 'Attack';
     const phase = attackPhase(a.attack.id, a.attack.elapsed);
+    if (a.kind === 'flyer' && a.attack.id === 'dive') {
+      if (phase === 'startup') a.z = flyerRules.altitude;
+      if (phase === 'active' && a.attackTarget) {
+        const tx = a.attackTarget.x - a.x;
+        const ty = a.attackTarget.y - a.y;
+        const distance = Math.hypot(tx, ty) || 1;
+        const step = Math.min(distance, flyerRules.diveSpeed * dt);
+        a.x += (tx / distance) * step;
+        a.y += (ty / distance) * step;
+        a.z = Math.max(0, a.z - flyerRules.diveDescentSpeed * dt);
+      }
+      if (phase === 'recovery') a.z = 0;
+    }
     if (a.attack.id === 'charge' && phase === 'active')
-      a.x += a.facing * (a.kind === 'boss' ? (enraged ? 570 : 480) : 430) * dt;
+      a.x +=
+        a.facing *
+        (a.kind === 'boss' ? 480 * (enraged ? bossPhaseRules.speedMultiplier : 1) : 430) *
+        dt;
     if (a.attack.id === 'slam' && phase === 'startup')
       a.z = Math.sin((a.attack.elapsed / (44 / 60)) * Math.PI) * 110;
     if (a.attack.id === 'slam' && phase !== 'startup') {
       a.z = 0;
       a.vz = 0;
     }
+    return null;
+  }
+  if (a.kind === 'flyer') {
+    if (a.ai === 'Attack') {
+      a.z = 0;
+      enter(a, 'Recover');
+      return null;
+    }
+    if (a.ai === 'Recover') {
+      a.z = 0;
+      if (a.aiTime < flyerRules.diveRecovery) return null;
+      a.flightRadius = flyerRules.orbitRadius;
+      enter(a, 'Chase');
+    }
+    const anotherDiving = crowd.some(
+      (other) => other.id !== a.id && other.kind === 'flyer' && other.attack?.id === 'dive',
+    );
+    if (a.aiTime >= flyerRules.diveDelay && mayAttack && !anotherDiving && player.hp > 0) {
+      a.facing = dx >= 0 ? 1 : -1;
+      a.attackTarget = { x: player.x, y: player.y };
+      a.z = flyerRules.altitude;
+      enter(a, 'Attack');
+      startAttack(a, 'dive');
+      return 'dive';
+    }
+    const direction = a.id % 2 === 0 ? 1 : -1;
+    a.flightAngle += direction * flyerRules.orbitSpeed * dt;
+    a.flightRadius = Math.max(
+      flyerRules.minimumRadius,
+      a.flightRadius - flyerRules.radiusContraction * dt,
+    );
+    const destination = {
+      x: clamp(
+        player.x + Math.cos(a.flightAngle) * a.flightRadius,
+        24,
+        depthProfile[depthProfile.length - 1].x - 24,
+      ),
+      y: clamp(
+        player.y +
+          Math.sin(a.flightAngle) *
+            Math.min(flyerRules.maxDepthOffset, a.flightRadius * flyerRules.orbitDepthScale),
+        ...stageDepth(player.x),
+      ),
+    };
+    const waypoint = routeTarget(
+      a,
+      destination,
+      solids.filter((solid) => solid.height >= 100),
+    );
+    const tx = waypoint.x - a.x;
+    const ty = waypoint.y - a.y;
+    const distance = Math.hypot(tx, ty) || 1;
+    const step = Math.min(distance, flyerRules.moveSpeed * dt);
+    a.x += (tx / distance) * step;
+    a.y += (ty / distance) * step;
+    a.z = flyerRules.altitude + Math.sin(a.flightAngle * 2) * flyerRules.bob;
+    a.facing = dx >= 0 ? 1 : -1;
+    a.ai = 'Chase';
+    setState(a, 'Run');
+    return null;
+  }
+  if (a.kind === 'mage') {
+    a.spellCooldown = Math.max(0, a.spellCooldown - dt);
+    if (a.ai === 'Attack') {
+      enter(a, 'Recover');
+      a.fleeTime = mageRules.retreatTime;
+      return null;
+    }
+    if (a.ai === 'Recover') {
+      if (a.aiTime < mageRules.recovery) return null;
+      enter(a, 'Chase');
+    }
+    const distance = Math.hypot(dx, dy);
+    if (
+      distance < mageRules.castRangeMax &&
+      distance > mageRules.castRangeMin &&
+      a.spellCooldown <= 0 &&
+      mayAttack &&
+      player.hp > 0
+    ) {
+      a.facing = dx >= 0 ? 1 : -1;
+      a.attackTarget = { x: player.x, y: player.y };
+      a.spellCooldown = mageRules.cooldown;
+      enter(a, 'Attack');
+      startAttack(a, 'spell');
+      return 'spell';
+    }
+    if (distance < 300 && a.fleeTime > 0) {
+      a.fleeTime = Math.max(0, a.fleeTime - dt);
+      const sign = dx >= 0 ? -1 : 1;
+      const bounds = stageDepth(a.x);
+      const destination = routeTarget(
+        a,
+        { x: a.x + sign * 180, y: clamp(a.y + (dy >= 0 ? -80 : 80), bounds[0] + 8, bounds[1] - 8) },
+        solids,
+      );
+      const length = Math.hypot(destination.x - a.x, destination.y - a.y) || 1;
+      a.x += ((destination.x - a.x) / length) * Math.min(length, mageRules.retreatSpeed * dt);
+      a.y += ((destination.y - a.y) / length) * Math.min(length, mageRules.retreatDepthSpeed * dt);
+    } else if (distance > 520) {
+      a.x += clamp(dx, -mageRules.approachSpeed * dt, mageRules.approachSpeed * dt);
+      a.y += clamp(dy, -70 * dt, 70 * dt);
+    }
+    a.facing = dx >= 0 ? 1 : -1;
+    a.ai = distance < 300 ? 'Retreat' : 'Chase';
+    setState(a, distance < 300 ? 'Run' : 'Walk');
     return null;
   }
   if (a.kind === 'archer') {
@@ -165,7 +304,12 @@ export function updateAI(
       setState(a, 'Guard');
       return null;
     }
-    startAttack(a, attackId);
+    startAttack(
+      a,
+      attackId,
+      false,
+      enraged && a.kind === 'boss' ? bossPhaseRules.speedMultiplier : 1,
+    );
     return attackId;
   }
   if (!mayAttack && a.ai === 'Chase' && Math.abs(dx) < 180) enter(a, 'Flank');
@@ -191,7 +335,7 @@ export function updateAI(
           ? 82
           : burst
             ? 245
-            : 158) * (enraged ? 1.3 : 1);
+            : 158) * (enraged ? bossPhaseRules.speedMultiplier : 1);
   if (detouring) {
     const step = Math.min(speed * dt, distance);
     a.x += (tx / distance) * step;

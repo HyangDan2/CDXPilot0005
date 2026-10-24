@@ -1,3 +1,17 @@
+## Unreleased — dedicated Ashwing and bow-run animation
+
+- Replace the Ashwing's shared rusher appearance with a separate 16-pose flying, dive, hit, fall, down and recovery sheet.
+- Airborne hits force the Ashwing into a gravity-driven knockdown. Existing height-aware obstacle collision moves it to the nearest open side before ground landing.
+- Add eight Eira bow-run poses and play them at 24 fps, matching the sword-run cadence and one-third-second loop.
+- Refine the bow-run poses with more visible upper-body, elbow and bow follow-through while preserving Eira's approved design and bow carry.
+- Preserve the existing Eira bow source sheets, attack rules and enemy collision volumes. Add atlas and simulation regressions.
+
+## Unreleased — boss phase two acceleration
+
+- Defer the half-health phase change until a committed boss attack ends, then show a 0.45-second transition before phase two begins.
+- Increase boss locomotion, committed charge travel, AI decision cadence and attack animation/timing by 25% in phase two. Existing attack poses and hitboxes advance together through the shared attack clock; environmental warning durations remain unchanged.
+- Add regression coverage for deferred transition, one-time phase change and 1.25× movement/attack speed.
+
 ## Unreleased — The Ashen Forge
 
 - Add a separate second stage with five areas: cinder approach, stockhouse, furnace hall, cooling garden and forge warden arena. Introduce destructible stockades, stockhouse cover, alternating furnace vents and an optional +50% HP garden potion before the boss combines the mechanics.
@@ -136,3 +150,23 @@ Two-handed sword art; K guard replaces kick; down-forward-J rising replaces L; s
 - Fix bow idle being pinned to frame zero after switching weapons. Play the two existing relaxed poses in a three-second loop.
 - Share bow-idle frame order and timing between the game and animation review through `public/assets/sd-v3/bow-idle.json`.
 - Preserve authored artwork, weapon geometry and all combat timing.
+
+## Unreleased — v0.21 stage, enemy and combo expansion
+
+- Extend stage progression from the Ashen Gate through the Ashen Forge to a five-area Drowned Monastery, including new title entry, checkpoint restart, sluice route changes, water slowdown, and a final completion reward.
+- Introduce the Ashwing flyer from stage two: it spirals toward the player, marks its dive landing, and limits simultaneous dive attacks. Add the fleeing monastery mage with a telegraphed, limited-homing spell that loses guidance on a well-timed roll or disappears on stone.
+- Make enemy attack tells more legible with stronger weapon arcs, aim indicators, flyer landing markers, spell targeting markers, and a clearer boss phase-two treatment.
+- At half health, bosses finish their current attack, signal a one-time transition, then move and attack 25% faster with animation and hit timing advanced together.
+- Allow a buffered rising attack to cancel into the existing descending combo. Carry running direction and momentum into that same descending strike.
+- Add deterministic simulation, progression, combat and browser regressions. New enemy visuals reuse the existing original SD v3 rusher/archer frames; no bitmap assets were generated or modified.
+
+## Unreleased — bow arrow alignment
+
+- Align player arrow tips to the authored bow release pose in both facings; remove automatic height changes based on nearby flyers without adding aiming controls.
+- Give player arrows a longer, readable shaft, pointed head and fletching. Preserve character frames, scale, damage and existing projectile collision rules.
+
+## Unreleased — SD v3 Eira attack effects
+
+- Add layered cyan, ivory and gold trails to all four sword combo hits, a rising arc for the uppercut, a full circular sweep for the spin, paired descending trails and impact ring for the air attack, and a bow charge/release flash with aftertrail.
+- Render effects behind the current SD v3 Eira actor at its depth, using authored sheet origins and the 0.5 runtime scale. Keep integrated weapon frames, combat timing, hitboxes and projectile behavior unchanged.
+- Add browser coverage for all eight attack effects in both facings; capture representative gameplay frames for visual review.

@@ -24,7 +24,7 @@ test('title enters a fresh forge and pause/restart stay in the current stage', a
   expect(errors).toEqual([]);
 });
 
-test('gate completion continues with score and HP recovery, then forge completion restarts its checkpoint', async ({
+test('gate and forge completion carry progress into the next stage and restart its checkpoint', async ({
   page,
 }, info) => {
   await page.goto('?test=1');
@@ -41,13 +41,20 @@ test('gate completion continues with score and HP recovery, then forge completio
   expect(snapshot.player.hp).toBe(180);
   await page.evaluate(() => window.__VALKYRIE__!.fixture('forgeClear'));
   await expect(page.getByText('The forge falls silent.')).toBeVisible();
-  await expect(page.locator('#next-stage-button')).toHaveCount(0);
+  await expect(page.getByRole('button', { name: 'ENTER THE DROWNED MONASTERY' })).toBeVisible();
   await page.locator('#stage').screenshot({ path: info.outputPath('forge-complete.png') });
-  await page.getByRole('button', { name: 'PLAY AGAIN' }).click();
+  await page.getByRole('button', { name: 'ENTER THE DROWNED MONASTERY' }).click();
   snapshot = await page.evaluate(() => window.__VALKYRIE__!.snapshot());
-  expect(snapshot.stageId).toBe('forge');
+  expect(snapshot.stageId).toBe('monastery');
   expect(snapshot.wave).toBe(0);
-  expect(snapshot.score).toBe(1234);
+  expect(snapshot.score).toBe(2234);
+  expect(snapshot.player.hp).toBe(180);
+  await page.keyboard.press('Escape');
+  await page.getByRole('button', { name: 'RESTART JOURNEY' }).click();
+  snapshot = await page.evaluate(() => window.__VALKYRIE__!.snapshot());
+  expect(snapshot.stageId).toBe('monastery');
+  expect(snapshot.wave).toBe(0);
+  expect(snapshot.score).toBe(2234);
   expect(snapshot.player.hp).toBe(180);
 });
 

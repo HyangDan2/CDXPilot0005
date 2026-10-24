@@ -82,26 +82,33 @@
   </head>
   <body>
     <span class="tag">VALKYRIE / ART REVIEW 03</span>
-    <h1>캐릭터를 가리지 않는 공격 이펙트</h1>
+    <h1>Eira 포즈 기준 공격 이펙트</h1>
     <p>
-      <strong>이펙트는 미리보기 전용입니다.</strong> 활 A안과 손 색상 교정은 게임에 적용했습니다.
-      점프 공격 이미지·배율·검 길이는 유지합니다.
+      <strong>검토 미리보기 전용입니다.</strong> 현행 Eira SD v3 시트의 무기 포함 프레임을
+      사용합니다. 레거시 48×64와 상세 eira-v2 시트는 사용하지 않습니다. 전투 규칙과 원본 프레임은
+      바꾸지 않습니다.
     </p>
     <div class="panel">
       <button id="play">일시 정지</button><button id="reset">처음부터</button
       ><label
         >공격
         <select id="mode">
-          <option value="sword">검 · 짧은 궤적</option>
-          <option value="air">점프 공격 · 하향 궤적</option>
-          <option value="bow">활 · 발사 섬광</option>
+          <option value="sword">Eira 검 · slash1</option>
+          <option value="air">Eira 공중 · air</option>
+          <option value="bow">활 · SD v3 shot</option>
         </select></label
       ><label
-        >이펙트 강도
-        <select id="strength">
-          <option value="0.45">약하게</option>
-          <option value="0.7" selected>보통</option>
-        </select></label
+        >강도
+        <input id="strength" type="range" min="0.25" max="0.8" step="0.05" value="0.55" /><output
+          id="strength-value"
+          >0.55</output
+        ></label
+      ><label
+        >색 대비
+        <input id="contrast" type="range" min="0.6" max="1.4" step="0.1" value="1" /><output
+          id="contrast-value"
+          >1.0</output
+        ></label
       ><label><input id="flip" type="checkbox" />왼쪽</label
       ><label
         >속도
@@ -125,12 +132,24 @@
           id="phase"
         ></output
       ></label>
+      <label
+        >잔상 길이
+        <input id="trail" type="range" min="0.05" max="0.22" step="0.01" value="0.12" /><output
+          id="trail-value"
+          >0.12s</output
+        ></label
+      >
+      <label
+        >파편 <input id="particles" type="range" min="0" max="6" step="1" value="3" /><output
+          id="particles-value"
+          >3</output
+        ></label
+      >
       <p id="status"></p>
       <p>
-        청백색 궤적과 작은 금빛 끝점을 짧게 표시합니다. 캐릭터의 불투명·반투명 픽셀 및 주변 4px를
-        이펙트에서 제외해 얼굴·갑옷·검·활이 가려지지 않습니다. 실제 공격 프레임 배분을 사용하되 높이
-        이동은 생략한 검토용 재생입니다. 궤적은 미술적 후보이며 실제 충돌 범위나 모든 검 끝의 경로를
-        표현하지 않습니다.
+        현행 SD v3 Eira atlas의 포즈와 내장 무기를 사용합니다. 공격의 준비·활성·회복 프레임은 현재
+        공격 데이터와 맞춥니다. 캐릭터와 검의 알파 실루엣 주변 4px는 이펙트에서 제외합니다. 이펙트는
+        미술 시안이며 실제 충돌 범위를 나타내지 않습니다.
       </p>
     </div>
     <div class="panel">
@@ -142,7 +161,8 @@
       </p>
       <p>
         <a href="bow-idle-review.html">활 대기 A안 확인</a> ·
-        <a href="actor-size-review.html">캐릭터 크기 점검</a>
+        <a href="actor-size-review.html">캐릭터 크기 점검</a> ·
+        <a href="arrow-alignment-review.html">활 발사 위치·화살 확인</a>
       </p>
     </div>
     <script type="module" src="attack-effects-review.js"></script>

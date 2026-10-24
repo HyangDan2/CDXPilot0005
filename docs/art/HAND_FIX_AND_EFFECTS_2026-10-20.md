@@ -30,7 +30,7 @@ Reproduce using Node >=22.13:
 
 The original runtime bow sheet is copied to `public/assets/hand-review/bow-before.png` solely for the before/after page. Source PNGs are not edited by hand to bypass checks.
 
-## Attack effects: preview only
+## Attack effects: initial preview only (2026-10-20)
 
 Open `/attack-effects-review.html`. Three modes show a short pale-blue sword trail, downward air trail, and brief bow-release flash. Default opacity 0.7, low option 0.45. Effects exist on a separate canvas and clear the character's entire alpha silhouette (including nonzero anti-aliased edge pixels) plus a four-pixel margin. The original actor is then drawn unchanged above the effect. There is no character glow, body tint, scale pulse, sword extension or full-screen flash.
 
@@ -50,3 +50,11 @@ Final recorded outcomes (completed 2026-10-21 KST):
 - Initial E2E reused a shared server that disconnected mid-run. A separate-port full run produced 22 passes / 1 failure (clear-screen hub Back navigation, missing stage after return). The failing test then passed against a fixed build copy on port 4191. This is a full-run failure plus a successful targeted retry, not a claim of one uninterrupted 23/23 run. Concurrent shared-workspace builds were observed; the exact cause of the navigation failure is not established.
 - Runtime screenshots of corrected bow idle and walk were captured and visually inspected. Mobile preview width and default A selection passed. `git diff --check` passed.
 - Hashes of the original sword idle, air attack, reaction and approved identity reference still match the first audit.
+
+## Current SD v3 Eira effect review — 2026-10-24
+
+The review page now uses the current Eira art path: the weapon-inclusive `smooth-combo`, `smooth-attack`, and `smooth-bow` frames under `public/assets/sd-v3/`. It deliberately does not load the legacy 48×64 sheets or the detailed `characters/eira-v2` fallback. Slash1 follows `twohandFrame` frames 0–5, air follows frames 6–11, and shot follows the current bow release frames 4–7. Their phase lengths remain the attack data values 11/6/14, 4/11/12, and 42/1/36 at 60 Hz.
+
+The effect stays on its own canvas; the SD v3 actor frame, including its integrated weapon, is redrawn unchanged above it. A four-pixel expanded alpha mask protects the actor. The preview controls effect strength, contrast, afterimage duration, and deterministic particle count. Sword trail keypoints are hand-measured from SD v3 combo frames 2 and 3 for visual alignment; these are art anchors, not collision metadata. The bow flash uses the reviewed frame-7 contact `(348,246)` transformed from the runtime origin and 0.5 scale. Air effects follow the authored downward blade direction and use the player baseline as the landing reference; vertical travel is omitted in this isolated art preview.
+
+Playwright QA (`tests/e2e/attackEffectsReview.spec.ts`) sampled each attack's active phase facing both directions. All six samples showed effect pixels, reported zero changed SD v3 actor pixels, and produced no browser errors. The contrast control and tail-duration UI were also exercised. Captures are in `artifacts/effects-review/eira-sd-v3-2026-10-24/`. `npm run typecheck`, `npm run lint`, the Playwright build and the focused E2E passed. Full-suite verification was not run. These changes update the review page only; no gameplay effect was enabled.

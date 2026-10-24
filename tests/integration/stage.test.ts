@@ -72,6 +72,7 @@ describe('AI and stage', () => {
       b = createActor(2, 'boss', 100, 400);
     a.ai = b.ai = 'Chase';
     b.hp = 200;
+    b.bossPhase = 2;
     updateAI(a, p, 0.1);
     updateAI(b, p, 0.1);
     expect(b.x).toBeGreaterThan(a.x);
@@ -91,10 +92,47 @@ describe('AI and stage', () => {
   });
 });
 
+it('finishes a committed attack before a one-time half-health phase transition', () => {
+  const player = createActor(0, 'player', 500, 400);
+  const boss = createActor(1, 'boss', 100, 400);
+  boss.hp = boss.maxHp / 2;
+  boss.ai = 'Attack';
+  boss.attack = { id: 'charge', elapsed: 0, hit: new Set() };
+  updateAI(boss, player, 1 / 60);
+  expect(boss.bossPhase).toBe(1);
+
+  boss.attack = null;
+  updateAI(boss, player, 1 / 60);
+  expect(boss.bossPhase).toBe(2);
+  expect(boss.phaseTransition).toBeGreaterThan(0);
+  expect(boss.attack).toBeNull();
+  for (let i = 0; i < 30; i++) updateAI(boss, player, 1 / 60);
+  expect(boss.phaseTransition).toBeLessThan(1e-9);
+  expect(boss.bossPhase).toBe(2);
+});
+
+it('speeds phase-two boss attacks and movement by exactly 25 percent', () => {
+  const player = createActor(0, 'player', 500, 400);
+  const normal = createActor(1, 'boss', 100, 400);
+  const phaseTwo = createActor(2, 'boss', 100, 400);
+  normal.ai = phaseTwo.ai = 'Chase';
+  phaseTwo.bossPhase = 2;
+  updateAI(normal, player, 0.1);
+  updateAI(phaseTwo, player, 0.1);
+  expect(phaseTwo.x - 100).toBeCloseTo((normal.x - 100) * 1.25);
+
+  phaseTwo.x = 450;
+  phaseTwo.ai = 'Chase';
+  phaseTwo.phaseTransition = 0;
+  updateAI(phaseTwo, player, 1 / 60);
+  expect(phaseTwo.attack?.speedMultiplier).toBe(1.25);
+});
+
 it('adds extra charge and slam patterns below half boss health', () => {
   const p = createActor(0, 'player', 100, 400);
   const boss = createActor(1, 'boss', 150, 400);
   boss.hp = 300;
+  boss.bossPhase = 2;
   const ids = [];
   for (let i = 0; i < 7; i++) {
     boss.ai = 'Chase';

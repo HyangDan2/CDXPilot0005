@@ -1,9 +1,17 @@
 import { Simulation } from '../entities/simulation';
 import { startAttack } from '../combat/combat';
+import { attacks } from '../../data/attacks';
 import { StageEnvironment } from '../entities/environment';
 import type { ArenaScene } from './ArenaScene';
 import { waves } from '../../data/stage';
 import { createActor } from '../entities/actor';
+import { cameraTarget } from '../camera/follow';
+import type { AttackId } from '../entities/types';
+
+type CapturableAttack = Extract<
+  AttackId,
+  'slash1' | 'slash2' | 'slash3' | 'slash4' | 'rising' | 'spin' | 'air' | 'shot'
+>;
 export function installHarness(scene: ArenaScene) {
   if (new URLSearchParams(location.search).get('test') !== '1') return;
   window.__VALKYRIE__ = {
@@ -31,9 +39,11 @@ export function installHarness(scene: ArenaScene) {
         barricades: scene.sim.environment.barricades.map((w) => ({ id: w.id, hp: w.hp })),
         pillars: scene.sim.environment.pillars.map((p) => ({ x: p.x, y: p.y })),
         flames: scene.sim.environment.flames.map((f) => ({ id: f.id, phase: f.phase })),
+        waterBank: scene.sim.environment.waterBank,
       },
       loot: scene.sim.loot.map((l) => ({ id: l.id, x: l.x, y: l.y })),
       arrows: scene.sim.arrows.length,
+      magic: scene.sim.magic.map((bolt) => ({ x: bolt.x, y: bolt.y, homing: bolt.homing })),
       wave: scene.sim.wave,
       combo: scene.sim.combo,
       enemies: scene.sim.enemies.map((e) => ({
@@ -43,11 +53,15 @@ export function installHarness(scene: ArenaScene) {
         x: e.x,
         y: e.y,
         attack: e.attack?.id ?? null,
+        z: e.z,
+        phase: e.bossPhase,
       })),
       time: scene.sim.time,
       status: scene.sim.status,
     }),
     fixture: (name) => {
+      if (name.startsWith('monastery') && scene.sim.stageId !== 'monastery')
+        scene.sim = new Simulation(731, 'monastery');
       if (name.startsWith('forge') && scene.sim.stageId !== 'forge')
         scene.sim = new Simulation(731, 'forge');
       const s = scene.sim;
@@ -97,6 +111,59 @@ export function installHarness(scene: ArenaScene) {
             s.player.x = 6650;
             s.player.y = 420;
           }
+        }
+      }
+      const monasteryArea = {
+        monasteryEntry: 0,
+        monasteryCloister: 1,
+        monasteryFloodgate: 2,
+        monasteryChapel: 3,
+        monasteryBoss: 4,
+        monasteryPhaseTwo: 4,
+        monasteryMage: 2,
+        monasteryFlyers: 1,
+        monasterySluice: 4,
+        monasteryClear: 4,
+      };
+      if (name in monasteryArea) {
+        s.wave = monasteryArea[name as keyof typeof monasteryArea];
+        s.active = name !== 'monasteryChapel';
+        s.player = createActor(0, 'player', s.stage.waves[s.wave].trigger + 40, 410);
+        s.environment = new StageEnvironment('monastery');
+        s.enemies = [];
+        s.arrows = [];
+        s.magic = [];
+        s.hitStop = 0;
+        if (name === 'monasteryMage') {
+          const mage = createActor(1, 'mage', s.player.x + 330, s.player.y);
+          mage.spellCooldown = 0.05;
+          s.enemies = [mage];
+        }
+        if (name === 'monasteryFlyers') {
+          s.enemies = [
+            createActor(1, 'flyer', s.player.x + 150, 365),
+            createActor(2, 'flyer', s.player.x - 150, 455),
+          ];
+          s.enemies.forEach((flyer) => (flyer.aiTime = 2.5));
+        }
+        if (
+          name === 'monasteryBoss' ||
+          name === 'monasteryPhaseTwo' ||
+          name === 'monasterySluice' ||
+          name === 'monasteryClear'
+        ) {
+          const boss = createActor(1, 'boss', s.player.x + 420, 420);
+          s.enemies = [boss];
+          if (name === 'monasterySluice') {
+            startAttack(boss, 'slam');
+            boss.attack!.elapsed = 48 / 60;
+            boss.z = 0;
+          }
+          if (name === 'monasteryPhaseTwo') {
+            boss.hp = boss.maxHp * 0.4;
+            boss.bossPhase = 2;
+          }
+          if (name === 'monasteryClear') boss.hp = 0;
         }
       }
       if (name === 'cloister' || name === 'pillarCover' || name === 'cloisterBattle') {
@@ -172,6 +239,27 @@ export function installHarness(scene: ArenaScene) {
         s.active = true;
         s.enemies = [];
       }
+      scene.cameras.main.scrollX = cameraTarget(s.player.x, s.stage.end, s.stage.start);
+    },
+    captureAttack: (id: CapturableAttack, facing: 1 | -1) => {
+      if (scene.ui.mode === 'paused') scene.resume();
+      const player = scene.sim.player;
+      player.weapon = id === 'shot' ? 'bow' : 'sword';
+      player.facing = facing;
+      player.attack = null;
+      player.z = id === 'air' ? 70 : 0;
+      player.vz = id === 'air' ? -40 : 0;
+      player.state = id === 'air' ? 'Fall' : 'Idle';
+      player.stateTime = 0;
+      player.airAttackUsed = false;
+      const definition = attacks[id];
+      player.attack = {
+        id,
+        elapsed: (definition.startupFrames + definition.activeFrames / 2) / 60,
+        hit: new Set(),
+      };
+      player.state = 'Attack';
+      scene.pause();
     },
   };
 }
@@ -203,8 +291,10 @@ declare global {
           barricades: { id: number; hp: number }[];
           pillars: { x: number; y: number }[];
           flames: { id: string; phase: string }[];
+          waterBank: number;
         };
         arrows: number;
+        magic: { x: number; y: number; homing: boolean }[];
         wave: number;
         combo: number;
         enemies: {
@@ -214,6 +304,8 @@ declare global {
           x: number;
           y: number;
           attack: string | null;
+          z: number;
+          phase: number;
         }[];
         time: number;
         status: string;
@@ -229,6 +321,16 @@ declare global {
           | 'forgeSlam'
           | 'forgeCharge'
           | 'forgeClear'
+          | 'monasteryEntry'
+          | 'monasteryCloister'
+          | 'monasteryFloodgate'
+          | 'monasteryChapel'
+          | 'monasteryBoss'
+          | 'monasteryPhaseTwo'
+          | 'monasteryMage'
+          | 'monasteryFlyers'
+          | 'monasterySluice'
+          | 'monasteryClear'
           | 'combat'
           | 'archer'
           | 'boss'
@@ -240,6 +342,13 @@ declare global {
           | 'cloisterBattle'
           | 'over'
           | 'clear',
+      ) => void;
+      captureAttack: (
+        id: Extract<
+          AttackId,
+          'slash1' | 'slash2' | 'slash3' | 'slash4' | 'rising' | 'spin' | 'air' | 'shot'
+        >,
+        facing: 1 | -1,
       ) => void;
     };
   }
