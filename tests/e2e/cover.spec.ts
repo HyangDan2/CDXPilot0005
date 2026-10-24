@@ -1,3 +1,4 @@
+import { startGame } from './startGame';
 import { expect, test, type Page } from '@playwright/test';
 
 async function move(
@@ -28,7 +29,7 @@ test('keyboard route follows bottom, top, bottom gaps without crossing stone', a
   const errors: string[] = [];
   page.on('pageerror', (error) => errors.push(error.message));
   await page.goto('?test=1');
-  await page.locator('#start-button').click();
+  await startGame(page);
   await page.evaluate(() => window.__VALKYRIE__!.fixture('cloister'));
   expect(
     await page.evaluate(() => window.__VALKYRIE__!.snapshot().environment.pillars),
@@ -61,7 +62,7 @@ test('stone absorbs a real bow shot and an alternate approach opens a firing lan
   const epoch = new Date('2026-01-01T00:00:00Z');
   await page.clock.install({ time: epoch });
   await page.goto('?test=1');
-  await page.locator('#start-button').click();
+  await startGame(page);
   await page.clock.pauseAt(new Date(epoch.getTime() + 60000));
   await page.evaluate(() => window.__VALKYRIE__!.fixture('pillarCover'));
   const hp = await page.evaluate(() => window.__VALKYRIE__!.snapshot().enemies[0].hp);
@@ -106,7 +107,7 @@ test('landscape touch shows the authored archer lane and cover layout', async ({
   const errors: string[] = [];
   page.on('pageerror', (error) => errors.push(error.message));
   await page.goto('?test=1');
-  await page.locator('#start-button').tap();
+  await startGame(page, 'gate', true);
   await page.evaluate(() => window.__VALKYRIE__!.fixture('cloisterBattle'));
   await expect
     .poll(() => page.evaluate(() => window.__VALKYRIE__!.snapshot().enemies.length))

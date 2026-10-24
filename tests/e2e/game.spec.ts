@@ -1,3 +1,4 @@
+import { startGame } from './startGame';
 import { test, expect } from '@playwright/test';
 test('title, real keyboard combat, pause, restart and responsive viewport', async ({
   page,
@@ -10,7 +11,7 @@ test('title, real keyboard combat, pause, restart and responsive viewport', asyn
   await page.goto('?test=1');
   await expect(page.getByRole('button', { name: 'BEGIN YOUR OATH' })).toBeVisible();
   await page.screenshot({ path: info.outputPath('01-title.png'), fullPage: true });
-  await page.getByRole('button', { name: 'BEGIN YOUR OATH' }).click();
+  await startGame(page);
   await expect
     .poll(() => page.evaluate(() => window.__VALKYRIE__!.snapshot().mode))
     .toBe('playing');
@@ -55,7 +56,7 @@ test('title, real keyboard combat, pause, restart and responsive viewport', asyn
 });
 test('boss, game over and clear screens via explicit test fixtures', async ({ page }, info) => {
   await page.goto('?test=1');
-  await page.getByRole('button', { name: 'BEGIN YOUR OATH' }).click();
+  await startGame(page);
   await page.evaluate(() => window.__VALKYRIE__!.fixture('boss'));
   await expect(page.locator('#boss-hud')).toBeVisible();
   await expect
@@ -76,7 +77,7 @@ test('missing PNG uses playable fallbacks', async ({ page }) => {
   page.on('pageerror', (e) => errors.push(e.message));
   await page.route('**/assets/**/*.png', (r) => r.abort());
   await page.goto('?test=1');
-  await page.getByRole('button', { name: 'BEGIN YOUR OATH' }).click();
+  await startGame(page);
   await page.keyboard.press('j');
   await expect
     .poll(() => page.evaluate(() => window.__VALKYRIE__!.snapshot().time))
@@ -97,9 +98,46 @@ test('production URL has no test harness and loads relative assets', async ({ pa
   await page.getByRole('button', { name: 'Close field guide' }).click();
 });
 
+test('title opens a stage picker and starts the chosen stage as a fresh run', async ({
+  page,
+}, info) => {
+  await page.goto('?test=1');
+  await expect(page.locator('#forge-start-button')).toHaveCount(0);
+  await expect(page.locator('#monastery-start-button')).toHaveCount(0);
+  await page.locator('#start-button').click();
+  await expect(page.locator('#stage')).toHaveAttribute('data-mode', 'stage-select');
+  await expect(page.locator('[data-stage]')).toHaveCount(3);
+  await expect(page.locator('#stage-gate')).toHaveAttribute('aria-pressed', 'true');
+  await page.locator('#stage').screenshot({ path: info.outputPath('stage-select.png') });
+  await page.keyboard.press('Escape');
+  await expect(page.locator('#stage')).toHaveAttribute('data-mode', 'title');
+  await page.locator('#start-button').click();
+  await page.locator('#stage-monastery').click();
+  await expect(page.locator('#stage-monastery')).toHaveAttribute('aria-pressed', 'true');
+  await page.locator('#start-selected-stage').click();
+  await expect(page.locator('#stage')).toHaveAttribute('data-mode', 'playing');
+  const snapshot = await page.evaluate(() => window.__VALKYRIE__!.snapshot());
+  expect(snapshot.stageId).toBe('monastery');
+  expect(snapshot.score).toBe(0);
+  expect(snapshot.player.hp).toBe(180);
+});
+
+test('stage clear offers a route back to the main title', async ({ page }, info) => {
+  await page.goto('?test=1');
+  await startGame(page);
+  await page.evaluate(() => window.__VALKYRIE__!.fixture('clear'));
+  await expect(page.getByRole('button', { name: 'PLAY AGAIN' })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'BACK TO THE MAIN' })).toBeVisible();
+  await page.locator('#stage').screenshot({ path: info.outputPath('clear-main-menu.png') });
+  await page.getByRole('button', { name: 'BACK TO THE MAIN' }).click();
+  await expect(page.locator('#stage')).toHaveAttribute('data-mode', 'title');
+  await page.getByRole('button', { name: 'BEGIN YOUR OATH' }).click();
+  await expect(page.locator('#stage')).toHaveAttribute('data-mode', 'stage-select');
+});
+
 test('double-tap run, release, attack interruption and Shift removal', async ({ page }) => {
   await page.goto('?test=1');
-  await page.getByRole('button', { name: 'BEGIN YOUR OATH' }).click();
+  await startGame(page);
   await page.keyboard.press('d');
   await page.keyboard.down('d');
   await expect
@@ -200,7 +238,7 @@ test('SD review plays integrated weapon poses for the whole cast', async ({ page
 
 test('K guard, directional rising, strict spin and BGM lifecycle', async ({ page }, info) => {
   await page.goto('?test=1');
-  await page.getByRole('button', { name: 'BEGIN YOUR OATH' }).click();
+  await startGame(page);
   await expect
     .poll(() =>
       page.evaluate(
@@ -287,7 +325,7 @@ test('K guard, directional rising, strict spin and BGM lifecycle', async ({ page
 
 test('four-strike keyboard chain and social assets', async ({ page }, info) => {
   await page.goto('?test=1');
-  await page.getByRole('button', { name: 'BEGIN YOUR OATH' }).click();
+  await startGame(page);
   await page.keyboard.press('j');
   for (const id of ['slash1', 'slash2', 'slash3', 'slash4']) {
     await expect
@@ -325,7 +363,7 @@ test('four-strike keyboard chain and social assets', async ({ page }, info) => {
 
 test('bow draw, guard cancel, roll, settings and result music', async ({ page }, info) => {
   await page.goto('?test=1');
-  await page.getByRole('button', { name: 'BEGIN YOUR OATH' }).click();
+  await startGame(page);
   await page.locator('#stage canvas').focus();
   await page.keyboard.press('i');
   await expect
@@ -385,7 +423,7 @@ test('bow draw, guard cancel, roll, settings and result music', async ({ page },
 
 test('archer telegraph and real projectile damage', async ({ page }, info) => {
   await page.goto('?test=1');
-  await page.getByRole('button', { name: 'BEGIN YOUR OATH' }).click();
+  await startGame(page);
   await page.evaluate(() => window.__VALKYRIE__!.fixture('archer'));
   await page.waitForTimeout(350);
   await page.locator('#stage').screenshot({ path: info.outputPath('archer-tell.png') });

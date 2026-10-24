@@ -53,12 +53,12 @@ export class ArenaScene extends Phaser.Scene {
     this.view = new ArenaView(this);
     const enter = (e: KeyboardEvent) => {
       if (document.querySelector('dialog[open]')) return;
-      if (e.target instanceof Element && e.target.closest('a, button, input, select, textarea'))
-        return;
       if (e.code === 'Escape' && !e.repeat && this.ui.mode === 'stage-select') {
         this.ui.setMode('title');
         return;
       }
+      if (e.target instanceof Element && e.target.closest('a, button, input, select, textarea'))
+        return;
       if (e.code === 'Enter' && !e.repeat && this.ui.mode === 'title') this.start();
       else if (e.code === 'Enter' && !e.repeat && this.ui.mode === 'stage-select')
         document.querySelector<HTMLButtonElement>('#start-selected-stage')?.click();

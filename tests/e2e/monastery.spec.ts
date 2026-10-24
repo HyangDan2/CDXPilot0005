@@ -1,3 +1,4 @@
+import { startGame } from './startGame';
 import { expect, test } from '@playwright/test';
 
 test('gate and forge flow into the five-area Drowned Monastery and final clear', async ({
@@ -6,7 +7,7 @@ test('gate and forge flow into the five-area Drowned Monastery and final clear',
   const errors: string[] = [];
   page.on('pageerror', (error) => errors.push(error.message));
   await page.goto('?test=1');
-  await page.getByRole('button', { name: 'BEGIN YOUR OATH' }).click();
+  await startGame(page);
   await page.evaluate(() => window.__VALKYRIE__!.fixture('gateReward'));
   await page.getByRole('button', { name: 'ENTER THE ASHEN FORGE' }).click();
   expect(await page.evaluate(() => window.__VALKYRIE__!.snapshot().stageId)).toBe('forge');
@@ -43,7 +44,7 @@ test('the flyer dives once at a time, the mage launches a guided bolt, and slams
   const errors: string[] = [];
   page.on('pageerror', (error) => errors.push(error.message));
   await page.goto('?test=1');
-  await page.getByRole('button', { name: 'BEGIN YOUR OATH' }).click();
+  await startGame(page);
   await page.evaluate(() => window.__VALKYRIE__!.fixture('monasteryFlyers'));
   await expect
     .poll(() =>

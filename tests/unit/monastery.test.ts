@@ -7,19 +7,23 @@ import { Simulation } from '../../src/game/entities/simulation';
 import { emptyInput } from '../../src/game/entities/types';
 import { startAttack, AttackBuffer } from '../../src/game/combat/combat';
 import { attacks } from '../../src/data/attacks';
-import { monasterySections, monasteryWaves, stages } from '../../src/data/stages';
+import { forgeWaves, monasterySections, monasteryWaves, stages } from '../../src/data/stages';
 
 describe('Drowned Monastery', () => {
-  it('defines five contiguous encounter areas with mage and no more than two flyers', () => {
+  it('keeps five contiguous areas and halves flyer appearances across stages two and three', () => {
     expect(monasterySections).toHaveLength(5);
     expect(monasterySections[0].start).toBe(stages.monastery.start);
     expect(monasterySections.at(-1)?.end).toBe(stages.monastery.end);
     expect(monasteryWaves[2].enemies).toContain('mage');
+    const flyerWaves = [...forgeWaves.slice(0, 3), ...monasteryWaves.slice(0, 3)].filter((wave) =>
+      wave.enemies.includes('flyer'),
+    );
+    expect(flyerWaves).toHaveLength(3);
+    expect(forgeWaves.slice(0, 3).filter((wave) => wave.enemies.includes('flyer'))).toHaveLength(2);
     expect(
-      monasteryWaves
-        .slice(0, 4)
-        .every((wave) => wave.enemies.filter((e) => e === 'flyer').length <= 2),
-    ).toBe(true);
+      monasteryWaves.slice(0, 3).filter((wave) => wave.enemies.includes('flyer')),
+    ).toHaveLength(1);
+    expect(monasteryWaves[1].enemies).toContain('flyer');
     expect(monasteryWaves[3].enemies).toEqual([]);
   });
 

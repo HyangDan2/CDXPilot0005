@@ -1,3 +1,4 @@
+import { startGame } from './startGame';
 import { test, expect } from '@playwright/test';
 
 const destination = 'https://hyangdan2.github.io/GameHub/';
@@ -16,7 +17,7 @@ for (const mode of ['title', 'paused', 'over', 'clear'] as const) {
     await expect(page.locator('#start-button')).toBeVisible();
     await page.evaluate(() => localStorage.setItem('valkyrie.bgm', '25'));
     if (mode !== 'title') {
-      await page.locator('#start-button').click();
+      await startGame(page);
       if (mode === 'paused') await page.keyboard.press('Escape');
       else await page.evaluate((fixture) => window.__VALKYRIE__!.fixture(fixture), mode);
     }
@@ -89,7 +90,7 @@ test('small landscape touch menus and rotation preserve paused exit', async ({ b
   expect(settings.x - (bounds.x + bounds.width)).toBeCloseTo(8, 0);
   expect(settings.y).toBeCloseTo(bounds.y, 0);
   await page.screenshot({ path: info.outputPath('hub-mobile-title.png') });
-  await page.locator('#start-button').tap();
+  await startGame(page, 'gate', true);
   await page.locator('#pause-button').tap();
   await page.setViewportSize({ width: 375, height: 667 });
   await expect(page.locator('#rotate-notice')).toBeVisible();
@@ -110,7 +111,7 @@ test('settings returns keyboard control and page exit cancels result music trans
   page,
 }) => {
   await page.goto('?test=1');
-  await page.locator('#start-button').click();
+  await startGame(page);
   await page.getByRole('button', { name: 'Settings', exact: true }).click();
   await page.keyboard.press('Escape');
   await expect(page.locator('canvas')).toBeFocused();
@@ -134,7 +135,7 @@ test('playing header exit pauses, blocks shortcuts and restores focus on both ca
   page,
 }, info) => {
   await page.goto('?test=1');
-  await page.locator('#start-button').click();
+  await startGame(page);
   const hub = page.getByRole('link', { name: '게임 허브로', exact: true });
   await hub.click();
   await expect(page.locator('#hub-exit')).toBeVisible();

@@ -125,11 +125,17 @@ export class Interface {
     this.setMode('title');
   }
   setMode(mode: Mode, sim?: Simulation) {
+    if (mode === 'stage-select') this.selectedStage = 'gate';
     this.mode = mode;
     document.querySelector('#stage')?.setAttribute('data-mode', mode);
     this.hud.hidden = mode === 'title' || mode === 'stage-select';
     this.overlay.hidden = mode === 'playing';
-    this.overlay.className = mode === 'title' || mode === 'stage-select' ? 'title-overlay' : 'menu-overlay';
+    this.overlay.className =
+      mode === 'stage-select'
+        ? 'title-overlay stage-select-overlay'
+        : mode === 'title'
+          ? 'title-overlay'
+          : 'menu-overlay';
     if (mode === 'playing') {
       this.overlay.innerHTML = '';
       return;
@@ -154,10 +160,12 @@ export class Interface {
         mode === 'clear' && (sim?.stageId === 'gate' || sim?.stageId === 'forge')
           ? `<button class="primary-button" id="next-stage-button">ENTER ${sim.stageId === 'gate' ? 'THE ASHEN FORGE' : 'THE DROWNED MONASTERY'} <span>→</span></button><p class="stage-carry">Carry score &amp; best combo · Restore HP</p>`
           : '';
-      this.overlay.innerHTML = `<div class="menu-card"><span class="menu-rune">ᛉ</span><div class="eyebrow">${label}</div><h2>${title}</h2><p>${mode === 'paused' ? 'Your journey will wait.' : `Score ${String(sim?.score ?? 0).padStart(6, '0')} &nbsp; · &nbsp; Best combo ${sim?.bestCombo ?? 0}`}</p>${mode === 'paused' ? '<button class="primary-button" id="resume-button">RESUME JOURNEY <span>→</span></button>' : ''}${nextStageButton}<button class="${mode === 'paused' ? 'text-button' : 'primary-button'}" id="restart-button">${mode === 'clear' ? 'PLAY AGAIN' : 'RESTART JOURNEY'} <span>↻</span></button></div>`;
+      this.overlay.innerHTML = `<div class="menu-card"><span class="menu-rune">ᛉ</span><div class="eyebrow">${label}</div><h2>${title}</h2><p>${mode === 'paused' ? 'Your journey will wait.' : `Score ${String(sim?.score ?? 0).padStart(6, '0')} &nbsp; · &nbsp; Best combo ${sim?.bestCombo ?? 0}`}</p>${mode === 'paused' ? '<button class="primary-button" id="resume-button">RESUME JOURNEY <span>→</span></button>' : ''}${nextStageButton}<button class="${mode === 'paused' ? 'text-button' : 'primary-button'}" id="restart-button">${mode === 'clear' ? 'PLAY AGAIN' : 'RESTART JOURNEY'} <span>↻</span></button>${mode === 'clear' ? '<button class="text-button" id="main-menu-button">BACK TO THE MAIN</button>' : ''}</div>`;
     }
     if (mode !== 'title') this.overlay.querySelector<HTMLButtonElement>('button')?.focus();
-    this.overlay.querySelector('#stage-select-back')?.addEventListener('click', this.actions.backToTitle);
+    this.overlay
+      .querySelector('#stage-select-back')
+      ?.addEventListener('click', this.actions.backToTitle);
     this.overlay.querySelectorAll<HTMLButtonElement>('[data-stage]').forEach((button) => {
       button.addEventListener('click', () => {
         this.selectedStage = button.dataset.stage as StageId;
@@ -166,12 +174,17 @@ export class Interface {
         });
       });
     });
-    this.overlay.querySelector('#start-selected-stage')?.addEventListener('click', () => this.actions.startStage(this.selectedStage));
+    this.overlay
+      .querySelector('#start-selected-stage')
+      ?.addEventListener('click', () => this.actions.startStage(this.selectedStage));
     this.overlay
       .querySelector('#next-stage-button')
       ?.addEventListener('click', this.actions.nextStage);
     this.overlay.querySelector('#start-button')?.addEventListener('click', this.actions.start);
     this.overlay.querySelector('#restart-button')?.addEventListener('click', this.actions.start);
+    this.overlay
+      .querySelector('#main-menu-button')
+      ?.addEventListener('click', this.actions.backToTitle);
     this.overlay.querySelector('#resume-button')?.addEventListener('click', this.actions.resume);
   }
   update(s: Simulation) {

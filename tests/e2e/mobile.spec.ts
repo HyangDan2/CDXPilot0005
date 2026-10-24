@@ -1,3 +1,4 @@
+import { startGame } from './startGame';
 import { test, expect } from '@playwright/test';
 test.use({ viewport: { width: 844, height: 390 }, hasTouch: true, isMobile: true });
 test('landscape touch movement, multitouch guard, gestures, settings and rotation', async ({
@@ -5,7 +6,7 @@ test('landscape touch movement, multitouch guard, gestures, settings and rotatio
   context,
 }, info) => {
   await page.goto('?test=1');
-  await page.getByRole('button', { name: 'BEGIN YOUR OATH' }).tap();
+  await startGame(page, 'gate', true);
   await expect(page.locator('#touch-controls')).toBeVisible();
   const session = await context.newCDPSession(page);
   const stick = (await page.locator('#touch-stick').boundingBox())!;

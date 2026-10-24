@@ -1,3 +1,4 @@
+import { startGame } from './startGame';
 import { expect, test } from '@playwright/test';
 
 test('title enters a fresh forge and pause/restart stay in the current stage', async ({
@@ -6,7 +7,7 @@ test('title enters a fresh forge and pause/restart stay in the current stage', a
   const errors: string[] = [];
   page.on('pageerror', (e) => errors.push(e.message));
   await page.goto('?test=1');
-  await page.getByRole('button', { name: 'PLAY THE ASHEN FORGE', exact: true }).click();
+  await startGame(page, 'forge');
   await expect(page.locator('#chapter-title')).toContainText('THE ASHEN FORGE');
   await expect(page.locator('#wave-label')).toHaveText('AREA 01 / 05');
   expect(await page.evaluate(() => window.__VALKYRIE__!.snapshot().stageId)).toBe('forge');
@@ -28,7 +29,7 @@ test('gate and forge completion carry progress into the next stage and restart i
   page,
 }, info) => {
   await page.goto('?test=1');
-  await page.locator('#start-button').click();
+  await startGame(page);
   await page.evaluate(() => window.__VALKYRIE__!.fixture('gateReward'));
   await expect(page.locator('#stage')).toHaveAttribute('data-mode', 'clear');
   await page.locator('#stage').screenshot({ path: info.outputPath('gate-to-forge.png') });
@@ -62,7 +63,7 @@ test('all five forge areas render and the garden potion is collected through rea
   page,
 }, info) => {
   await page.goto('?test=1');
-  await page.locator('#forge-start-button').click();
+  await startGame(page, 'forge');
   for (const [fixture, section, targetX] of [
     ['forgeEntry', 0, 3600],
     ['forgeStockhouse', 1, 4010],
@@ -105,7 +106,7 @@ test('boss slam warns before fire, pause freezes devices, and a charge breaks it
   page,
 }, info) => {
   await page.goto('?test=1');
-  await page.locator('#forge-start-button').click();
+  await startGame(page, 'forge');
   await page.evaluate(() => window.__VALKYRIE__!.fixture('forgeSlam'));
   await expect(page.locator('#boss-name')).toHaveText('SKARN, THE FORGE WARDEN');
   const phase = () =>
@@ -155,7 +156,7 @@ test('landscape touch can enter the forge, see device warnings and restart after
   const errors: string[] = [];
   page.on('pageerror', (e) => errors.push(e.message));
   await page.goto('?test=1');
-  await page.locator('#forge-start-button').tap();
+  await startGame(page, 'forge', true);
   await expect(page.locator('#touch-controls')).toBeVisible();
   await page.evaluate(() => window.__VALKYRIE__!.fixture('forgeSlam'));
   await expect
@@ -186,7 +187,7 @@ test('landscape touch can enter the forge, see device warnings and restart after
 test('production entry works without the developer harness', async ({ page }) => {
   await page.goto('./');
   expect(await page.evaluate(() => window.__VALKYRIE__)).toBeUndefined();
-  await page.locator('#forge-start-button').click();
+  await startGame(page, 'forge');
   await expect(page.locator('#chapter-title')).toHaveText('THE ASHEN FORGE / II');
   await expect(page.locator('#wave-label')).toHaveText('AREA 01 / 05');
   await expect(page.locator('#stage')).toHaveAttribute('data-mode', 'playing');

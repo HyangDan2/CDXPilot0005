@@ -272,6 +272,84 @@ canvas {
   margin-top: 6px;
   color: #a7b5a8;
 }
+.stage-select-overlay {
+  background: linear-gradient(90deg, #0d2029f2 0%, #0d2029df 58%, #0d20298c 100%);
+}
+.stage-select-content {
+  position: absolute;
+  inset: 11% auto auto 6.3%;
+  width: min(760px, 78%);
+}
+.stage-select-content h2 {
+  margin: 16px 0 0;
+  color: #f3e8c9;
+  font:
+    400 clamp(28px, 3.8vw, 52px)/1.1 Georgia,
+    'Times New Roman',
+    serif;
+  letter-spacing: 3px;
+}
+.stage-select-intro {
+  margin: 12px 0 17px;
+  color: #b5c4be;
+  font:
+    14px Georgia,
+    serif;
+}
+.stage-choices {
+  display: grid;
+  gap: 7px;
+}
+.stage-choice {
+  display: grid;
+  grid-template-columns: 42px minmax(0, 1fr);
+  align-items: center;
+  column-gap: 12px;
+  width: 100%;
+  min-height: 54px;
+  padding: 8px 13px;
+  border: 1px solid #d6bd8240;
+  background: #102128d9;
+  color: #e4ddc5;
+  text-align: left;
+}
+.stage-choice[aria-pressed='true'] {
+  border-color: #d6bd82;
+  background: #594b31c9;
+  box-shadow: inset 3px 0 #d6bd82;
+}
+.stage-index {
+  grid-row: span 2;
+  color: #d6bd82;
+  font:
+    22px Georgia,
+    serif;
+  text-align: center;
+}
+.stage-choice strong {
+  font-size: 9px;
+  letter-spacing: 1.5px;
+}
+.stage-choice small {
+  margin-top: 4px;
+  color: #a8b6ad;
+  font-size: 8px;
+  letter-spacing: 0.5px;
+}
+.stage-select-actions {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  margin-top: 14px;
+}
+.stage-select-actions .primary-button {
+  min-width: 250px;
+  padding: 12px 16px;
+}
+.stage-select-actions .text-button {
+  color: #b5c4be;
+  letter-spacing: 1.5px;
+}
 .control-bar {
   display: flex;
   justify-content: space-between;
@@ -621,6 +699,13 @@ dialog dd {
     right: 8%;
     bottom: 13%;
   }
+  .stage-select-content {
+    top: 8%;
+    width: min(600px, 82%);
+  }
+  .stage-choice {
+    min-height: 48px;
+  }
 }
 @media (max-width: 600px) {
   .shell {
@@ -660,6 +745,51 @@ dialog dd {
   .title-content p {
     font-size: 10px;
     margin: 10px 0;
+  }
+  .stage-select-content {
+    inset: 8% 5% auto;
+    width: auto;
+  }
+  .stage-select-content h2 {
+    margin-top: 8px;
+    font-size: 24px;
+    letter-spacing: 1px;
+  }
+  .stage-select-content > .eyebrow {
+    font-size: 6px;
+  }
+  .stage-select-intro {
+    margin: 7px 0 10px;
+    font-size: 10px;
+  }
+  .stage-choices {
+    gap: 5px;
+  }
+  .stage-choice {
+    grid-template-columns: 30px minmax(0, 1fr);
+    min-height: 42px;
+    padding: 5px 8px;
+    column-gap: 8px;
+  }
+  .stage-index {
+    font-size: 17px;
+  }
+  .stage-choice strong {
+    font-size: 7px;
+    letter-spacing: 1px;
+  }
+  .stage-choice small {
+    margin-top: 2px;
+    font-size: 6px;
+  }
+  .stage-select-actions {
+    gap: 12px;
+    margin-top: 9px;
+  }
+  .stage-select-actions .primary-button {
+    min-width: 190px;
+    padding: 9px 10px;
+    font-size: 6px;
   }
   .primary-button {
     min-width: 170px;
@@ -1083,11 +1213,6 @@ dialog dd {
   }
 }
 
-.forge-entry {
-  display: block;
-  margin: 10px 0 0;
-  min-height: 36px;
-}
 .stage-carry {
   font-size: 12px;
   margin: 6px 0;

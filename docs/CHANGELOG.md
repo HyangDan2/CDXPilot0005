@@ -1,3 +1,16 @@
+## Unreleased — return to title after stage clear
+
+- Add a `BACK TO THE MAIN` button to stage-clear screens. `PLAY AGAIN` and the existing next-stage continuation remain available; starting again from the title opens the stage picker.
+
+## Unreleased — fewer flyer encounters
+
+- Reduce flyer appearances by half across the six combat waves in the Ashen Forge and Drowned Monastery: from six waves to three. Keep the Ashen Forge's opening and furnace flyers plus one Monastery appearance in the Split Cloister; use ground enemies to preserve those waves' enemy counts.
+
+## Unreleased — development stage picker
+
+- Remove the direct Ashen Forge and Drowned Monastery buttons from the title screen. `BEGIN YOUR OATH` now opens a dedicated picker for all three stages; confirming a choice starts a fresh run directly in that stage.
+- Keep story progression available through stage-clear continuation. Add keyboard Enter/Escape support and a compact touch-friendly selection layout.
+
 ## Unreleased — dedicated Ashwing and bow-run animation
 
 - Replace the Ashwing's shared rusher appearance with a separate 16-pose flying, dive, hit, fall, down and recovery sheet.

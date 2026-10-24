@@ -1,3 +1,4 @@
+import { startGame } from './startGame';
 import { expect, test } from '@playwright/test';
 
 test('keyboard movement reaches widened depth, barricade blocks then breaks and resets', async ({
@@ -6,7 +7,7 @@ test('keyboard movement reaches widened depth, barricade blocks then breaks and 
   const errors: string[] = [];
   page.on('pageerror', (error) => errors.push(error.message));
   await page.goto('?test=1');
-  await page.locator('#start-button').click();
+  await startGame(page);
   await page.evaluate(() => window.__VALKYRIE__!.fixture('courtyard'));
   await page.keyboard.down('w');
   await expect.poll(() => page.evaluate(() => window.__VALKYRIE__!.snapshot().player.y)).toBe(330);
@@ -60,7 +61,7 @@ test('flame warning is harmless, pause freezes it, then active fire damages the 
   page,
 }, info) => {
   await page.goto('?test=1');
-  await page.locator('#start-button').click();
+  await startGame(page);
   await page.evaluate(() => window.__VALKYRIE__!.fixture('flame'));
   await expect
     .poll(() => page.evaluate(() => window.__VALKYRIE__!.snapshot().environment.flames[0].phase))
@@ -98,7 +99,7 @@ test('landscape touch screen renders courtyard warning and pauses safely', async
   const epoch = new Date('2026-01-01T00:00:00Z');
   await page.clock.install({ time: epoch });
   await page.goto('?test=1');
-  await page.locator('#start-button').tap();
+  await startGame(page, 'gate', true);
   await page.clock.pauseAt(new Date(epoch.getTime() + 60000));
   await page.evaluate(() => window.__VALKYRIE__!.fixture('courtyard'));
   await expect(page.locator('#touch-controls')).toBeVisible();

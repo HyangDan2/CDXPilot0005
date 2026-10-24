@@ -31,7 +31,7 @@ export const forgeWaves: Wave[] = [
     name: 'THE STOCKHOUSE',
     trigger: 4340,
     end: 4800,
-    enemies: ['guard', 'archer', 'rusher', 'flyer'],
+    enemies: ['guard', 'archer', 'rusher', 'grunt'],
     spawns: [
       { x: 4500, y: 448 },
       { x: 4740, y: 365 },
@@ -76,7 +76,7 @@ export const monasteryWaves: Wave[] = [
     name: 'THE DROWNED ENTRY',
     trigger: 7460,
     end: 7780,
-    enemies: ['grunt', 'flyer'],
+    enemies: ['grunt', 'guard'],
     spawns: [
       { x: 7580, y: 440 },
       { x: 7700, y: 390 },
@@ -97,7 +97,7 @@ export const monasteryWaves: Wave[] = [
     name: 'THE FLOODGATE',
     trigger: 8440,
     end: 8910,
-    enemies: ['mage', 'rusher', 'flyer'],
+    enemies: ['mage', 'rusher', 'grunt'],
     spawns: [
       { x: 8790, y: 430 },
       { x: 8690, y: 370 },

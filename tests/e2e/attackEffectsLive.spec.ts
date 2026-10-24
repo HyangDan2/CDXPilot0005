@@ -1,3 +1,4 @@
+import { startGame } from './startGame';
 import { expect, test } from '@playwright/test';
 
 test('live Eira combo, rising, spin, air and bow effects align with SD v3 poses in both facings', async ({
@@ -9,7 +10,7 @@ test('live Eira combo, rising, spin, air and bow effects align with SD v3 poses 
     if (message.type() === 'error') errors.push(message.text());
   });
   await page.goto('?test=1');
-  await page.getByRole('button', { name: 'BEGIN YOUR OATH' }).click();
+  await startGame(page);
 
   const capture = async (
     id: 'slash1' | 'slash2' | 'slash3' | 'slash4' | 'rising' | 'spin' | 'air' | 'shot',

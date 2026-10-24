@@ -159,6 +159,27 @@ See docs/art/UPGRADE_QA.md for sequential generation and visual review. Final ve
 
 Four unretouched game-area captures from the current local build replace the old roll screenshot in the README: `readme-sword.png`, `readme-bow.png`, `readme-boss.png`, `readme-mobile.png`. Desktop images are 1200×675; the mobile emulation image is 960×540. Sword and mobile captures use the first encounter with movement input; bow and boss captures start from the existing `archer` and `bossSupport` test fixtures and then advance the actual game. These are illustrative runtime screenshots, not evidence of a full manual boss playthrough or physical mobile validation. All four were visually inspected for visible actors, HUD, weapons and control placement. Historical QA screenshots are retained.
 
+## Stage-clear return to title — 2026-10-24
+
+- Added a `BACK TO THE MAIN` action to clear screens, preserving Play Again and next-stage continuation. Browser regression checks return to title and reopen the stage picker.
+- Full Chromium E2E passed 38/38 with the stage-picker-aware test entry helper, including returning to title after clear. `npm run verify` passed after these updates.
+
+## Reduced flyer frequency — 2026-10-24
+
+- Reduced flyer-bearing combat waves across Forge and Monastery from 6/6 to 3/6. The new regression verifies the exact frequency and distribution. Replaced removed flyer slots with ground enemies so encounter counts stay consistent.
+- `npm run verify`: passed asset validation, ESLint, strict TypeScript, 177 unit/integration tests and production build.
+- Focused Chromium E2E passed 3/3: all Forge areas, gate→Forge→Monastery flow, and the Monastery flyer/mage behavior. Run with `PORT=4188 npm run test:e2e -- --grep 'all five forge areas|gate and forge flow|flyer dives'`.
+- No art or asset pipeline changes; full unrelated E2E suite and physical devices were not retested for this frequency-only adjustment. No remote deployment was performed.
+
+## Development stage picker — 2026-10-24
+
+- Title no longer exposes direct Forge/Monastery launch buttons. `BEGIN YOUR OATH` opens the three-stage picker; choosing a stage and confirming starts it as a fresh run. Gate-clear continuation remains intact.
+- `npm run verify`: passed asset validation, ESLint, strict TypeScript, all 177 unit/integration tests, production build, and `git diff --check`.
+- Added browser coverage for the three choices, default Gate selection, direct fresh Monastery entry, old-shortcut removal and Escape return. Focused picker and keyboard-combat browser checks passed 2/2; the keyboard-combat case passed on isolated rerun after one transient failure in the full run.
+- Full `PORT=4185 npm run test:e2e`: 35/38 passed. Two mobile cases reached teardown but Playwright failed to copy/remove shared trace artifacts (`ENOENT`); the remaining keyboard rising-attack assertion passed on isolated rerun. Existing stage continuation, touch Forge entry, picker, stage-start and game-flow checks passed.
+- Visually inspected the 1200×675 stage-picker screenshot at `/tmp/valkyrie-picker-results-final/game-title-opens-a-stage-p-2636e-chosen-stage-as-a-fresh-run/stage-select.png`. Stage cards, selected state, confirmation and return action fit without obscuring the character. No asset pipeline changes; physical devices and remote deployment were not tested.
+- Keyboard Enter opens/confirms the picker; Escape and Back return to the title. Touch buttons use the same native button controls.
+
 ## Dedicated Ashwing and Eira bow run — 2026-10-24
 
 - `npm run verify`: passed environment, asset, lint, strict TypeScript, 177 unit/integration tests and production build. SD asset checks report 396 transparent, unclipped frames across 31 sheets.
