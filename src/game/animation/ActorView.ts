@@ -11,7 +11,14 @@ export class ActorView {
     private scene: Phaser.Scene,
     kind: string,
   ) {
-    const texture = kind === 'flyer' ? 'rusher' : kind === 'mage' ? 'archer' : kind;
+    const texture =
+      kind === 'flyer'
+        ? 'rusher'
+        : kind === 'mage'
+          ? scene.textures.exists('sd-smooth-mage')
+            ? 'sd-smooth-mage'
+            : 'archer'
+          : kind;
     this.body = scene.add.image(0, 0, texture).setOrigin(0.5, 0.9375);
     this.sword = scene.add.image(0, 0, 'sword').setOrigin(8 / 52, 0.5);
   }

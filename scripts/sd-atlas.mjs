@@ -24,6 +24,14 @@ const specs = {
     roots: [240, 580, 960, 1340, 230, 590, 960, 1340, 225, 580, 960, 1340, 230, 580, 960, 1340],
     source: 'art/generated/sd-v9/archer.png',
   },
+  'smooth-mage': {
+    count: 16,
+    columns: 4,
+    gridRows: true,
+    scale: 1.2,
+    roots: [152, 467, 782, 1100, 156, 473, 795, 1112, 157, 467, 779, 1101, 167, 460, 763, 1084],
+    source: 'art/generated/sd-v3/wizard-concept-2026-10-24.png',
+  },
   'smooth-combo': {
     count: 24,
     columns: 4,

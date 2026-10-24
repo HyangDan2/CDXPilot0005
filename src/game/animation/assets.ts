@@ -17,6 +17,7 @@ export function preloadAssets(scene: Phaser.Scene) {
     'smooth-sword-walk',
     'smooth-roll',
     'smooth-archer',
+    'smooth-mage',
     'smooth-idle',
     'smooth-combo',
     'smooth-move',

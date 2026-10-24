@@ -26,7 +26,31 @@ export function sdFrame(a: Actor): SDPose {
     if (a.state === 'Recovery') return { sheet, frame: 15 };
     return { sheet, frame: Math.floor(Math.max(0, a.stateTime) * 16) % 8 };
   }
-  if (a.kind === 'archer' || a.kind === 'mage') {
+  if (a.kind === 'mage') {
+    if (a.attack) {
+      const phase = attackPhase(a.attack.id, a.attack.elapsed);
+      return {
+        sheet: 'smooth-mage',
+        frame:
+          phase === 'startup'
+            ? 6 + Math.min(3, Math.floor((a.attack.elapsed / 0.8) * 4))
+            : phase === 'active'
+              ? 10
+              : 11,
+      };
+    }
+    if (a.state === 'Walk' || a.state === 'Run') {
+      const start = a.ai === 'Retreat' ? 4 : 2;
+      return { sheet: 'smooth-mage', frame: start + (Math.floor(a.stateTime * 8) % 2) };
+    }
+    if (a.state === 'Hit')
+      return { sheet: 'smooth-mage', frame: 12 + Math.min(1, Math.floor(a.stateTime * 8)) };
+    if (a.state === 'Death') return { sheet: 'smooth-mage', frame: 15 };
+    if (a.state === 'Knockdown') return { sheet: 'smooth-mage', frame: 14 };
+    if (a.state === 'Recovery') return { sheet: 'smooth-mage', frame: 0 };
+    return { sheet: 'smooth-mage', frame: Math.floor(a.stateTime * 2) % 2 };
+  }
+  if (a.kind === 'archer') {
     let frame = Math.floor(a.stateTime * 2) % 2;
     if (a.attack) {
       const phase = attackPhase(a.attack.id, a.attack.elapsed);
