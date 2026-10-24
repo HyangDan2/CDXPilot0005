@@ -39,6 +39,7 @@ export function movePlayer(
       const length = Math.hypot(input.x, input.y) || 1;
       a.rollDirection = { x: (input.x || (!input.y ? a.facing : 0)) / length, y: input.y / length };
       a.rollCooldown = PLAYER.rollCooldown;
+      a.rollAttackWindow = 0;
       return;
     }
   }
@@ -73,9 +74,6 @@ export function movePlayer(
   }
   const magnitude = Math.hypot(input.x, input.y) || 1;
   const speed = (input.dash && a.z === 0 ? PLAYER.dashSpeed : PLAYER.speed) * terrainScale;
-  if (input.dash && a.z === 0 && (input.x || input.y)) {
-    a.runMomentum = { x: input.x / magnitude, y: input.y / magnitude };
-  }
   a.x = clamp(a.x + (input.x / magnitude) * speed * dt, bounds[0], bounds[1]);
   a.y = clamp(a.y + (input.y / magnitude) * speed * 0.65 * dt, ...stageDepth(a.x));
   if (input.x) a.facing = input.x > 0 ? 1 : -1;

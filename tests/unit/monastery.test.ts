@@ -138,7 +138,7 @@ describe('Drowned Monastery', () => {
     expect(monastery.restartStage().player.bossPhase).toBe(1);
   });
 
-  it('chains rising into the existing descending combo strike and adds run momentum', () => {
+  it('chains rising into the existing descending combo strike', () => {
     const buffer = new AttackBuffer();
     const player = createActor(0, 'player', 210, 410);
     startAttack(player, 'rising');
@@ -147,17 +147,5 @@ describe('Drowned Monastery', () => {
     expect(buffer.consume(player, 1)).toBe('slash4');
     expect(player.attack?.id).toBe('slash4');
     expect(player.attack?.lungeDirection).toBeUndefined();
-
-    const sim = new Simulation();
-    const run = emptyInput();
-    run.x = 1;
-    run.dash = true;
-    for (let i = 0; i < 8; i++) sim.step(1 / 60, run);
-    const before = sim.player.x;
-    run.commands = ['sword'];
-    sim.step(1 / 60, run);
-    expect(sim.player.attack?.id).toBe('slash4');
-    expect(sim.player.attack?.lungeDirection).toEqual({ x: 1, y: 0 });
-    expect(sim.player.x - before).toBeGreaterThan(10);
   });
 });

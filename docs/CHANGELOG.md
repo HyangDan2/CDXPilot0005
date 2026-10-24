@@ -1,3 +1,7 @@
+## Unreleased — dodge follow-up lunge
+
+- Remove the frequent running-attack trigger. Press sword attack within 80ms after a completed dodge roll to perform the existing lunging descending slash; running attacks now begin the normal combo.
+
 ## Unreleased — double mage appearances in Stage III
 
 - Add a mage to the Drowned Entry, replacing its guard so the encounter size stays the same. Mage encounters now appear in two of the Monastery's three combat waves, with the Floodgate encounter unchanged.

@@ -140,7 +140,7 @@ export function startAttack(
   id: AttackId,
   cancel = false,
   speedMultiplier = 1,
-  runLunge = false,
+  dodgeLunge = false,
 ) {
   if (isDisabled(a) || a.state === 'Roll' || a.state === 'Switch') return false;
   if (a.kind === 'player' && a.weapon === 'bow' && id !== 'shot') return false;
@@ -169,7 +169,7 @@ export function startAttack(
     elapsed: 0,
     hit: new Set(),
     speedMultiplier,
-    ...(runLunge ? { lungeDirection: { ...a.runMomentum }, lungeDistance: 0 } : {}),
+    ...(dodgeLunge ? { lungeDirection: { ...a.rollDirection }, lungeDistance: 0 } : {}),
   };
   return true;
 }
@@ -181,13 +181,13 @@ export function advanceAttack(a: Actor, dt: number) {
     setState(a, a.z > 0 ? 'Fall' : 'Idle');
   }
 }
-export function chooseAttack(a: Actor, command: Command, runLunge = false): AttackId | null {
+export function chooseAttack(a: Actor, command: Command, dodgeFollowup = false): AttackId | null {
   if (['jump', 'roll', 'switch'].includes(command)) return null;
   if (command === 'sword' && a.attack?.id === 'rising') return 'slash4';
   if (a.z > 0 || a.vz > 0)
     return a.weapon === 'sword' && command === 'sword' ? (!a.airAttackUsed ? 'air' : null) : null;
   if (a.weapon === 'bow') return command === 'sword' ? 'shot' : null;
-  if (runLunge && command === 'sword') return 'slash4';
+  if (dodgeFollowup && command === 'sword') return 'slash4';
   if (command === 'spin') return 'spin';
   if (command === 'rising') return 'rising';
   const next: Partial<Record<AttackId, AttackId>> = {
@@ -206,7 +206,7 @@ export class AttackBuffer {
           this.pending = [{ command, expires: now + PLAYER.bufferSeconds }];
     this.pending = this.pending.slice(-4);
   }
-  consume(a: Actor, now: number, runLunge = false): AttackId | null {
+  consume(a: Actor, now: number, dodgeFollowup = false): AttackId | null {
     this.pending = this.pending.filter((p) => p.expires >= now);
     if (
       ['Guard', 'Roll', 'Switch'].includes(a.state) ||
@@ -218,7 +218,7 @@ export class AttackBuffer {
     }
     const command = this.pending[0]?.command;
     if (!command) return null;
-    const id = chooseAttack(a, command, runLunge);
+    const id = chooseAttack(a, command, dodgeFollowup);
     if (!id) return null;
     let cancel = false;
     if (a.attack) {
@@ -228,7 +228,7 @@ export class AttackBuffer {
         def.cancelInto.includes(id);
       if (!cancel) return null;
     }
-    if (!startAttack(a, id, cancel, 1, runLunge && id === 'slash4')) return null;
+    if (!startAttack(a, id, cancel, 1, dodgeFollowup && id === 'slash4')) return null;
     this.pending.shift();
     return id;
   }

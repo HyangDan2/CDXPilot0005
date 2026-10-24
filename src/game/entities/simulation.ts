@@ -108,10 +108,11 @@ export class Simulation {
       this.hitStop -= dt;
       return;
     }
+    this.player.rollAttackWindow = Math.max(0, this.player.rollAttackWindow - dt);
     this.environment.advance(dt, (e) => this.events.push(e));
     const beforePlayer = { x: this.player.x, y: this.player.y };
-    const runLunge =
-      this.player.state === 'Run' &&
+    const dodgeFollowup =
+      this.player.rollAttackWindow > 0 &&
       this.player.weapon === 'sword' &&
       input.commands.includes('sword');
     if (this.time > this.comboUntil) this.combo = 0;
@@ -130,7 +131,7 @@ export class Simulation {
       this.environment.isWet(this.player.x, this.player.y) ? monasteryRules.waterMoveScale : 1,
     );
     if (this.player.vz > 0 && oldVz <= 0) this.emit('jump', this.player);
-    const started = this.buffer.consume(this.player, this.time, runLunge);
+    const started = this.buffer.consume(this.player, this.time, dodgeFollowup);
     if (started) this.emit('swing', this.player);
     const lunge = this.player.attack;
     const lungeDefinition = attacks.slash4;
@@ -148,7 +149,9 @@ export class Simulation {
       this.player.y += lunge.lungeDirection.y * distance;
       lunge.lungeDistance = (lunge.lungeDistance ?? 0) + distance;
     }
+    const finishingRoll = this.player.state === 'Roll';
     if (integrate(this.player, dt, this.bounds)) this.emit('land', this.player);
+    if (finishingRoll && this.player.state === 'Idle') this.player.rollAttackWindow = 0.08;
     collideSolids(this.player, beforePlayer, this.environment.solids);
     this.releaseArrow(this.player, dt);
     advanceAttack(this.player, dt);

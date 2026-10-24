@@ -16,6 +16,7 @@ export function createActor(id: number, kind: Kind, x: number, y: number): Actor
     weapon: kind === 'archer' ? 'bow' : 'sword',
     rollCooldown: 0,
     rollDirection: { x: 0, y: 0 },
+    rollAttackWindow: 0,
     id,
     kind,
     x,
@@ -42,7 +43,6 @@ export function createActor(id: number, kind: Kind, x: number, y: number): Actor
     spellCooldown: mageRules.cooldown * 0.375,
     fleeTime: 0,
     attackTarget: null,
-    runMomentum: { x: 0, y: 0 },
     spawnX: x,
     juggle: { active: false, launches: 0, airHits: 0, forced: false, groundedTime: 0 },
   };

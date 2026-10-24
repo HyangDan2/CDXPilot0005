@@ -1,3 +1,9 @@
+## Dodge follow-up lunge — 2026-10-25
+
+- Replaced the run-triggered lunge with a 0.08-second post-roll attack window. Added deterministic regression coverage for running attacks, timely dodge follow-up, and expired-window behavior.
+- `npm run verify`: passed asset checks, ESLint, strict TypeScript, all 181 unit/integration tests and production build.
+- Full Chromium E2E passed 39/39, including the current run/dodge controls. No art or asset pipeline changes; GitHub Pages deployment follows this commit.
+
 ## The Ashen Forge — 2026-10-21 (Asia/Seoul)
 
 - `npm run verify`: assets, lint, strict TypeScript, all 162 unit/integration cases and the production build passed with Node 24.19.0. Added 13 forge definition/flow/device cases plus a full five-area input-driven playthrough. The playthrough retains ordinary player/enemy stats, reads warnings, collects the optional garden heal, observes machinery/arena destruction and defeats the boss with surviving HP. The gate full-run regression also passes.

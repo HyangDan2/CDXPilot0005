@@ -48,6 +48,7 @@ export interface Actor extends Position {
   weapon: 'sword' | 'bow';
   rollCooldown: number;
   rollDirection: { x: number; y: number };
+  rollAttackWindow: number;
   hp: number;
   maxHp: number;
   facing: 1 | -1;
@@ -82,7 +83,6 @@ export interface Actor extends Position {
   spellCooldown: number;
   fleeTime: number;
   attackTarget: { x: number; y: number } | null;
-  runMomentum: { x: number; y: number };
   spawnX: number;
   juggle: {
     active: boolean;
