@@ -1,3 +1,9 @@
+## Unreleased — Ashwing combat tuning
+
+- Narrow Ashwing's dive hitbox and let Eira's rising strike reach its normal flight altitude.
+- Give a grounded Ashwing a gradual 0.45-second takeoff after knockdown recovery.
+- Add regressions for dive dimensions, rising-strike contact and takeoff progression.
+
 ## Unreleased — dodge follow-up lunge
 
 - Remove the frequent running-attack trigger. Press sword attack within 80ms after a completed dodge roll to perform the existing lunging descending slash; running attacks now begin the normal combo.

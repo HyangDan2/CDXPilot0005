@@ -80,6 +80,7 @@ export interface Actor extends Position {
   phaseTransition: number;
   flightAngle: number;
   flightRadius: number;
+  flightRecovery: number;
   spellCooldown: number;
   fleeTime: number;
   attackTarget: { x: number; y: number } | null;

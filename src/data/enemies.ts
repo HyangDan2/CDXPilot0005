@@ -12,6 +12,7 @@ export const flyerRules = {
   altitude: 145,
   bob: 7,
   moveSpeed: 210,
+  takeoffDuration: 0.45,
 } as const;
 
 export const mageRules = {

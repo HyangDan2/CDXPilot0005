@@ -40,6 +40,7 @@ export function createActor(id: number, kind: Kind, x: number, y: number): Actor
     phaseTransition: 0,
     flightAngle: (id % 6) * (Math.PI / 3),
     flightRadius: 240,
+    flightRecovery: 0,
     spellCooldown: mageRules.cooldown * 0.375,
     fleeTime: 0,
     attackTarget: null,

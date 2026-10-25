@@ -78,6 +78,13 @@ export function updateAI(
     return null;
   }
   if (a.kind === 'flyer') {
+    if (a.flightRecovery > 0 && !isDisabled(a)) {
+      a.flightRecovery = Math.max(0, a.flightRecovery - dt);
+      a.z = flyerRules.altitude * (1 - a.flightRecovery / flyerRules.takeoffDuration);
+      a.ai = 'Recover';
+      setState(a, 'Run');
+      return null;
+    }
     if (a.ai === 'Attack') {
       a.z = 0;
       enter(a, 'Recover');

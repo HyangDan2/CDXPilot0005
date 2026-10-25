@@ -25,7 +25,7 @@ export const strikeTracks: Partial<Record<AttackId, readonly StrikeShape[]>> = {
     strike(3, 58, 20, 65, 27),
     strike(8, 85, 45, 88, 27),
     strike(5, 70, 65, 130, 27),
-    strike(5, 55, 85, 145, 27),
+    strike(5, 55, 85, 180, 27),
   ],
   air: [strike(3, 48, 0, 65), strike(8, 86, 30, 73)],
   enemy: [strike(4, 92, 35, 78, 24), strike(4, 92, 35, 78, 24)],

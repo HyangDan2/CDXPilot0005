@@ -57,7 +57,7 @@ describe('authored SD motion and collision', () => {
     const high = hitbox(p);
     expect(high.minZ).toBeGreaterThan(low.minZ);
     expect(high.maxZ).toBeGreaterThan(low.maxZ);
-    expect(high.maxZ).toBeLessThanOrEqual(145);
+    expect(high.maxZ).toBeLessThanOrEqual(180);
   });
   it('uses two-handed slash, spin, rising and enemy weapons at their active timing', () => {
     expect(sdFrame(attacking('spin', 0.8))).toEqual({ sheet: 'smooth-defense', frame: 14 });

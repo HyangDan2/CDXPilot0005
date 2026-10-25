@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { sdFrame } from '../../src/game/animation/sd';
-import { startAttack, applyHit } from '../../src/game/combat/combat';
+import { startAttack, applyHit, hitbox } from '../../src/game/combat/combat';
+import { updateAI } from '../../src/game/ai/brain';
 import { createActor } from '../../src/game/entities/actor';
 import { collideSolids, expanded, inside, type Solid } from '../../src/game/physics/obstacles';
 import { integrate } from '../../src/game/physics/world';
@@ -36,6 +37,38 @@ describe('dedicated flyer art and hit fall', () => {
     expect(flyer.vz).toBe(-180);
     integrate(flyer, 0.1);
     expect(flyer.z).toBeLessThan(75);
+  });
+
+  it('lets the rising strike reach Ashwing at normal flight altitude', () => {
+    const attacker = createActor(0, 'player', 100, 400);
+    const flyer = createActor(1, 'flyer', 150, 400);
+    flyer.z = 145;
+    startAttack(attacker, 'rising');
+    attacker.attack!.elapsed = 0.3;
+
+    expect(applyHit(attacker, flyer)).toBeGreaterThan(0);
+    expect(flyer.state).toBe('Knockdown');
+  });
+
+  it('keeps Ashwing dive contact tighter and lifts gradually after recovery', () => {
+    const flyer = createActor(1, 'flyer', 350, 400);
+    startAttack(flyer, 'dive');
+    const box = hitbox(flyer);
+    expect(box.width).toBe(52);
+    expect(box.height).toBe(68);
+    flyer.attack = null;
+
+    flyer.state = 'Recovery';
+    flyer.stateTime = 0.34;
+    integrate(flyer, 1 / 60);
+    expect(flyer.flightRecovery).toBeGreaterThan(0);
+    expect(flyer.z).toBe(0);
+
+    flyer.ai = 'Recover';
+    const player = createActor(0, 'player', 500, 400);
+    updateAI(flyer, player, 1 / 60);
+    expect(flyer.z).toBeGreaterThan(0);
+    expect(flyer.z).toBeLessThan(145);
   });
 
   it('pushes a falling flyer off an obstacle before it reaches the ground', () => {

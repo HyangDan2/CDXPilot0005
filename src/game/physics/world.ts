@@ -58,6 +58,7 @@ export function integrate(
     setState(a, 'Idle');
     a.invulnerable = Math.max(a.invulnerable, JUGGLE.wakeProtection);
     a.juggle = { active: false, launches: 0, airHits: 0, forced: false, groundedTime: 0 };
+    if (a.kind === 'flyer') a.flightRecovery = 0.45;
   }
   return landed;
 }

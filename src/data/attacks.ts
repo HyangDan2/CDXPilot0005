@@ -219,7 +219,7 @@ export const attacks: Record<AttackId, AttackDefinition> = {
     knockbackX: 190,
     knockbackY: 0,
     launchVelocityZ: 110,
-    hitbox: { offsetX: -20, width: 72, depth: 54, minZ: -160, maxZ: 90 },
+    hitbox: { offsetX: -20, width: 52, depth: 34, minZ: -60, maxZ: 55 },
     cancelInto: [],
   },
   spell: {
