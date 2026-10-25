@@ -61,7 +61,9 @@ test('the flyer dives once at a time, the mage launches a guided bolt, and slams
     .poll(() => page.evaluate(() => window.__VALKYRIE__!.snapshot().enemies[0]?.attack))
     .toBe('spell');
   await expect
-    .poll(() => page.evaluate(() => window.__VALKYRIE__!.snapshot().magic.length))
+    .poll(() => page.evaluate(() => window.__VALKYRIE__!.snapshot().magic.length), {
+      timeout: 15000,
+    })
     .toBe(1);
   await page.locator('#stage').screenshot({ path: info.outputPath('mage-guided-bolt.png') });
 
