@@ -135,7 +135,7 @@ export function installHarness(scene: ArenaScene) {
         s.magic = [];
         s.hitStop = 0;
         if (name === 'monasteryMage') {
-          const mage = createActor(1, 'mage', s.player.x + 330, s.player.y);
+          const mage = createActor(1, 'mage', s.player.x - 330, s.player.y);
           mage.spellCooldown = 0.05;
           s.enemies = [mage];
         }
