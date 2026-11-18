@@ -1,4 +1,5 @@
 import { HUB_URL } from '../config/navigation';
+import { requestStageLayout } from './layout';
 import { PLAYER } from '../config/constants';
 import { canRoll } from '../entities/movement';
 import type { Simulation } from '../entities/simulation';
@@ -101,11 +102,14 @@ export class Interface {
       ['touch-inset', '--touch-inset', 1, 'px'],
     ] as const) {
       const slider = document.querySelector<HTMLInputElement>('#' + id)!;
-      const apply = () =>
+      const apply = () => {
         document.documentElement.style.setProperty(
           property,
           String(Number(slider.value) * factor) + unit,
         );
+        // The player's scale multiplies the automatic one, so the stage has to re-derive it.
+        requestStageLayout();
+      };
       try {
         const saved = localStorage.getItem('valkyrie.' + id);
         if (saved) slider.value = saved;

@@ -3,6 +3,7 @@ import { Simulation } from '../entities/simulation';
 import { Controller } from '../input/controller';
 import { FixedClock } from '../physics/world';
 import { Interface } from '../ui/interface';
+import { StageLayout } from '../ui/layout';
 import { AudioEngine } from '../ui/AudioEngine';
 import { preloadAssets, ensureFallbacks } from '../animation/assets';
 import { ArenaView } from './ArenaView';
@@ -16,6 +17,7 @@ export class ArenaScene extends Phaser.Scene {
   private debug = false;
   private soundEngine = new AudioEngine();
   private view!: ArenaView;
+  private layout!: StageLayout;
   preload() {
     preloadAssets(this);
   }
@@ -51,6 +53,7 @@ export class ArenaScene extends Phaser.Scene {
       () => this.pause(),
     );
     this.view = new ArenaView(this);
+    this.layout = new StageLayout();
     const enter = (e: KeyboardEvent) => {
       if (document.querySelector('dialog[open]')) return;
       if (e.code === 'Escape' && !e.repeat && this.ui.mode === 'stage-select') {
@@ -100,6 +103,7 @@ export class ArenaScene extends Phaser.Scene {
     });
     installHarness(this);
     this.events.once('shutdown', () => {
+      this.layout.destroy();
       this.controller.destroy();
       this.soundEngine.destroy();
       window.removeEventListener('keydown', enter);
