@@ -4,7 +4,7 @@ import { emptyInput } from '../entities/types';
 /** Pointer ownership is independent for movement, guard and each action. */
 export class TouchControls {
   private input: Input = emptyInput();
-  private pointers = new Map<number, { action: string; y: number }>();
+  private pointers = new Map<number, { action: string; y: number; size: number }>();
   private abort = new AbortController();
   private root: HTMLElement;
   private stick: HTMLElement;
@@ -66,17 +66,23 @@ export class TouchControls {
     if (!action || [...this.pointers.values()].some((p) => p.action === action)) return;
     e.preventDefault();
     this.root.setPointerCapture(e.pointerId);
-    this.pointers.set(e.pointerId, { action, y: e.clientY });
+    const source = action === 'move' ? this.stick : target.closest<HTMLElement>('[data-action]');
+    const size = source?.getBoundingClientRect().height ?? 0;
+    this.pointers.set(e.pointerId, { action, y: e.clientY, size });
     if (action === 'move') this.move(e);
     else if (action === 'guard') this.input.guard = true;
     else if (action !== 'attack') this.input.commands.push(action as Command);
   };
   private move = (e: PointerEvent) => {
     if (this.pointers.get(e.pointerId)?.action !== 'move') return;
+    // The stick is transform-scaled, so direction uses the rendered half-size while
+    // the knob travels in the element's own (unscaled) layout pixels.
     const b = this.stick.getBoundingClientRect(),
-      radius = b.width / 2;
-    const x = (e.clientX - b.left - radius) / radius;
-    const y = (e.clientY - b.top - b.height / 2) / radius;
+      radius = (this.stick.offsetWidth || 126) / 2,
+      halfWidth = b.width / 2 || radius,
+      halfHeight = b.height / 2 || radius;
+    const x = (e.clientX - b.left - halfWidth) / halfWidth;
+    const y = (e.clientY - b.top - halfHeight) / halfHeight;
     const length = Math.hypot(x, y);
     this.input.x = length < 0.18 ? 0 : x / Math.max(1, length);
     this.input.y = length < 0.18 ? 0 : y / Math.max(1, length);
@@ -85,8 +91,9 @@ export class TouchControls {
   };
   private up = (e: PointerEvent) => {
     const p = this.pointers.get(e.pointerId);
+    // Swipe-up threshold follows the button that was actually rendered.
     if (p?.action === 'attack' && this.active())
-      this.input.commands.push(p.y - e.clientY > 32 ? 'rising' : 'sword');
+      this.input.commands.push(p.y - e.clientY > Math.max(18, p.size * 0.55) ? 'rising' : 'sword');
     this.cancel(e);
   };
   private cancel = (e: PointerEvent) => {

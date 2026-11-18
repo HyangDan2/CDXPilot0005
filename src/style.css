@@ -461,12 +461,14 @@ input[type='range'] {
   position: absolute;
   inset: 0;
   pointer-events: none;
-  padding: 24px;
+  padding: var(--hud-edge, 24px);
 }
 .player-hud {
   display: flex;
   gap: 10px;
   width: 230px;
+  transform: scale(var(--hud-scale, 1));
+  transform-origin: top left;
 }
 .portrait {
   width: 45px;
@@ -515,9 +517,10 @@ input[type='range'] {
 }
 .wave-hud {
   position: absolute;
-  top: 27px;
+  top: calc(var(--hud-edge, 24px) + var(--wave-top-shift, 0px) + 3px);
   left: 50%;
-  transform: translateX(-50%);
+  transform: translateX(-50%) scale(var(--hud-scale, 1));
+  transform-origin: top center;
   text-align: center;
   letter-spacing: 2px;
   font-size: 9px;
@@ -533,21 +536,24 @@ input[type='range'] {
 .icon-button {
   pointer-events: auto;
   position: absolute;
-  right: 25px;
-  top: 25px;
+  right: var(--pause-right, 25px);
+  top: var(--hud-edge, 25px);
   width: 32px;
   height: 32px;
+  transform: scale(var(--hud-scale, 1));
+  transform-origin: top right;
   border: 1px solid #b3bb9d55;
   background: #17292caa;
   color: #daceaa;
 }
 #combo {
   position: absolute;
-  right: 35px;
-  top: 110px;
+  right: var(--combo-right, 35px);
+  top: var(--combo-top, 110px);
   color: #efda9c;
   text-align: center;
-  transform: rotate(-5deg);
+  transform: rotate(-5deg) scale(var(--hud-scale, 1));
+  transform-origin: top right;
 }
 #combo strong {
   font-family: Georgia, serif;
@@ -561,21 +567,25 @@ input[type='range'] {
 }
 #boss-hud {
   position: absolute;
-  bottom: 38px;
-  width: 50%;
-  left: 25%;
+  bottom: var(--boss-bottom, 38px);
+  width: var(--boss-width, 50%);
+  left: var(--boss-left, 25%);
+  transform: scale(var(--hud-scale, 1));
+  transform-origin: bottom center;
 }
 #boss-fill {
   background: linear-gradient(90deg, #8a4d52, #d08e70);
 }
 #travel-hint {
   position: absolute;
-  right: 35px;
-  bottom: 80px;
+  right: var(--combo-right, 35px);
+  bottom: var(--travel-bottom, 80px);
   letter-spacing: 2px;
   font-size: 9px;
   color: #eee2b2;
   text-shadow: 0 1px 5px black;
+  transform: scale(var(--hud-scale, 1));
+  transform-origin: bottom right;
   animation: breathe 2s infinite;
 }
 #travel-hint span {
@@ -821,19 +831,10 @@ dialog dd {
     font-size: 5px;
   }
   #hud {
-    padding: 10px;
-  }
-  .player-hud {
-    transform: scale(0.7);
-    transform-origin: top left;
+    padding: var(--hud-edge, 10px);
   }
   .wave-hud {
-    top: 12px;
     font-size: 7px;
-  }
-  .icon-button {
-    top: 10px;
-    right: 10px;
   }
   .menu-card h2 {
     font-size: 22px;
@@ -921,6 +922,26 @@ dialog dd {
   touch-action: none;
   user-select: none;
   -webkit-user-select: none;
+  /* StageLayout fills the value halves; these are the pre-script fallbacks. */
+  --hud-scale: 1;
+  --touch-scale-total: 1;
+  --touch-inset-boost: 1;
+  --pause-size: calc(44px * var(--hud-scale));
+  --actions-width: calc(194px * var(--touch-scale-total));
+  --actions-height: calc(132px * var(--touch-scale-total));
+  --special-height: calc(48px * var(--touch-scale-total));
+  --touch-edge-left: max(
+    calc(var(--touch-inset, 20px) * var(--touch-inset-boost)),
+    env(safe-area-inset-left)
+  );
+  --touch-edge-right: max(
+    calc(var(--touch-inset, 20px) * var(--touch-inset-boost)),
+    env(safe-area-inset-right)
+  );
+  --touch-edge-bottom: max(
+    calc(var(--touch-inset, 20px) * var(--touch-inset-boost)),
+    env(safe-area-inset-bottom)
+  );
 }
 #touch-controls,
 #rotate-notice {
@@ -969,14 +990,14 @@ dialog dd {
 }
 #touch-stick {
   position: absolute;
-  left: max(var(--touch-inset, 20px), env(safe-area-inset-left));
-  bottom: max(24px, env(safe-area-inset-bottom));
+  left: var(--touch-edge-left);
+  bottom: var(--touch-edge-bottom);
   width: 126px;
   height: 126px;
   border-radius: 50%;
   display: grid;
   place-items: center;
-  transform: scale(var(--touch-scale, 1));
+  transform: scale(var(--touch-scale-total));
   transform-origin: bottom left;
 }
 #touch-stick span {
@@ -994,11 +1015,11 @@ dialog dd {
 }
 .touch-actions {
   position: absolute;
-  right: max(var(--touch-inset, 20px), env(safe-area-inset-right));
-  bottom: max(20px, env(safe-area-inset-bottom));
+  right: var(--touch-edge-right);
+  bottom: var(--touch-edge-bottom);
   width: 194px;
   height: 132px;
-  transform: scale(var(--touch-scale, 1));
+  transform: scale(var(--touch-scale-total));
   transform-origin: bottom right;
 }
 .touch-actions button {
@@ -1022,14 +1043,36 @@ dialog dd {
 }
 .touch-special {
   position: absolute;
-  right: max(var(--touch-inset, 20px), env(safe-area-inset-right));
-  top: 76px;
+  right: var(--touch-edge-right);
+  top: calc(var(--hud-edge, 12px) + var(--pause-size) + 10px);
   display: flex;
   gap: 12px;
+  transform: scale(var(--touch-scale-total));
+  transform-origin: top right;
 }
 .touch-special button {
   width: 48px !important;
   height: 48px !important;
+}
+/* Touch placement: the right column stacks under the pause button, and the
+   travel hint and boss bar clear the action cluster and the stick. */
+.touch-device #combo {
+  --combo-right: max(35px, var(--touch-edge-right));
+  --combo-top: calc(
+    var(--hud-edge, 12px) + var(--pause-size) + 10px + var(--special-height) + 10px
+  );
+}
+.touch-device #travel-hint {
+  --travel-bottom: calc(var(--touch-edge-bottom) + var(--actions-height) + 10px);
+}
+.touch-device #boss-hud {
+  --boss-left: 50%;
+  --boss-bottom: calc(var(--touch-edge-bottom) + 10px);
+  --boss-width: min(
+    50%,
+    calc((100% - 2 * (var(--touch-edge-right) + var(--actions-width)) - 32px) / var(--hud-scale))
+  );
+  transform: translateX(-50%) scale(var(--hud-scale));
 }
 .touch-portrait #rotate-notice {
   display: flex;
@@ -1085,25 +1128,9 @@ dialog dd {
     font-size: 0;
   }
   .touch-device #pause-button {
-    right: 74px;
-    top: 12px;
+    top: var(--hud-edge, 12px);
     width: 44px;
     height: 44px;
-  }
-  .touch-device #hud {
-    padding: 12px;
-  }
-  .touch-device .player-hud {
-    transform: scale(0.8);
-    transform-origin: top left;
-  }
-  .touch-device .wave-hud {
-    top: 15px;
-  }
-  .touch-device #boss-hud {
-    bottom: 12px;
-    width: 35%;
-    left: 30%;
   }
   .touch-device .scene-caption {
     display: none;
@@ -1143,9 +1170,10 @@ dialog dd {
 }
 #reinforcement-warning {
   position: absolute;
-  top: 80px;
+  top: calc(var(--hud-edge, 24px) + 56px * var(--hud-scale, 1));
   left: 50%;
-  transform: translateX(-50%);
+  transform: translateX(-50%) scale(var(--hud-scale, 1));
+  transform-origin: top center;
   color: #ffce86;
   font-size: 11px;
   letter-spacing: 1px;
@@ -1205,11 +1233,6 @@ dialog dd {
   .header-right {
     font-size: 0;
     gap: 0;
-  }
-}
-@media (orientation: landscape) {
-  .touch-device #pause-button {
-    right: 194px;
   }
 }
 
