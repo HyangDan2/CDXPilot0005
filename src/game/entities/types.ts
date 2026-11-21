@@ -82,6 +82,7 @@ export interface Actor extends Position {
   flightRadius: number;
   flightRecovery: number;
   spellCooldown: number;
+  blinkCooldown: number;
   fleeTime: number;
   attackTarget: { x: number; y: number } | null;
   spawnX: number;
@@ -112,6 +113,7 @@ export type GameEvent = {
     | 'death'
     | 'clear'
     | 'heal'
+    | 'blink'
     | 'hazardWarning';
   x: number;
   y: number;

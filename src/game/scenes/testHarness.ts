@@ -81,6 +81,7 @@ export function installHarness(scene: ArenaScene) {
         forgeFurnace: 2,
         forgeGarden: 3,
         forgeBoss: 4,
+        forgeArmor: 4,
         forgeSlam: 4,
         forgeCharge: 4,
         forgeClear: 4,
@@ -95,7 +96,12 @@ export function installHarness(scene: ArenaScene) {
         s.hitStop = 0;
         s.loot = [];
         if (name === 'forgeGarden') s.player.hp = 90;
-        if (name === 'forgeSlam' || name === 'forgeCharge' || name === 'forgeClear') {
+        if (
+          name === 'forgeArmor' ||
+          name === 'forgeSlam' ||
+          name === 'forgeCharge' ||
+          name === 'forgeClear'
+        ) {
           s.active = true;
           const boss = createActor(
             100,
@@ -105,7 +111,11 @@ export function installHarness(scene: ArenaScene) {
           );
           s.enemies = [boss];
           if (name === 'forgeClear') boss.hp = 0;
-          else startAttack(boss, name === 'forgeSlam' ? 'slam' : 'charge');
+          else startAttack(boss, name === 'forgeCharge' ? 'charge' : 'slam');
+          if (name === 'forgeArmor') {
+            boss.attack!.elapsed = 0.3;
+            boss.z = 100;
+          }
           if (name === 'forgeCharge') {
             boss.facing = -1;
             s.player.x = 6650;
@@ -318,6 +328,7 @@ declare global {
           | 'forgeFurnace'
           | 'forgeGarden'
           | 'forgeBoss'
+          | 'forgeArmor'
           | 'forgeSlam'
           | 'forgeCharge'
           | 'forgeClear'

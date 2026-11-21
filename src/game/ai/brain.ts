@@ -1,7 +1,15 @@
 import { depthProfile, stageDepth } from '../../data/environment';
 import { bossPhaseRules } from '../../data/bossPhase';
 import { flyerRules, mageRules } from '../../data/enemies';
-import { routeTarget, firstArrowBlocker, meleeOccluded, type Solid } from '../physics/obstacles';
+import {
+  routeTarget,
+  firstArrowBlocker,
+  meleeOccluded,
+  expanded,
+  inside,
+  onGround,
+  type Solid,
+} from '../physics/obstacles';
 import { attackPhase } from '../../data/attacks';
 import { startAttack } from '../combat/combat';
 import { clamp } from '../config/constants';
@@ -11,6 +19,43 @@ function enter(a: Actor, state: AIState) {
   a.ai = state;
   a.aiTime = 0;
 }
+function mageBlinkDestination(
+  mage: Actor,
+  player: Actor,
+  crowd: readonly Actor[],
+  solids: readonly Solid[],
+  mapBounds: [number, number],
+) {
+  const away = Math.atan2(mage.y - player.y, mage.x - player.x);
+  const blocked = solids.filter((solid) => solid.hp > 0).map((solid) => expanded(solid, 20, 12));
+  for (const offset of [0, 0.65, -0.65, 1.3, -1.3]) {
+    const angle = away + offset;
+    const destination = {
+      x: mage.x + Math.cos(angle) * mageRules.blinkDistance,
+      y: mage.y + Math.sin(angle) * mageRules.blinkDistance,
+    };
+    const [minY, maxY] = stageDepth(destination.x);
+    if (
+      destination.x < mapBounds[0] + 20 ||
+      destination.x > mapBounds[1] - 20 ||
+      destination.y < minY + 8 ||
+      destination.y > maxY - 8 ||
+      !onGround(destination) ||
+      blocked.some((solid) => inside(destination, solid)) ||
+      Math.hypot(destination.x - player.x, destination.y - player.y) <
+        mageRules.blinkMinSeparation ||
+      crowd.some(
+        (other) =>
+          other.id !== mage.id &&
+          other.hp > 0 &&
+          Math.hypot(destination.x - other.x, destination.y - other.y) < 44,
+      )
+    )
+      continue;
+    return destination;
+  }
+  return null;
+}
 export function updateAI(
   a: Actor,
   player: Actor,
@@ -18,6 +63,7 @@ export function updateAI(
   mayAttack = true,
   crowd: readonly Actor[] = [],
   solids: readonly Solid[] = [],
+  bounds: [number, number] = [24, depthProfile[depthProfile.length - 1].x - 24],
 ): AttackId | null {
   a.aiTime += dt * (a.kind === 'boss' && a.bossPhase === 2 ? bossPhaseRules.speedMultiplier : 1);
   if (a.hp <= 0) {
@@ -145,6 +191,7 @@ export function updateAI(
   }
   if (a.kind === 'mage') {
     a.spellCooldown = Math.max(0, a.spellCooldown - dt);
+    a.blinkCooldown = Math.max(0, a.blinkCooldown - dt);
     if (a.ai === 'Attack') {
       enter(a, 'Recover');
       a.fleeTime = mageRules.retreatTime;
@@ -154,7 +201,23 @@ export function updateAI(
       if (a.aiTime < mageRules.recovery) return null;
       enter(a, 'Chase');
     }
-    const distance = Math.hypot(dx, dy);
+    let distance = Math.hypot(dx, dy);
+    if (distance <= mageRules.blinkTriggerRange && a.blinkCooldown <= 0) {
+      const destination = mageBlinkDestination(a, player, crowd, solids, bounds);
+      if (destination) {
+        a.x = destination.x;
+        a.y = destination.y;
+        a.facing = player.x >= a.x ? 1 : -1;
+        a.blinkCooldown = mageRules.blinkCooldown;
+        a.fleeTime = 0;
+        enter(a, 'Chase');
+        setState(a, 'Idle');
+        return null;
+      }
+    }
+    distance = Math.hypot(player.x - a.x, player.y - a.y);
+    const mageDx = player.x - a.x;
+    const mageDy = player.y - a.y;
     if (
       distance < mageRules.castRangeMax &&
       distance > mageRules.castRangeMin &&
@@ -162,20 +225,23 @@ export function updateAI(
       mayAttack &&
       player.hp > 0
     ) {
-      a.facing = dx >= 0 ? 1 : -1;
+      a.facing = mageDx >= 0 ? 1 : -1;
       a.attackTarget = { x: player.x, y: player.y };
       a.spellCooldown = mageRules.cooldown;
       enter(a, 'Attack');
       startAttack(a, 'spell');
       return 'spell';
     }
-    if (distance < 300 && a.fleeTime > 0) {
+    if (distance < mageRules.castRangeMin || (distance < 300 && a.fleeTime > 0)) {
       a.fleeTime = Math.max(0, a.fleeTime - dt);
-      const sign = dx >= 0 ? -1 : 1;
+      const sign = mageDx >= 0 ? -1 : 1;
       const bounds = stageDepth(a.x);
       const destination = routeTarget(
         a,
-        { x: a.x + sign * 180, y: clamp(a.y + (dy >= 0 ? -80 : 80), bounds[0] + 8, bounds[1] - 8) },
+        {
+          x: a.x + sign * 180,
+          y: clamp(a.y + (mageDy >= 0 ? -80 : 80), bounds[0] + 8, bounds[1] - 8),
+        },
         solids,
       );
       const length = Math.hypot(destination.x - a.x, destination.y - a.y) || 1;
@@ -185,7 +251,7 @@ export function updateAI(
       a.x += clamp(dx, -mageRules.approachSpeed * dt, mageRules.approachSpeed * dt);
       a.y += clamp(dy, -70 * dt, 70 * dt);
     }
-    a.facing = dx >= 0 ? 1 : -1;
+    a.facing = mageDx >= 0 ? 1 : -1;
     a.ai = distance < 300 ? 'Retreat' : 'Chase';
     setState(a, distance < 300 ? 'Run' : 'Walk');
     return null;

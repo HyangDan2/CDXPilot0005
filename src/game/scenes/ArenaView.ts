@@ -10,6 +10,7 @@ import { sdFrame } from '../animation/sd';
 import { cameraTarget } from '../camera/follow';
 import { hitbox } from '../combat/combat';
 import { attackPhase } from '../../data/attacks';
+import { bossPhaseRules } from '../../data/bossPhase';
 import type { Simulation } from '../entities/simulation';
 import type { GameEvent } from '../entities/types';
 import { createActor } from '../entities/actor';
@@ -93,6 +94,7 @@ export class ArenaView {
       });
     }
     if (e.type === 'land') this.sparks.push({ x: e.x, y: e.y + 38, life: 0.22, max: 0.22 });
+    if (e.type === 'blink') this.sparks.push({ x: e.x, y: e.y + 38, life: 0.24, max: 0.24 });
   }
   render(s: Simulation, delta: number, debug: boolean, title: boolean, paused: boolean) {
     const dt = paused ? 0 : Math.min(delta / 1000, 0.05);
@@ -153,6 +155,13 @@ export class ArenaView {
       }
       if (a.attack) {
         const phase = attackPhase(a.attack.id, a.attack.elapsed);
+        if (
+          a.kind === 'boss' &&
+          a.attack.id === 'slam' &&
+          phase === 'startup' &&
+          a.z >= bossPhaseRules.slamSuperArmorMinZ
+        )
+          this.effects.lineStyle(3, 0xb9dcff, 0.8).strokeEllipse(a.x, a.y - a.z - 55, 84, 112);
         if (a.attack.id === 'slam' && phase === 'active') {
           const b = hitbox(a);
           this.shadows

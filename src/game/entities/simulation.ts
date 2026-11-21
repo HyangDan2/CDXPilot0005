@@ -161,7 +161,17 @@ export class Simulation {
     ).length;
     for (const e of this.enemies) {
       const before = { x: e.x, y: e.y };
-      const id = updateAI(e, this.player, dt, attacking < 2, this.enemies, this.environment.solids);
+      const id = updateAI(
+        e,
+        this.player,
+        dt,
+        attacking < 2,
+        this.enemies,
+        this.environment.solids,
+        this.bounds,
+      );
+      if (e.kind === 'mage' && Math.hypot(e.x - before.x, e.y - before.y) > 100)
+        this.events.push({ type: 'blink', x: e.x, y: e.y - e.z - 38 });
       if (e.kind !== 'flyer' && this.environment.isWet(before.x, before.y)) {
         e.x = before.x + (e.x - before.x) * monasteryRules.waterMoveScale;
         e.y = before.y + (e.y - before.y) * monasteryRules.waterMoveScale;

@@ -77,6 +77,39 @@ describe('Drowned Monastery', () => {
     expect(mage.spellCooldown).toBeGreaterThan(0);
   });
 
+  it('keeps a too-close mage moving until it can resume casting', () => {
+    const player = createActor(0, 'player', 500, 400);
+    const mage = createActor(1, 'mage', 290, 400);
+    mage.spellCooldown = 0;
+    expect(updateAI(mage, player, 1 / 60)).toBeNull();
+    expect(mage.x).toBeLessThan(290);
+    expect(mage.attack).toBeNull();
+
+    mage.x = 250;
+    mage.spellCooldown = 0;
+    expect(updateAI(mage, player, 1 / 60)).toBe('spell');
+  });
+
+  it('blinks away from an approaching player once per cooldown and stays inside map bounds', () => {
+    const player = createActor(0, 'player', 500, 400);
+    const mage = createActor(1, 'mage', 350, 400);
+    updateAI(mage, player, 1 / 60);
+    expect(mage.x).toBeLessThan(350);
+    expect(Math.hypot(player.x - mage.x, player.y - mage.y)).toBeGreaterThan(150);
+    expect(mage.blinkCooldown).toBeGreaterThan(5);
+
+    const afterBlink = { x: mage.x, y: mage.y };
+    updateAI(mage, player, 1 / 60);
+    expect(Math.hypot(mage.x - afterBlink.x, mage.y - afterBlink.y)).toBeLessThan(10);
+
+    const edgeMage = createActor(2, 'mage', 350, 400);
+    const bounded = createActor(3, 'player', 500, 400);
+    updateAI(edgeMage, bounded, 1 / 60, true, [], [], [220, 700]);
+    expect(edgeMage.x).toBeGreaterThanOrEqual(220);
+    expect(edgeMage.x).toBeLessThanOrEqual(680);
+    expect(edgeMage.blinkCooldown).toBe(0);
+  });
+
   it('loses homing when a roll crosses the spell and the bolt expires or hits', () => {
     const player = createActor(0, 'player', 100, 100);
     player.state = 'Roll';

@@ -22,6 +22,10 @@ export const mageRules = {
   retreatSpeed: 155,
   retreatDepthSpeed: 125,
   retreatTime: 0.9,
+  blinkDistance: 260,
+  blinkTriggerRange: 190,
+  blinkCooldown: 6,
+  blinkMinSeparation: 150,
   recovery: 0.45,
   cooldown: 3.2,
 } as const;

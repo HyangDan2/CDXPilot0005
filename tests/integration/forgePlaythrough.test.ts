@@ -48,14 +48,23 @@ it('clears the five forge areas with ordinary movement and attacks, collecting t
           enemy.attack?.id === 'dive' &&
           attackPhase('dive', enemy.attack.elapsed) === 'active',
       );
+      // Anticipate the armored aerial slam rather than attacking through it.
+      const jumpingBoss = s.enemies.find(
+        (enemy) =>
+          enemy.kind === 'boss' &&
+          enemy.attack?.id === 'slam' &&
+          attackPhase('slam', enemy.attack.elapsed) === 'startup' &&
+          enemy.z >= 20 &&
+          Math.hypot(enemy.x - p.x, enemy.y - p.y) < 190,
+      );
       const activeThreat = s.enemies.find(
         (enemy) =>
           enemy.attack &&
           attackPhase(enemy.attack.id, enemy.attack.elapsed) === 'active' &&
           Math.hypot(enemy.x - p.x, enemy.y - p.y) < 190,
       );
-      if ((diving || activeThreat) && p.rollCooldown <= 0) {
-        const threat = diving ?? activeThreat!;
+      if ((diving || jumpingBoss || activeThreat) && p.rollCooldown <= 0) {
+        const threat = diving ?? jumpingBoss ?? activeThreat!;
         input.x = diving ? 0 : p.x <= threat.x ? -1 : 1;
         input.y = p.y <= threat.y ? -1 : 1;
         input.commands = ['roll'];

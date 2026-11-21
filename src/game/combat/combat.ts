@@ -1,6 +1,7 @@
 import { activeProgress, sampleStrike, strikeTracks, strikePoseProgress } from '../../data/motions';
 import { attacks, attackPhase } from '../../data/attacks';
 import { PLAYER, JUGGLE } from '../config/constants';
+import { bossPhaseRules } from '../../data/bossPhase';
 import { isDisabled, setState } from '../entities/stateMachine';
 import type { Actor, AttackId, Command } from '../entities/types';
 export function hitbox(a: Actor) {
@@ -49,6 +50,7 @@ export function canHit(attacker: Actor, target: Actor) {
     attackPhase(attacker.attack.id, attacker.attack.elapsed) !== 'active' ||
     target.hp <= 0 ||
     target.invulnerable > 0 ||
+    hasSlamSuperArmor(target) ||
     target.juggle.forced ||
     target.state === 'Recovery' ||
     (target.state === 'Knockdown' && target.z === 0 && target.vz <= 0) ||
@@ -66,6 +68,11 @@ export function canHit(attacker: Actor, target: Actor) {
 }
 export function damageAmount(base: number, guarded: boolean) {
   return Math.max(1, Math.round(base * (guarded ? 0.2 : 1)));
+}
+function hasSlamSuperArmor(a: Actor) {
+  if (a.kind !== 'boss' || a.attack?.id !== 'slam') return false;
+  const phase = attackPhase(a.attack.id, a.attack.elapsed);
+  return phase === 'startup' && a.z >= bossPhaseRules.slamSuperArmorMinZ;
 }
 /** A spin pays once when it first connects with an actor or a barricade. */
 export function payAttackCost(a: Actor) {

@@ -48,6 +48,26 @@ describe('combat', () => {
     integrate(b, 0.51);
     expect(applyHit(a, b)).toBe(23);
   });
+  it('blocks attack hits during a boss slam jump and restores vulnerability in recovery', () => {
+    const { a } = pair();
+    const boss = createActor(2, 'boss', 150, 400);
+    boss.attack = { id: 'slam', elapsed: 0, hit: new Set() };
+    const hp = boss.hp;
+    expect(applyHit(a, boss)).toBe(23); // The early tell remains punishable.
+    boss.invulnerable = 0;
+    boss.state = 'Idle';
+    boss.attack = { id: 'slam', elapsed: 0.3, hit: new Set() };
+    boss.z = 100;
+    expect(applyHit(a, boss)).toBe(0);
+    expect(boss.hp).toBe(hp - 23);
+    expect(boss.attack?.id).toBe('slam');
+
+    a.attack!.hit.clear();
+    boss.attack!.elapsed = (44 + 9) / 60;
+    boss.z = 0;
+    expect(applyHit(a, boss)).toBe(23);
+    expect(boss.hp).toBe(hp - 46);
+  });
   it('guard reduces damage but kick breaks it', () => {
     const { a, b } = pair();
     b.state = 'Guard';

@@ -107,6 +107,12 @@ test('boss slam warns before fire, pause freezes devices, and a charge breaks it
 }, info) => {
   await page.goto('?test=1');
   await startGame(page, 'forge');
+  const armorHeight = await page.evaluate(() => {
+    window.__VALKYRIE__!.fixture('forgeArmor');
+    return window.__VALKYRIE__!.snapshot().enemies[0]?.z;
+  });
+  expect(armorHeight).toBe(100);
+  await page.locator('#stage').screenshot({ path: info.outputPath('warden-superarmor.png') });
   await page.evaluate(() => window.__VALKYRIE__!.fixture('forgeSlam'));
   await expect(page.locator('#boss-name')).toHaveText('SKARN, THE FORGE WARDEN');
   const phase = () =>

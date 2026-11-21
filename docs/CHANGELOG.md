@@ -4,6 +4,12 @@
 - Give a grounded Ashwing a gradual 0.45-second takeoff after knockdown recovery.
 - Add regressions for dive dimensions, rising-strike contact and takeoff progression.
 
+## Unreleased — mage close-range response and blink
+
+- Keep the mage moving when the player closes inside its preferred casting distance; blink in the opposite direction when a safe landing spot is available, with a six-second cooldown and the active encounter's map bounds.
+- Block player and projectile hits during the boss slam's high airborne window. The opening tell and landing recovery remain punishable; show a blue armor ring during the protected frames.
+- Add deterministic AI, combat and browser regressions for the new behavior.
+
 ## Unreleased — dodge follow-up lunge
 
 - Remove the frequent running-attack trigger. Press sword attack within 80ms after a completed dodge roll to perform the existing lunging descending slash; running attacks now begin the normal combo.
